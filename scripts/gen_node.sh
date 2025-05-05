@@ -16,9 +16,9 @@ npm install @openapitools/openapi-generator-cli -g
 
 openapi-generator-cli generate \
   -i ./schema/openapispec-platformsh.json \
-  -g typescript-fetch \
-  -o ./src/apis-gen \
-  --additional-properties=withInterfaces=true,importFileExtension=.js,supportsES6=true
+  -g typescript \
+  -o ./src/apis-gen
+  --additional-properties=withInterfaces=true,importFileExtension=.js,supportsES6=true,platform=node
 
 echo "Hotfix openAPI spec..."
 sed -i 's#export \* from '\''./models/index.js'\'';#//export * from '\''./models/index.js'\'';#' src/apis-gen/index.ts

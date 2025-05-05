@@ -1,7 +1,11 @@
-import { Configuration, ConfigurationParameters } from "./apis-gen/index.js";
+import { ConfigurationParameters } from "./apis-gen/configuration.js";
+import { Configuration, createConfiguration } from "./apis-gen/index.js";
 import { OAuth2Client } from "./core/index.js";
-import { Environements } from "./core/tasks/environments.js";
-import { Projects } from "./core/tasks/projects.js";
+import { Activity } from "./core/tasks/activity.js";
+import { Environement } from "./core/tasks/environment.js";
+import { Mount } from "./core/tasks/mount.js";
+import { Organization } from "./core/tasks/organization.js";
+import { Project } from "./core/tasks/project.js";
 
 /**
  * Configuration interface for the Upsun API client.
@@ -52,8 +56,11 @@ export class UpsunClient {
   protected auth: OAuth2Client;
 
   // Facades - Tasks.
-  public projects: Projects;
-  public environments: Environements;
+  public project: Project;
+  public environment: Environement;
+  public activity: Activity;
+  //public mount: Mount;
+  public organization: Organization;
 
 
   /**
@@ -70,11 +77,11 @@ export class UpsunClient {
     // Initialize the API configuration with the base URL and access token.
     // The access token is obtained through the getToken method.
     // The getToken method is bound to the current instance of the UpsunClient.
-    const param: ConfigurationParameters = {
-      basePath: this.upsunConfig.base_url,
-      accessToken: this.getToken.bind(this),
-    };
-    this.apiConfig = new Configuration(param);
+    // const param: ConfigurationParameters = {
+    //   baseServer: this.upsunConfig.base_url,
+    //   authMethods: AuthMethodsConfiguration, // this.getToken.bind(this),
+    // };
+    this.apiConfig = createConfiguration();
 
     // Initialize the OAuth2Client with the authentication URL, client ID, and API key.
     // The OAuth2Client is responsible for handling the OAuth2 authentication flow.
@@ -86,8 +93,11 @@ export class UpsunClient {
     );
 
     // Initialize the commands tasks.
-    this.projects = new Projects(this);
-    this.environments = new Environements(this);
+    this.project = new Project(this);
+    this.environment = new Environement(this);
+    this.activity = new Activity(this);
+    //this.mount = new Mount(this);
+    this.organization = new Organization(this);
   }
 
   /**
