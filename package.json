@@ -19,7 +19,7 @@
   "keywords": [],
   "author": "Mickael GAILLARD",
   "license": "Apache v2.0",
-  "description": "",
+  "description": "Upsun SDK for Node.js",
   "devDependencies": {
     "@eslint/js": "^9.26.0",
     "@openapitools/openapi-generator-cli": "^2.20.0",

@@ -25,15 +25,12 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    
     - name: Install dependencies
       run: npm ci
-    
     - name: Generate OpenAPI client
       run: |
         chmod +x ./scripts/gen_node.sh
         ./scripts/gen_node.sh
-    
     - name: Build
       run: npm run build
     

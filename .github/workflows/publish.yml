@@ -12,25 +12,24 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
-          always-auth: true
-          provenance: true
       - run: npm ci
-      # - name: Create Release
-      #   if: steps.update_tag.outputs.tagname
-      #   uses: actions/create-release@v1
-      #   id: create_release
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{ steps.update_tag.outputs.tagname }}
-      #     release_name: Release ${{ steps.update_tag.outputs.tagname }}
       - run: npm run gen-client
-      - run: npm run build
-      - run: npm publish --provenance --access public
+      # - run: npm run build
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #TODO --access public --provenance when repo is public
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     registry-url: 'https://npm.pkg.github.com'
+      # - run: npm publish
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
