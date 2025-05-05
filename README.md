@@ -6,7 +6,7 @@ This SDK maps the Upsun CLI commands. For more information, read [the documentat
 ## Install
 
 ```bash
-npm install upsun-sdk
+npm install upsun-sdk-node
 ```
 
 ## Usage
