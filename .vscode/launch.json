@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Program",
+      "name": "Launch Test App",
       "program": "${workspaceFolder}/out/app.js",
       "request": "launch",
       "type": "node",
