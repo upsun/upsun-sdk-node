@@ -7,54 +7,54 @@ export class Environement {
   
   constructor(private readonly client: UpsunClient) { }
 
-  async activate(prj: SchemasSubscription, env_name: string) {
+  async activate(projectId: string, env_name: string) {
     const api = new EnvironmentApi(this.client.apiConfig);
     return await api.activateEnvironment({
-      projectId: prj.projectId as string,
+      projectId,
       environmentId: env_name,
       environmentActivateInput: { resources: { init: Resources1InitEnum.Default } as Resources1 } as EnvironmentActivateInput
     });
   }
 
-  async delete(prj: SchemasSubscription, env_name: string) {
+  async delete(projectId: string, env_name: string) {
     const api = new EnvironmentApi(this.client.apiConfig);
-    return await api.deleteEnvironment({ projectId: prj.projectId as string, environmentId: env_name });
+    return await api.deleteEnvironment({ projectId, environmentId: env_name });
   }
 
-  async info(prj: SchemasSubscription, env_name: string) {
+  async info(projectId: string, env_name: string) {
     const api = new EnvironmentApi(this.client.apiConfig);
-    return await api.getEnvironment({ projectId: prj.projectId as string, environmentId: env_name });
+    return await api.getEnvironment({ projectId, environmentId: env_name });
   }
 
-  async list(prj: SchemasSubscription) {
+  async list(projectId: string) {
     const api = new EnvironmentApi(this.client.apiConfig);
-    return await api.listProjectsEnvironments({ projectId: prj.projectId as string });
+    return await api.listProjectsEnvironments({ projectId });
   }
 
-  async logs(prj: SchemasSubscription, env_name: string) {
+  async logs(projectId: string, env_name: string) {
     throw new Error("Not implemented");
   }
 
-  async pause(prj: SchemasSubscription, env_name: string) {
+  async pause(projectId: string, env_name: string) {
     const api = new EnvironmentApi(this.client.apiConfig);
-    return await api.pauseEnvironment({ projectId: prj.projectId as string, environmentId: env_name })
+    return await api.pauseEnvironment({ projectId, environmentId: env_name })
   }
 
-  async relationships(prj: SchemasSubscription, env_name: string) {
+  async relationships(projectId: string, env_name: string) {
     throw new Error("Not implemented");
   }
 
-  async redeploy(prj: SchemasSubscription, env_name: string) {
+  async redeploy(projectId: string, env_name: string) {
     const api = new EnvironmentApi(this.client.apiConfig);
-    return await api.redeployEnvironment({ projectId: prj.projectId as string, environmentId: env_name })
+    return await api.redeployEnvironment({ projectId, environmentId: env_name })
   }
 
-  async resume(prj: SchemasSubscription, env_name: string) {
+  async resume(projectId: string, env_name: string) {
     const api = new EnvironmentApi(this.client.apiConfig);
-    return await api.resumeEnvironment({ projectId: prj.projectId as string, environmentId: env_name })
+    return await api.resumeEnvironment({ projectId, environmentId: env_name })
   }
 
-  async url(prj: SchemasSubscription, env_name: string) {
+  async url(projectId: string, env_name: string) {
     throw new Error("Not implemented");
   }
 

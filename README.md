@@ -13,7 +13,7 @@ npm install upsun-sdk-node
 
 ```TypeScript
 
-import { UpsunClient, UpsunConfig } from "./index.js";
+import { UpsunClient, UpsunConfig } from "upsun-sdk-node";
 
 const upsun = new UpsunClient({ apiKey: process.env.UPSUN_CLI_TOKEN || "" } as UpsunConfig);
 

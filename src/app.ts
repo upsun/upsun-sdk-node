@@ -39,14 +39,12 @@ if (org && org.id) {
 
   // Redeploy the project
   // Note: The environment name is hardcoded as "main" in this example.
-  if (prj) {
+  if (prj && prj.projectId) {
     const envName = "main"; // Replace with your environment name
-    const result = await upsun.environment.redeploy(prj, envName);
+    const result = await upsun.environment.redeploy(prj.projectId, envName);
     console.log(result);
 
-    if (prj.projectId) {
-      const activity = await upsun.activity.list(prj.projectId);
-      console.log(activity);
-    }
+    const activity = await upsun.activity.list(prj.projectId);
+    console.log(activity);
   }
 }
