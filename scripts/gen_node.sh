@@ -2,7 +2,7 @@
 
 echo "Clean old build..."
 rm -rf ./src/apis-gen
-rm -rf ./out
+rm -rf ./dist
 rm -rf ./schema/*
 
 echo "Download last openAPI spec..."

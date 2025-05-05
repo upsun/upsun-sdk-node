@@ -3,11 +3,11 @@
   "configurations": [
     {
       "name": "Launch Test App",
-      "program": "${workspaceFolder}/out/app.js",
+      "program": "${workspaceFolder}/dist/app.js",
       "request": "launch",
       "type": "node",
       "preLaunchTask": "tsc: build - tsconfig.json",
-      "outFiles": ["${workspaceFolder}/out/**/*.js"]
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
     }
   ]
 }

@@ -1,12 +1,16 @@
 {
   "name": "upsun-sdk-node",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
-  "main": "out/index.js",
-  "types": "out/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "clean": "rm -rf out",
-    "run": "node out/index.js",
+    "clean": "rm -rf dist",
+    "run": "node dist/index.js",
     "build": "tsc -p tsconfig.json ",
     "build:watch": "tsc --watch",
     "lint": "eslint . --ext .ts",
