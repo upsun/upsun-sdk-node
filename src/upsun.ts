@@ -1,7 +1,12 @@
 import { Configuration, ConfigurationParameters } from "./apis-gen/index.js";
 import { OAuth2Client } from "./core/index.js";
-import { Environements } from "./core/tasks/environments.js";
-import { Projects } from "./core/tasks/projects.js";
+
+import { Activity } from "./core/tasks/activity.js";
+import { Environement } from "./core/tasks/environment.js";
+import { Mount } from "./core/tasks/mount.js";
+import { Organization } from "./core/tasks/organization.js";
+import { Project } from "./core/tasks/project.js";
+
 
 /**
  * Configuration interface for the Upsun API client.
@@ -52,8 +57,11 @@ export class UpsunClient {
   protected auth: OAuth2Client;
 
   // Facades - Tasks.
-  public projects: Projects;
-  public environments: Environements;
+  public project: Project;
+  public environment: Environement;
+  public activity: Activity;
+  //public mount: Mount;
+  public organization: Organization;
 
 
   /**
@@ -86,8 +94,11 @@ export class UpsunClient {
     );
 
     // Initialize the commands tasks.
-    this.projects = new Projects(this);
-    this.environments = new Environements(this);
+    this.project = new Project(this);
+    this.environment = new Environement(this);
+    this.activity = new Activity(this);
+    //this.mount = new Mount(this);
+    this.organization = new Organization(this);
   }
 
   /**

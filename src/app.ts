@@ -17,23 +17,36 @@ if (DISABLED || await upsun.authenticate()) {
   console.log("Authentication successful");
 }
 
-// Sample code to get all projects
-const orgId = "name=Perso-home"; // Replace with your organization ID
-const prjs = await upsun.projects.getProject(orgId);
+const orgs = await upsun.organization.list();
+console.log(orgs);
 
-// Select a specific project
-const prjName = "POC-mcp-stack"; // Replace with your project name
-const prj = prjs.items?.find((p) => p.projectTitle === prjName) ?? null;
-console.log(prj);
+const orgName = "Perso-home"; // Replace with your organization ID
+const org = orgs.items?.find((p) => p.label === orgName) ?? null;
+console.log(org);
 
-// Wait 15 minutes before redeploying (test renew access token)
-await delay(6000*15);
+if (org && org.id) {
+  // Sample code to get all projects
+  // const orgId = "name=Perso-home"; // Replace with your organization ID
+  const prjs = await upsun.project.list(org.id);
 
-// Redeploy the project
-// Note: The environment name is hardcoded as "main" in this example.
-if (prj) {
-  const envName = "main"; // Replace with your environment name
-  const result = await upsun.environments.redeploy(prj, envName);
+  // Select a specific project
+  const prjName = "POC-mcp-stack"; // Replace with your project name
+  const prj = prjs.items?.find((p) => p.projectTitle === prjName) ?? null;
+  console.log(prj);
 
-  console.log(result);
+  // Wait 15 minutes before redeploying (test renew access token)
+  DISABLED || await delay(6000*15);
+
+  // Redeploy the project
+  // Note: The environment name is hardcoded as "main" in this example.
+  if (prj) {
+    const envName = "main"; // Replace with your environment name
+    const result = await upsun.environment.redeploy(prj, envName);
+    console.log(result);
+
+    if (prj.projectId) {
+      const activity = await upsun.activity.list(prj.projectId);
+      console.log(activity);
+    }
+  }
 }
