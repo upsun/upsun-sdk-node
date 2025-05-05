@@ -1,6 +1,6 @@
 import { UpsunClient } from "../../upsun.js";
 import { EnvironmentApi } from "../../apis-gen/index.js";
-import { EnvironmentActivateInput, Resources1, Resources1InitEnum, SchemasSubscription } from "../../apis-gen/models/index.js";
+import { EnvironmentActivateInput, EnvironmentMergeInput, Resources1, Resources1InitEnum, Resources3, Resources3InitEnum, SchemasSubscription } from "../../apis-gen/models/index.js";
 
 
 export class Environement {
@@ -33,6 +33,15 @@ export class Environement {
 
   async logs(projectId: string, env_name: string) {
     throw new Error("Not implemented");
+  }
+
+  async merge(projectId: string, env_name: string) {
+    const api = new EnvironmentApi(this.client.apiConfig);
+    return await api.mergeEnvironment({ 
+      projectId, 
+      environmentId: env_name,
+      environmentMergeInput: { resources: { init: Resources3InitEnum.Manual } as Resources3 } as EnvironmentMergeInput
+    });
   }
 
   async pause(projectId: string, env_name: string) {

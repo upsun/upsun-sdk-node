@@ -2,10 +2,23 @@ import { Configuration, ConfigurationParameters } from "./apis-gen/index.js";
 import { OAuth2Client } from "./core/index.js";
 
 import { Activity } from "./core/tasks/activity.js";
+import { Application } from "./core/tasks/application.js";
+import { Backup } from "./core/tasks/backup.js";
+import { Certificate } from "./core/tasks/certificate.js";
+import { Domain } from "./core/tasks/domain.js";
 import { Environement } from "./core/tasks/environment.js";
+import { Metrics } from "./core/tasks/metrics.js";
 import { Mount } from "./core/tasks/mount.js";
+import { Operation } from "./core/tasks/operation.js";
 import { Organization } from "./core/tasks/organization.js";
 import { Project } from "./core/tasks/project.js";
+import { Route } from "./core/tasks/route.js";
+import { Service } from "./core/tasks/service.js";
+import { SourceOperation } from "./core/tasks/source-operation.js";
+import { Team } from "./core/tasks/team.js";
+import { User } from "./core/tasks/user.js";
+import { Variable } from "./core/tasks/variable.js";
+import { Worker } from "./core/tasks/worker.js";
 
 
 /**
@@ -57,11 +70,25 @@ export class UpsunClient {
   protected auth: OAuth2Client;
 
   // Facades - Tasks.
-  public project: Project;
-  public environment: Environement;
   public activity: Activity;
-  //public mount: Mount;
+  public application: Application;
+  public backup: Backup;
+  public certificate: Certificate;
+  public domain: Domain;
+  public environment: Environement;
+  public metrics: Metrics;
+  public mount: Mount;
+  public operation: Operation;
   public organization: Organization;
+  public project: Project;
+  public route: Route;
+  public service: Service;
+  public sourceOperation: SourceOperation;
+  public team: Team;
+  public user: User;
+  public variable: Variable;
+  public worker: Worker
+  
 
 
   /**
@@ -94,11 +121,24 @@ export class UpsunClient {
     );
 
     // Initialize the commands tasks.
-    this.project = new Project(this);
-    this.environment = new Environement(this);
     this.activity = new Activity(this);
-    //this.mount = new Mount(this);
+    this.application = new Application(this);
+    this.backup = new Backup(this);
+    this.certificate = new Certificate(this);
+    this.domain = new Domain(this);
+    this.environment = new Environement(this);
+    this.metrics = new Metrics(this);
+    this.mount = new Mount(this);
+    this.operation = new Operation(this);
     this.organization = new Organization(this);
+    this.project = new Project(this);
+    this.route = new Route(this);
+    this.service = new Service(this);
+    this.sourceOperation = new SourceOperation(this);
+    this.team = new Team(this);
+    this.user = new User(this);
+    this.variable = new Variable(this);
+    this.worker = new Worker(this);
   }
 
   /**
