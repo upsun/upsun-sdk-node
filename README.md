@@ -1,12 +1,12 @@
 # Upsun SDK Node
 
-Upsun SDK for Node/JS on TypeScript.
+Upsun SDK for Node/JS on TypeScript.  
 This SDK maps the Upsun CLI commands. For more information, read [the documentation](https://docs.upsun.com).
 
 ## Install
 
 ```bash
-npm install upsun-sdk
+npm install upsun-sdk-node
 ```
 
 ## Usage
