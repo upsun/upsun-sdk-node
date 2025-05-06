@@ -88,8 +88,6 @@ export class UpsunClient {
   public user: User;
   public variable: Variable;
   public worker: Worker
-  
-
 
   /**
    * Constructor for the UpsunClient class.
