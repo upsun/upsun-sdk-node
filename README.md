@@ -5,11 +5,15 @@ This SDK maps the Upsun CLI commands. For more information, read [the documentat
 
 ## Install
 
+To install the Upsun SDK, you can use npm. Run the following command in your terminal:
+
 ```bash
 npm install upsun-sdk-node
 ```
 
 ## Usage
+
+To use the Upsun SDK, you need to initialize the `Upsun` class with your API key and connection URL. Here's an example:
 
 ```TypeScript
 
@@ -44,6 +48,10 @@ Build the stack:
 npm run build
 ```
 
+## Contributing
 
+Contributions are welcome! Please feel free to submit a pull request or open an issue for any enhancements or bug fixes.
 
+## License
 
+This project is licensed under the Apache V2 License. See the LICENSE file for more details.

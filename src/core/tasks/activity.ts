@@ -1,7 +1,7 @@
 import { ProjectActivityApi } from "../../apis-gen/index.js";
 import { UpsunClient } from "../../upsun.js";
 
-export class Activity {
+export class ActivityTask {
   
   constructor(private readonly client: UpsunClient) { }
 

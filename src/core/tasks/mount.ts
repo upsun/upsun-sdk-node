@@ -1,6 +1,6 @@
 import { UpsunClient } from "../../upsun.js";
 
-export class Mount {
+export class MountTask {
   
   constructor(private readonly client: UpsunClient) { }
 

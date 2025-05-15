@@ -1,7 +1,7 @@
 import { ProjectDiscoveryApi, RoutingApi } from "../../apis-gen/index.js";
 import { UpsunClient } from "../../upsun.js";
 
-export class Route {
+export class RouteTask {
 
   constructor(private readonly client: UpsunClient) { }
 

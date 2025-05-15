@@ -1,7 +1,7 @@
-import { CreateOrgOperationRequest, OrganizationsApi } from "../../apis-gen/index.js";
+import { CreateOrgOperationRequest, ListUserOrgsRequest, OrganizationsApi } from "../../apis-gen/index.js";
 import { UpsunClient } from "../../upsun.js";
 
-export class Organization {
+export class OrganizationTask {
   
   constructor(private readonly client: UpsunClient) { }
 
@@ -21,8 +21,8 @@ export class Organization {
   }
 
   async list() {
-    const api = new OrganizationsApi(this.client.apiConfig);
-    return await api.listOrgs();
+    const apiOrg = new OrganizationsApi(this.client.apiConfig);
+    return await apiOrg.listUserOrgs({ userId: await this.client.getUserId()} as ListUserOrgsRequest);
   }
 
 }

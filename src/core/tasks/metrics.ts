@@ -1,6 +1,6 @@
 import { UpsunClient } from "../../upsun.js";
 
-export class Metrics {
+export class MetricsTask {
   
   constructor(private readonly client: UpsunClient) { }
 

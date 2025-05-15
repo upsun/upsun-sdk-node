@@ -37,19 +37,26 @@ if (org && org.id) {
   // Wait 15 minutes before redeploying (test renew access token)
   DISABLED || await delay(6000*15);
 
-  // Redeploy the project
-  // Note: The environment name is hardcoded as "main" in this example.
+  // Work with project
   if (prj && prj.projectId) {
+    const envName = "main"; // Replace with your environment name
+    
+    const res = await upsun.resource.get(prj.projectId, envName);
+    console.log(res);
+
+    // Get console URL
     const web = await upsun.route.web(prj.projectId);
     console.log(web.ui);
 
-    const envName = "main"; // Replace with your environment name
+    // Redeploy the project
     const result = await upsun.environment.redeploy(prj.projectId, envName);
     console.log(result);
 
+    // List all activities
     const activities = await upsun.activity.list(prj.projectId);
     console.log(activities);
 
+    // List routes of prj/env
     const routes = await upsun.route.list(prj.projectId, envName);
     console.log(routes);
   }

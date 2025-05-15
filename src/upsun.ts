@@ -1,24 +1,25 @@
 import { Configuration, ConfigurationParameters } from "./apis-gen/index.js";
 import { OAuth2Client } from "./core/index.js";
 
-import { Activity } from "./core/tasks/activity.js";
-import { Application } from "./core/tasks/application.js";
-import { Backup } from "./core/tasks/backup.js";
-import { Certificate } from "./core/tasks/certificate.js";
-import { Domain } from "./core/tasks/domain.js";
-import { Environement } from "./core/tasks/environment.js";
-import { Metrics } from "./core/tasks/metrics.js";
-import { Mount } from "./core/tasks/mount.js";
-import { Operation } from "./core/tasks/operation.js";
-import { Organization } from "./core/tasks/organization.js";
-import { Project } from "./core/tasks/project.js";
-import { Route } from "./core/tasks/route.js";
-import { Service } from "./core/tasks/service.js";
-import { SourceOperation } from "./core/tasks/source-operation.js";
-import { Team } from "./core/tasks/team.js";
-import { User } from "./core/tasks/user.js";
-import { Variable } from "./core/tasks/variable.js";
-import { Worker } from "./core/tasks/worker.js";
+import { ActivityTask } from "./core/tasks/activity.js";
+import { ApplicationTask } from "./core/tasks/application.js";
+import { BackupTask } from "./core/tasks/backup.js";
+import { CertificateTask } from "./core/tasks/certificate.js";
+import { DomainTask } from "./core/tasks/domain.js";
+import { EnvironementTask } from "./core/tasks/environment.js";
+import { MetricsTask } from "./core/tasks/metrics.js";
+import { MountTask } from "./core/tasks/mount.js";
+import { OperationTask } from "./core/tasks/operation.js";
+import { OrganizationTask } from "./core/tasks/organization.js";
+import { ProjectTask } from "./core/tasks/project.js";
+import { ResourcesTask } from "./core/tasks/resources.js";
+import { RouteTask } from "./core/tasks/route.js";
+import { ServiceTask } from "./core/tasks/service.js";
+import { SourceOperationTask } from "./core/tasks/source-operation.js";
+import { TeamTask } from "./core/tasks/team.js";
+import { UserTask } from "./core/tasks/user.js";
+import { VariableTask } from "./core/tasks/variable.js";
+import { WorkerTask } from "./core/tasks/worker.js";
 
 
 /**
@@ -68,26 +69,29 @@ export class UpsunClient {
   protected upsunConfig: UpsunConfig;
   public apiConfig: Configuration;
   protected auth: OAuth2Client;
+  protected userId!: string;
 
   // Facades - Tasks.
-  public activity: Activity;
-  public application: Application;
-  public backup: Backup;
-  public certificate: Certificate;
-  public domain: Domain;
-  public environment: Environement;
-  public metrics: Metrics;
-  public mount: Mount;
-  public operation: Operation;
-  public organization: Organization;
-  public project: Project;
-  public route: Route;
-  public service: Service;
-  public sourceOperation: SourceOperation;
-  public team: Team;
-  public user: User;
-  public variable: Variable;
-  public worker: Worker
+  public activity: ActivityTask;
+  public application: ApplicationTask;
+  public backup: BackupTask;
+  public certificate: CertificateTask;
+  public domain: DomainTask;
+  public environment: EnvironementTask;
+  public metrics: MetricsTask;
+  public mount: MountTask;
+  public operation: OperationTask;
+  public organization: OrganizationTask;
+  public project: ProjectTask;
+  public route: RouteTask;
+  public service: ServiceTask;
+  public sourceOperation: SourceOperationTask;
+  public team: TeamTask;
+  public user: UserTask;
+  public variable: VariableTask;
+  public worker: WorkerTask
+
+  public resource: ResourcesTask;
 
   /**
    * Constructor for the UpsunClient class.
@@ -119,24 +123,26 @@ export class UpsunClient {
     );
 
     // Initialize the commands tasks.
-    this.activity = new Activity(this);
-    this.application = new Application(this);
-    this.backup = new Backup(this);
-    this.certificate = new Certificate(this);
-    this.domain = new Domain(this);
-    this.environment = new Environement(this);
-    this.metrics = new Metrics(this);
-    this.mount = new Mount(this);
-    this.operation = new Operation(this);
-    this.organization = new Organization(this);
-    this.project = new Project(this);
-    this.route = new Route(this);
-    this.service = new Service(this);
-    this.sourceOperation = new SourceOperation(this);
-    this.team = new Team(this);
-    this.user = new User(this);
-    this.variable = new Variable(this);
-    this.worker = new Worker(this);
+    this.activity = new ActivityTask(this);
+    this.application = new ApplicationTask(this);
+    this.backup = new BackupTask(this);
+    this.certificate = new CertificateTask(this);
+    this.domain = new DomainTask(this);
+    this.environment = new EnvironementTask(this);
+    this.metrics = new MetricsTask(this);
+    this.mount = new MountTask(this);
+    this.operation = new OperationTask(this);
+    this.organization = new OrganizationTask(this);
+    this.project = new ProjectTask(this);
+    this.route = new RouteTask(this);
+    this.service = new ServiceTask(this);
+    this.sourceOperation = new SourceOperationTask(this);
+    this.team = new TeamTask(this);
+    this.user = new UserTask(this);
+    this.variable = new VariableTask(this);
+    this.worker = new WorkerTask(this);
+
+    this.resource = new ResourcesTask(this);
   }
 
   /**
@@ -147,8 +153,16 @@ export class UpsunClient {
    * The access token is then used to authenticate API requests.
    * @returns {Promise<boolean>} - Returns true if authentication is successful, false otherwise.
    */
-  async authenticate() {
+  async authenticate(): Promise<boolean> {
     return await this.auth.exchangeCodeForToken();
+  }
+
+  async getUserId(): Promise<any> {
+    if (this.userId == null) {
+      this.userId = (await this.user.me()).id;
+    }
+
+    return this.userId;
   }
 
   /**

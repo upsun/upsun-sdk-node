@@ -3,7 +3,7 @@ import { EnvironmentApi } from "../../apis-gen/index.js";
 import { EnvironmentActivateInput, EnvironmentMergeInput, Resources1, Resources1InitEnum, Resources3, Resources3InitEnum, SchemasSubscription } from "../../apis-gen/models/index.js";
 
 
-export class Environement {
+export class EnvironementTask {
   
   constructor(private readonly client: UpsunClient) { }
 
@@ -14,6 +14,16 @@ export class Environement {
       environmentId: env_name,
       environmentActivateInput: { resources: { init: Resources1InitEnum.Default } as Resources1 } as EnvironmentActivateInput
     });
+  }
+
+  // async branch(projectId: string, env_name: string) {
+  //   const api = new EnvironmentApi(this.client.apiConfig);
+  //   return await api.branchEnvironment({ projectId, environmentId: env_name, environmentBranchInput: { } });
+  // }
+
+  async deactivate(projectId: string, env_name: string) {
+    const api = new EnvironmentApi(this.client.apiConfig);
+    return await api.deactivateEnvironment({ projectId, environmentId: env_name });
   }
 
   async delete(projectId: string, env_name: string) {

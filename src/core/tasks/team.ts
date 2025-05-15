@@ -1,6 +1,6 @@
 import { UpsunClient } from "../../upsun.js";
 
-export class Team {
+export class TeamTask {
   
   constructor(private readonly client: UpsunClient) { }
 
