@@ -1,11 +1,24 @@
 import { UpsunClient } from "../../upsun.js";
 import { EnvironmentApi } from "../../apis-gen/index.js";
-import { EnvironmentActivateInput, EnvironmentMergeInput, Resources1, Resources1InitEnum, Resources3, Resources3InitEnum, SchemasSubscription } from "../../apis-gen/models/index.js";
+import { 
+  EnvironmentActivateInput,
+  EnvironmentMergeInput,
+  Resources1,
+  Resources1InitEnum,
+  Resources3,
+  Resources3InitEnum
+} from "../../apis-gen/models/index.js";
+import { TaskBase } from "./taskBase.js";
 
 
-export class EnvironementTask {
+export class EnvironementTask extends TaskBase {
+  private envApi: EnvironmentApi;
   
-  constructor(private readonly client: UpsunClient) { }
+  constructor(protected readonly client: UpsunClient) {
+    super(client);
+
+    this.envApi = new EnvironmentApi(this.client.apiConfig);
+  }
 
   async activate(projectId: string, env_name: string) {
     const api = new EnvironmentApi(this.client.apiConfig);
@@ -16,9 +29,18 @@ export class EnvironementTask {
     });
   }
 
-  // async branch(projectId: string, env_name: string) {
+  // async branch(projectId: string, env_name_src: string, env_name_dst) {
   //   const api = new EnvironmentApi(this.client.apiConfig);
-  //   return await api.branchEnvironment({ projectId, environmentId: env_name, environmentBranchInput: { } });
+  //   return await api.branchEnvironment({ 
+  //     projectId, 
+  //     environmentId: env_name, 
+  //     environmentBranchInput: {
+  //       title: env_name,
+  //       name: env_name,
+  //       cloneParent: true,
+  //       type: "development",
+  //       resources: { init: Resources3InitEnum.Manual } as Resources3
+  //      } as EnvironmentBranchInput });
   // }
 
   async deactivate(projectId: string, env_name: string) {
@@ -41,7 +63,7 @@ export class EnvironementTask {
     return await api.listProjectsEnvironments({ projectId });
   }
 
-  async logs(projectId: string, env_name: string) {
+  async logs(projectId: string, env_name: string, app_name: string) {
     throw new Error("Not implemented");
   }
 
@@ -50,7 +72,7 @@ export class EnvironementTask {
     return await api.mergeEnvironment({ 
       projectId, 
       environmentId: env_name,
-      environmentMergeInput: { resources: { init: Resources3InitEnum.Manual } as Resources3 } as EnvironmentMergeInput
+      environmentMergeInput: { resources: { init: Resources3InitEnum.Default } as Resources3 } as EnvironmentMergeInput
     });
   }
 
@@ -73,7 +95,7 @@ export class EnvironementTask {
     return await api.resumeEnvironment({ projectId, environmentId: env_name })
   }
 
-  async url(projectId: string, env_name: string) {
+  async urls(projectId: string, env_name: string) {
     throw new Error("Not implemented");
   }
 

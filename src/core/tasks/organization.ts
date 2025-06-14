@@ -5,9 +5,9 @@ export class OrganizationTask {
   
   constructor(private readonly client: UpsunClient) { }
 
-  async create(name: string) {
+  async create(label: string, ownerId?: string, name?: string, country?: string ) {
     const api = new OrganizationsApi(this.client.apiConfig);
-    return await api.createOrg({ createOrgRequest: {  name } } as CreateOrgOperationRequest);
+    return await api.createOrg({ createOrgRequest: {  ownerId, name, label, country } } as CreateOrgOperationRequest);
   }
 
   async delete(organizationId: string) {

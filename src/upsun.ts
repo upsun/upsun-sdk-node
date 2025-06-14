@@ -16,6 +16,7 @@ import { ResourcesTask } from "./core/tasks/resources.js";
 import { RouteTask } from "./core/tasks/route.js";
 import { ServiceTask } from "./core/tasks/service.js";
 import { SourceOperationTask } from "./core/tasks/source-operation.js";
+import { SshTask } from "./core/tasks/ssh.js";
 import { TeamTask } from "./core/tasks/team.js";
 import { UserTask } from "./core/tasks/user.js";
 import { VariableTask } from "./core/tasks/variable.js";
@@ -86,6 +87,7 @@ export class UpsunClient {
   public route: RouteTask;
   public service: ServiceTask;
   public sourceOperation: SourceOperationTask;
+  public ssh: SshTask;
   public team: TeamTask;
   public user: UserTask;
   public variable: VariableTask;
@@ -137,6 +139,7 @@ export class UpsunClient {
     this.route = new RouteTask(this);
     this.service = new ServiceTask(this);
     this.sourceOperation = new SourceOperationTask(this);
+    this.ssh = new SshTask(this);
     this.team = new TeamTask(this);
     this.user = new UserTask(this);
     this.variable = new VariableTask(this);

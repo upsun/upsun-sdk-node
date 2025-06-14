@@ -1,4 +1,4 @@
-import { ProjectDiscoveryApi, RoutingApi } from "../../apis-gen/index.js";
+import { RoutingApi } from "../../apis-gen/index.js";
 import { UpsunClient } from "../../upsun.js";
 
 export class RouteTask {
@@ -15,8 +15,8 @@ export class RouteTask {
     return await api.listProjectsEnvironmentsRoutes({ projectId, environmentId: env_name });
   }
 
-  async web(projectId: string) {
-    const api = new ProjectDiscoveryApi(this.client.apiConfig);
-    return await api.locateProject({ projectId });
-  }
+  // async web(projectId: string) {
+  //   const api = new ProjectDiscoveryApi(this.client.apiConfig);
+  //   return await api.locateProject({ projectId });
+  // }
 }

@@ -24,40 +24,46 @@ const orgName = "Perso-home"; // Replace with your organization ID
 const org = orgs.items?.find((p) => p.label === orgName) ?? null;
 console.log(org);
 
-if (org && org.id) {
-  // Sample code to get all projects
-  // const orgId = "name=Perso-home"; // Replace with your organization ID
-  const prjs = await upsun.project.list(org.id);
+try {
+  if (org && org.id) {
+    // Sample code to get all projects
+    // const orgId = "name=Perso-home"; // Replace with your organization ID
+    const prjs = await upsun.project.list(org.id);
 
-  // Select a specific project
-  const prjName = "POC-mcp-stack"; // Replace with your project name
-  const prj = prjs.items?.find((p) => p.projectTitle === prjName) ?? null;
-  console.log(prj);
+    // Select a specific project
+    const prjName = "POC-mcp-stack"; // Replace with your project name
+    const prj = prjs.items?.find((p) => p.projectTitle === prjName) ?? null;
+    console.log(prj);
 
-  // Wait 15 minutes before redeploying (test renew access token)
-  DISABLED || await delay(6000*15);
+    // Wait 15 minutes before redeploying (test renew access token)
+    DISABLED || await delay(6000*15);
 
-  // Work with project
-  if (prj && prj.projectId) {
-    const envName = "main"; // Replace with your environment name
-    
-    const res = await upsun.resource.get(prj.projectId, envName);
-    console.log(res);
+    // Work with project
+    if (prj && prj.projectId) {
+      
+      const envName = "main"; // Replace with your environment name
+      
+      const res = await upsun.resource.get(prj.projectId, envName);
+      console.log(res);
 
-    // Get console URL
-    const web = await upsun.route.web(prj.projectId);
-    console.log(web.ui);
+      // Get console URL
+      // const web = await upsun.route.web(prj.projectId);
+      // console.log(web.ui);
 
-    // Redeploy the project
-    const result = await upsun.environment.redeploy(prj.projectId, envName);
-    console.log(result);
+      // Redeploy the project
+      const result = await upsun.environment.redeploy(prj.projectId, envName);
+      console.log(result);
 
-    // List all activities
-    const activities = await upsun.activity.list(prj.projectId);
-    console.log(activities);
+      // List all activities
+      const activities = await upsun.activity.list(prj.projectId);
+      console.log(activities);
 
-    // List routes of prj/env
-    const routes = await upsun.route.list(prj.projectId, envName);
-    console.log(routes);
+      // List routes of prj/env
+      const routes = await upsun.route.list(prj.projectId, envName);
+      console.log(routes);
+    }
   }
+
+} catch (error) {
+  console.error("An error occurred:", error);
 }
