@@ -1,3 +1,4 @@
+import { SubscriptionStatusEnum } from "./apis-gen/models/index.js";
 import { UpsunClient, UpsunConfig } from "./index.js";
 import dotenv from "dotenv";
 
@@ -26,6 +27,16 @@ console.log(org);
 
 try {
   if (org && org.id) {
+    // Create Project
+    const subCreated = await upsun.project.create(org.id, "eu-3.platform.sh", "Demo", "main");
+    
+    let prjCreated = await upsun.project.getSub(org.id, subCreated.id || "");
+    while (prjCreated.status !== SubscriptionStatusEnum.Active) {
+      console.log("Waiting for project to be active...");
+      await delay(10000);
+      prjCreated = await upsun.project.getSub(org.id, subCreated.id || "");
+    }
+
     // Sample code to get all projects
     // const orgId = "name=Perso-home"; // Replace with your organization ID
     const prjs = await upsun.project.list(org.id);

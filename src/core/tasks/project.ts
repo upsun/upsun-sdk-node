@@ -10,8 +10,17 @@ export class ProjectTask {
     return await api.actionProjectsClearBuildCache({ projectId });
   }
 
-  async create(organizationId: string, projectTitle: string) {
-    throw new Error("Not implemented");
+  async create(organizationId: string, projectRegion: string = "eu-3.platform.sh", projectTitle: string, defaultBranch: string = "main") {
+    const subApi = new SubscriptionsApi(this.client.apiConfig);
+    const subPrj = await subApi.createOrgSubscription({
+      organizationId,
+      createOrgSubscriptionRequest: { 
+        projectRegion,
+        projectTitle,
+        defaultBranch,
+      } });
+
+    return subPrj;
   }
 
   async delete(projectId: string) {
@@ -20,7 +29,13 @@ export class ProjectTask {
   }
 
   async get(projectId: string) {
-    throw new Error("Cannot be implemented");
+    const api = new ProjectApi(this.client.apiConfig);
+    return await api.getProjects({ projectId });
+  }
+
+  async getSub(organizationId: string, subscriptionId: string) {
+    const subApi = new SubscriptionsApi(this.client.apiConfig);
+    return await subApi.getOrgSubscription({ organizationId, subscriptionId });
   }
 
   async info(projectId: string) {
