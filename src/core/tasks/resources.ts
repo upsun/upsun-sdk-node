@@ -1,15 +1,18 @@
 import { UpsunClient } from "../../upsun.js";
+import { TaskBase } from "./taskBase.js";
 //import { ResourceApi } from "../hack/ResourceApi.js";
 
-export class ResourcesTask {
+export class ResourcesTask extends TaskBase {
+  private resApi: any; // = new ResourceApi(this.client.apiConfig);
   
-  constructor(private readonly client: UpsunClient) { }
+  constructor(protected readonly client: UpsunClient) {
+    super(client);
+  }
 
   async get(projectId: string, environmentId: string) {
     throw new Error("Not implemented");
 
-    // const client = new ResourceApi(this.client.apiConfig);
-    // return await client.getNextDeployement({ projectId, environmentId });
+    // return await this.resApi.getNextDeployement({ projectId, environmentId });
   }
 
   async set(organizationId: string) {

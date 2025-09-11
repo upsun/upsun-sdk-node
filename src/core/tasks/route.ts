@@ -1,18 +1,22 @@
 import { RoutingApi } from "../../apis-gen/index.js";
 import { UpsunClient } from "../../upsun.js";
+import { TaskBase } from "./taskBase.js";
 
-export class RouteTask {
+export class RouteTask extends TaskBase {
+  private rteApi: RoutingApi;
 
-  constructor(private readonly client: UpsunClient) { }
+  constructor(protected readonly client: UpsunClient) {
+    super(client);
+
+    this.rteApi = new RoutingApi(this.client.apiConfig);
+  }
 
   async get(projectId: string, env_name: string, routeId: string) {
-    const api = new RoutingApi(this.client.apiConfig);
-    return await api.getProjectsEnvironmentsRoutes({ projectId, environmentId: env_name, routeId });
+    return await this.rteApi.getProjectsEnvironmentsRoutes({ projectId, environmentId: env_name, routeId });
   }
 
   async list(projectId: string, env_name: string) {
-    const api = new RoutingApi(this.client.apiConfig);
-    return await api.listProjectsEnvironmentsRoutes({ projectId, environmentId: env_name });
+    return await this.rteApi.listProjectsEnvironmentsRoutes({ projectId, environmentId: env_name });
   }
 
   // async web(projectId: string) {

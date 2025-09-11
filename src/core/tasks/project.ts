@@ -1,51 +1,58 @@
 import { UpsunClient } from "../../upsun.js";
 import { ProjectApi, SubscriptionsApi } from "../../apis-gen/index.js";
+import { TaskBase } from "./taskBase.js";
 
-export class ProjectTask {
+export class ProjectTask extends TaskBase {
+  private prjApi: ProjectApi;
+  private subApi: SubscriptionsApi;
   
-  constructor(private readonly client: UpsunClient) { }
+  constructor(protected readonly client: UpsunClient) {
+    super(client);
 
-  async clearBuildCache(projectId: string) {
-    const api = new ProjectApi(this.client.apiConfig);
-    return await api.actionProjectsClearBuildCache({ projectId });
+    this.prjApi = new ProjectApi(this.client.apiConfig);
+    this.subApi = new SubscriptionsApi(this.client.apiConfig);
   }
 
-  async create(organizationId: string, projectRegion: string = "eu-3.platform.sh", projectTitle: string, defaultBranch: string = "main") {
-    const subApi = new SubscriptionsApi(this.client.apiConfig);
-    const subPrj = await subApi.createOrgSubscription({
+  async clearBuildCache(projectId: string) {
+    return await this.prjApi.actionProjectsClearBuildCache({ projectId });
+  }
+
+  async create(organizationId: string, projectRegion: string, projectTitle: string,
+      plan: string = "upsun/flexible",
+      defaultBranch: string = "main",
+      environmentCount: number = 2,
+      storage: number = 5) {
+    return await this.subApi.createOrgSubscription({
       organizationId,
-      createOrgSubscriptionRequest: { 
+      createOrgSubscriptionRequest: {
+        plan,
         projectRegion,
         projectTitle,
         defaultBranch,
-      } });
-
-    return subPrj;
+        environments: environmentCount,
+        storage
+      },
+    });
   }
 
   async delete(projectId: string) {
-    const api = new ProjectApi(this.client.apiConfig);
-    return await api.deleteProjects({ projectId });
+    return await this.prjApi.deleteProjects({ projectId });
   }
 
   async get(projectId: string) {
-    const api = new ProjectApi(this.client.apiConfig);
-    return await api.getProjects({ projectId });
+    return await this.prjApi.getProjects({ projectId });
   }
 
-  async getSub(organizationId: string, subscriptionId: string) {
-    const subApi = new SubscriptionsApi(this.client.apiConfig);
-    return await subApi.getOrgSubscription({ organizationId, subscriptionId });
+  async getSubscription(organizationId: string, subscriptionId: string) {
+    return await this.subApi.getOrgSubscription({organizationId, subscriptionId });
   }
 
   async info(projectId: string) {
-    const api = new ProjectApi(this.client.apiConfig);
-    return await api.getProjects({ projectId });
+    return await this.prjApi.getProjects({ projectId });
   }
 
   async list(organizationId: string) {
-    const api = new SubscriptionsApi(this.client.apiConfig);
-    return await api.listOrgSubscriptions({ organizationId });
+    return await this.subApi.listOrgSubscriptions({ organizationId });
   }
 
 }

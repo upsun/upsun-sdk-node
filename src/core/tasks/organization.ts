@@ -1,28 +1,30 @@
 import { CreateOrgOperationRequest, ListUserOrgsRequest, OrganizationsApi } from "../../apis-gen/index.js";
 import { UpsunClient } from "../../upsun.js";
+import { TaskBase } from "./taskBase.js";
 
-export class OrganizationTask {
+export class OrganizationTask extends TaskBase {
+  private orgApi: OrganizationsApi;
   
-  constructor(private readonly client: UpsunClient) { }
+  constructor(protected readonly client: UpsunClient) {
+    super(client);
+
+    this.orgApi = new OrganizationsApi(this.client.apiConfig);
+  }
 
   async create(label: string, ownerId?: string, name?: string, country?: string ) {
-    const api = new OrganizationsApi(this.client.apiConfig);
-    return await api.createOrg({ createOrgRequest: {  ownerId, name, label, country } } as CreateOrgOperationRequest);
+    return await this.orgApi.createOrg({ createOrgRequest: {  ownerId, name, label, country } } as CreateOrgOperationRequest);
   }
 
   async delete(organizationId: string) {
-    const api = new OrganizationsApi(this.client.apiConfig);
-    return await api.deleteOrg({ organizationId });
+    return await this.orgApi.deleteOrg({ organizationId });
   }
 
   async info(organizationId: string) {
-    const api = new OrganizationsApi(this.client.apiConfig);
-    return await api.getOrg({ organizationId });
+    return await this.orgApi.getOrg({ organizationId });
   }
 
   async list() {
-    const apiOrg = new OrganizationsApi(this.client.apiConfig);
-    return await apiOrg.listUserOrgs({ userId: await this.client.getUserId()} as ListUserOrgsRequest);
+    return await this.orgApi.listUserOrgs({ userId: await this.client.getUserId()} as ListUserOrgsRequest);
   }
 
 }

@@ -1,7 +1,9 @@
 import { SSHKeysApi } from "../../apis-gen/index.js";
 import { UpsunClient } from "../../upsun.js";
+import { TaskBase } from "./taskBase.js";
 
-export class SshTask {
+export class SshTask extends TaskBase {
+  
   list(userId: string) {
     throw new Error('Method not implemented.');
   }
@@ -9,7 +11,9 @@ export class SshTask {
     throw new Error('Method not implemented.');
   }
 
-  constructor(private readonly client: UpsunClient) { }
+  constructor(protected readonly client: UpsunClient) {
+    super(client);
+  }
 
   async add(user_id: string, ssh_key: string, key_id: string) {
     const api = new SSHKeysApi(this.client.apiConfig);

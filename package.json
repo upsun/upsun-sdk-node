@@ -1,6 +1,6 @@
 {
   "name": "upsun-sdk-node",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,7 +22,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:unit": "jest --testPathPattern=unit",
-    "test:integration": "jest --testPathPattern=integration"
+    "test:integration": "jest --testPathPattern=integration",
+    "release-version": "bash ./scripts/release-version.sh $npm_config_tag"
   },
   "keywords": [],
   "author": "Mickael GAILLARD",

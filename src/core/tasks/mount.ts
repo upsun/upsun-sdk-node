@@ -1,8 +1,11 @@
 import { UpsunClient } from "../../upsun.js";
+import { TaskBase } from "./taskBase.js";
 
-export class MountTask {
+export class MountTask extends TaskBase {
   
-  constructor(private readonly client: UpsunClient) { }
+  constructor(protected readonly client: UpsunClient) {
+    super(client);
+  }
 
   async download(projectId: string, mountId: string) {
     throw new Error("Cannot be implemented");

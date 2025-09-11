@@ -39,7 +39,7 @@ import { WorkerTask } from "./core/tasks/worker.js";
 export interface UpsunConfig {
   base_url: string;
   auth_url: string;
-  apiKey: string;
+  apiKey?: string;
   token_endpoint: string;
   refresh_endpoint: string;
   clientId: string;
@@ -53,7 +53,6 @@ export interface UpsunConfig {
 export const DEFAULT_UPSUN_CONFIG: UpsunConfig = {
   base_url: "https://api.upsun.com", // Default base URL for the Upsun API
   auth_url: "https://auth.upsun.com", // Default authentication URL for the Upsun API
-  apiKey: "UPSUN_CLI_TOKEN is not define !",
   token_endpoint: "oauth2/token",
   refresh_endpoint: "oauth2/token",
   clientId: "sdk-node-client-id",
@@ -69,7 +68,8 @@ export class UpsunClient {
   // Configuration for the Upsun API client.
   protected upsunConfig: UpsunConfig;
   public apiConfig: Configuration;
-  protected auth: OAuth2Client;
+  protected auth?: OAuth2Client;
+  protected accessToken?: string;
   protected userId!: string;
 
   // Facades - Tasks.
@@ -115,14 +115,16 @@ export class UpsunClient {
     };
     this.apiConfig = new Configuration(param);
 
-    // Initialize the OAuth2Client with the authentication URL, client ID, and API key.
-    // The OAuth2Client is responsible for handling the OAuth2 authentication flow.
-    // The auth_url is used to obtain the access token, and the clientId and apiKey are used for authentication.
-    this.auth = new OAuth2Client(
-      `${this.upsunConfig.auth_url}/${this.upsunConfig.token_endpoint}`,
-      this.upsunConfig.clientId,
-      this.upsunConfig.apiKey,
-    );
+    if (this.upsunConfig.apiKey) {
+      // Initialize the OAuth2Client with the authentication URL, client ID, and API key.
+      // The OAuth2Client is responsible for handling the OAuth2 authentication flow.
+      // The auth_url is used to obtain the access token, and the clientId and apiKey are used for authentication.
+      this.auth = new OAuth2Client(
+        `${this.upsunConfig.auth_url}/${this.upsunConfig.token_endpoint}`,
+        this.upsunConfig.clientId,
+        this.upsunConfig.apiKey,
+      );
+    }
 
     // Initialize the commands tasks.
     this.activity = new ActivityTask(this);
@@ -157,7 +159,13 @@ export class UpsunClient {
    * @returns {Promise<boolean>} - Returns true if authentication is successful, false otherwise.
    */
   async authenticate(): Promise<boolean> {
-    return await this.auth.exchangeCodeForToken();
+
+    if (this.auth) {
+      return await this.auth.exchangeCodeForToken();
+    } else {
+      console.log("API Key is not defined !");
+      return false;
+    }
   }
 
   async getUserId(): Promise<any> {
@@ -168,11 +176,21 @@ export class UpsunClient {
     return this.userId;
   }
 
+  setBearerToken(token: string) {
+    this.accessToken = token;
+  }
+
   /**
    * Get the access token for authentication.
    */
   protected async getToken(name?: string, scopes?: string[]): Promise<string> {
-    return await this.auth.getAuthorization()
+    if (this.auth) {
+      return await this.auth.getAuthorization()
+    } else if (this.accessToken) {
+      return `Bearer ${this.accessToken}`;
+    } else {
+      throw new Error("No authentication method available. Please provide an API key or set a bearer token.");
+    }
   }
 
 }

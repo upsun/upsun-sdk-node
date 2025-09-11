@@ -1,7 +1,10 @@
 import { UpsunClient } from "../../upsun.js";
+import { TaskBase } from "./taskBase.js";
 
-export class SourceOperationTask {
+export class SourceOperationTask extends TaskBase {
   
-  constructor(private readonly client: UpsunClient) { }
+  constructor(protected readonly client: UpsunClient) {
+    super(client);
+  }
 
 }

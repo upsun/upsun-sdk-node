@@ -2,7 +2,6 @@ import { UpsunClient } from "../../upsun.js";
 
 
 export abstract class TaskBase {
-  
 
   constructor(protected readonly client: UpsunClient) { }
   
