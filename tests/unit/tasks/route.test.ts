@@ -1,10 +1,10 @@
 import { RouteTask } from '../../../src/core/tasks/route.js';
 import { UpsunClient } from '../../../src/upsun.js';
-import { RoutingApi } from '../../../src/apis-gen/index.js';
+import { RoutingApi } from '../../../src/api/index.js';
 
 // Mock the UpsunClient and RoutingApi
 jest.mock('../../../src/upsun');
-jest.mock('../../../src/apis-gen/index.js');
+jest.mock('../../../src/api/index.js');
 
 describe('RouteTask', () => {
   let routeTask: RouteTask;
@@ -14,17 +14,17 @@ describe('RouteTask', () => {
   beforeEach(() => {
     mockRoutingApi = {
       getProjectsEnvironmentsRoutes: jest.fn(),
-      listProjectsEnvironmentsRoutes: jest.fn()
+      listProjectsEnvironmentsRoutes: jest.fn(),
     } as any;
 
     (RoutingApi as jest.MockedClass<typeof RoutingApi>).mockImplementation(() => mockRoutingApi);
 
     mockClient = {
       apiConfig: {
-        basePath: 'https://api.upsun.com'
-      }
+        basePath: 'https://api.upsun.com',
+      },
     } as any;
-    
+
     routeTask = new RouteTask(mockClient);
   });
 
@@ -44,22 +44,22 @@ describe('RouteTask', () => {
           strictTransportSecurity: null,
           minVersion: null,
           clientAuthentication: null,
-          clientCertificateAuthorities: []
+          clientCertificateAuthorities: [],
         },
         cache: {
           enabled: true,
           defaultTtl: 300,
           headers: [],
-          cookies: []
+          cookies: [],
         },
         ssi: {
-          enabled: false
+          enabled: false,
         },
         upstream: 'app:http',
         redirects: {
           expires: null,
-          paths: {}
-        }
+          paths: {},
+        },
       };
 
       mockRoutingApi.getProjectsEnvironmentsRoutes.mockResolvedValue(mockRoute as any);
@@ -71,7 +71,7 @@ describe('RouteTask', () => {
       expect(mockRoutingApi.getProjectsEnvironmentsRoutes).toHaveBeenCalledWith({
         projectId: 'project-123',
         environmentId: 'main',
-        routeId: 'route-123'
+        routeId: 'route-123',
       });
       // Type-safe check for upstream property
       if (result.type === 'upstream') {
@@ -82,7 +82,9 @@ describe('RouteTask', () => {
     it('should handle get errors for non-existent route', async () => {
       mockRoutingApi.getProjectsEnvironmentsRoutes.mockRejectedValue(new Error('Route not found'));
 
-      await expect(routeTask.get('project-123', 'main', 'non-existent')).rejects.toThrow('Route not found');
+      await expect(routeTask.get('project-123', 'main', 'non-existent')).rejects.toThrow(
+        'Route not found',
+      );
     });
   });
 
@@ -99,22 +101,22 @@ describe('RouteTask', () => {
             strictTransportSecurity: null,
             minVersion: null,
             clientAuthentication: null,
-            clientCertificateAuthorities: []
+            clientCertificateAuthorities: [],
           },
           cache: {
             enabled: false,
             defaultTtl: 0,
             headers: [],
-            cookies: []
+            cookies: [],
           },
           ssi: {
-            enabled: false
+            enabled: false,
           },
           upstream: 'app:http',
           redirects: {
             expires: null,
-            paths: {}
-          }
+            paths: {},
+          },
         },
         {
           primary: false,
@@ -126,23 +128,23 @@ describe('RouteTask', () => {
             strictTransportSecurity: null,
             minVersion: null,
             clientAuthentication: null,
-            clientCertificateAuthorities: []
+            clientCertificateAuthorities: [],
           },
           cache: {
             enabled: false,
             defaultTtl: 0,
             headers: [],
-            cookies: []
+            cookies: [],
           },
           ssi: {
-            enabled: false
+            enabled: false,
           },
           upstream: 'api:http',
           redirects: {
             expires: null,
-            paths: {}
-          }
-        }
+            paths: {},
+          },
+        },
       ];
 
       mockRoutingApi.listProjectsEnvironmentsRoutes.mockResolvedValue(mockRoutes as any);
@@ -153,7 +155,7 @@ describe('RouteTask', () => {
       expect(result[1].id).toBe('route-2');
       expect(mockRoutingApi.listProjectsEnvironmentsRoutes).toHaveBeenCalledWith({
         projectId: 'project-123',
-        environmentId: 'main'
+        environmentId: 'main',
       });
     });
 

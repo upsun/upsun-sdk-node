@@ -1,11 +1,12 @@
-import { EnvironmentActivityApi, ProjectActivityApi } from "../../apis-gen/index.js";
-import { UpsunClient } from "../../upsun.js";
-import { TaskBase } from "./taskBase.js";
+import { EnvironmentActivityApi, ProjectActivityApi } from '../../api/index.js';
+import { AcceptedResponse, Activity } from '../../model/index.js';
+import { UpsunClient } from '../../upsun.js';
+import { TaskBase } from './task_base.js';
 
 export class ActivityTask extends TaskBase {
   private prjApi: ProjectActivityApi;
-  private envApi: EnvironmentActivityApi
-  
+  private envApi: EnvironmentActivityApi;
+
   constructor(protected readonly client: UpsunClient) {
     super(client);
 
@@ -13,29 +14,41 @@ export class ActivityTask extends TaskBase {
     this.envApi = new EnvironmentActivityApi(this.client.apiConfig);
   }
 
-  async cancel(projectId: string, activityId: string, environmentId: string = "") {
+  async cancel(
+    projectId: string,
+    activityId: string,
+    environmentId: string = '',
+  ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkActivityId(activityId);
 
     if (environmentId) {
-      return await this.envApi.actionProjectsEnvironmentsActivitiesCancel({ projectId, environmentId, activityId });
+      return await this.envApi.actionProjectsEnvironmentsActivitiesCancel({
+        projectId,
+        environmentId,
+        activityId,
+      });
     } else {
       return await this.prjApi.actionProjectsActivitiesCancel({ projectId, activityId });
     }
   }
 
-  async get(projectId: string, activityId: string, environmentId: string = "") {
+  async get(projectId: string, activityId: string, environmentId: string = ''): Promise<Activity> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkActivityId(activityId);
 
     if (environmentId) {
-      return await this.envApi.getProjectsEnvironmentsActivities({ projectId, environmentId, activityId });
+      return await this.envApi.getProjectsEnvironmentsActivities({
+        projectId,
+        environmentId,
+        activityId,
+      });
     } else {
       return await this.prjApi.getProjectsActivities({ projectId, activityId });
     }
   }
 
-  async list(projectId: string, environmentId: string = "") {
+  async list(projectId: string, environmentId: string = ''): Promise<Activity[]> {
     TaskBase.checkProjectId(projectId);
 
     if (environmentId) {
@@ -43,15 +56,13 @@ export class ActivityTask extends TaskBase {
     } else {
       return await this.prjApi.listProjectsActivities({ projectId });
     }
-    
   }
 
-  async log(projectId: string, activityId: string) {
+  async log(projectId: string, activityId: string): Promise<void> {
     if (!projectId || !activityId) {
-      throw new Error("Project ID and Activity ID are required");
+      throw new Error('Project ID and Activity ID are required');
     }
 
-    throw new Error("Not implemented, prefere use get() (containes log)");
+    throw new Error('Not implemented, prefere use get() (containes log)');
   }
-
 }

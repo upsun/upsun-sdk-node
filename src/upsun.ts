@@ -1,33 +1,36 @@
-import { Configuration, ConfigurationParameters } from "./apis-gen/index.js";
-import { OAuth2Client } from "./core/index.js";
-
-import { ActivityTask } from "./core/tasks/activity.js";
-import { ApplicationTask } from "./core/tasks/application.js";
-import { BackupTask } from "./core/tasks/backup.js";
-import { CertificateTask } from "./core/tasks/certificate.js";
-import { DomainTask } from "./core/tasks/domain.js";
-import { EnvironementTask } from "./core/tasks/environment.js";
-import { MetricsTask } from "./core/tasks/metrics.js";
-import { MountTask } from "./core/tasks/mount.js";
-import { OperationTask } from "./core/tasks/operation.js";
-import { OrganizationTask } from "./core/tasks/organization.js";
-import { ProjectTask } from "./core/tasks/project.js";
-import { ResourcesTask } from "./core/tasks/resources.js";
-import { RouteTask } from "./core/tasks/route.js";
-import { ServiceTask } from "./core/tasks/service.js";
-import { SourceOperationTask } from "./core/tasks/source-operation.js";
-import { SshTask } from "./core/tasks/ssh.js";
-import { TeamTask } from "./core/tasks/team.js";
-import { UserTask } from "./core/tasks/user.js";
-import { VariableTask } from "./core/tasks/variable.js";
-import { WorkerTask } from "./core/tasks/worker.js";
-
+import {
+  // Common
+  Configuration,
+  ConfigurationParameters,
+  OAuth2Client,
+  // Tasks
+  ActivityTask,
+  ApplicationTask,
+  BackupTask,
+  CertificateTask,
+  DomainTask,
+  EnvironementTask,
+  MetricsTask,
+  MountTask,
+  OperationTask,
+  OrganizationTask,
+  ProjectTask,
+  ResourcesTask,
+  RouteTask,
+  ServiceTask,
+  SourceOperationTask,
+  SshTask,
+  TeamTask,
+  UserTask,
+  VariableTask,
+  WorkerTask,
+} from './core/index.js';
 
 /**
  * Configuration interface for the Upsun API client.
  * This interface defines the structure of the configuration object
  * that is used to initialize the UpsunClient.
- * 
+ *
  * @interface UpsunConfig
  * @property {string} base_url - The base URL for the Upsun API.
  * @property {string} auth_url - The authentication URL for the Upsun API.
@@ -51,12 +54,12 @@ export interface UpsunConfig {
  * defined in the UpsunConfig interface.
  */
 export const DEFAULT_UPSUN_CONFIG: UpsunConfig = {
-  base_url: "https://api.upsun.com", // Default base URL for the Upsun API
-  auth_url: "https://auth.upsun.com", // Default authentication URL for the Upsun API
-  token_endpoint: "oauth2/token",
-  refresh_endpoint: "oauth2/token",
-  clientId: "sdk-node-client-id",
-}
+  base_url: 'https://api.upsun.com', // Default base URL for the Upsun API
+  auth_url: 'https://auth.upsun.com', // Default authentication URL for the Upsun API
+  token_endpoint: 'oauth2/token',
+  refresh_endpoint: 'oauth2/token',
+  clientId: 'sdk-node-client-id',
+};
 
 /**
  * UpsunClient class for interacting with the Upsun API.
@@ -64,7 +67,6 @@ export const DEFAULT_UPSUN_CONFIG: UpsunConfig = {
  * It uses the OAuth2Client for handling authentication.
  */
 export class UpsunClient {
-
   // Configuration for the Upsun API client.
   protected upsunConfig: UpsunConfig;
   public apiConfig: Configuration;
@@ -91,13 +93,13 @@ export class UpsunClient {
   public team: TeamTask;
   public user: UserTask;
   public variable: VariableTask;
-  public worker: WorkerTask
+  public worker: WorkerTask;
 
   public resource: ResourcesTask;
 
   /**
    * Constructor for the UpsunClient class.
-   * 
+   *
    * @param config - Configuration object for the Upsun API client.
    */
   constructor(config: UpsunConfig = DEFAULT_UPSUN_CONFIG) {
@@ -152,23 +154,20 @@ export class UpsunClient {
 
   /**
    * Authenticate the client using OAuth2.
-   * 
+   *
    * This method exchanges the authorization code for an access token.
    * It uses the OAuth2Client to handle the authentication flow.
    * The access token is then used to authenticate API requests.
    * @returns {Promise<boolean>} - Returns true if authentication is successful, false otherwise.
    */
   async authenticate(): Promise<boolean> {
-
-    if (this.auth) {
-      return await this.auth.exchangeCodeForToken();
-    } else {
-      console.log("API Key is not defined !");
-      return false;
+    if (!this.auth) {
+      throw new Error('API Key is not defined. Cannot authenticate.');
     }
+    return await this.auth.exchangeCodeForToken();
   }
 
-  async getUserId(): Promise<any> {
+  async getUserId(): Promise<string | undefined> {
     if (this.userId == null) {
       this.userId = (await this.user.me()).id;
     }
@@ -176,7 +175,7 @@ export class UpsunClient {
     return this.userId;
   }
 
-  setBearerToken(token: string) {
+  setBearerToken(token: string): void {
     this.accessToken = token;
   }
 
@@ -185,12 +184,13 @@ export class UpsunClient {
    */
   public async getToken(name?: string, scopes?: string[]): Promise<string> {
     if (this.auth) {
-      return await this.auth.getAuthorization()
+      return await this.auth.getAuthorization();
     } else if (this.accessToken) {
       return `Bearer ${this.accessToken}`;
     } else {
-      throw new Error("No authentication method available. Please provide an API key or set a bearer token.");
+      throw new Error(
+        'No authentication method available. Please provide an API key or set a bearer token.',
+      );
     }
   }
-
 }

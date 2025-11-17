@@ -29,21 +29,25 @@ const result = await upsun.environment.redeploy("MyProjectId", "main");
 ## Devel
 
 Clone repository:
+
 ```bash
 git clone git@github.com:upsun/upsun-sdk-node.git
 ```
 
 Install Dep:
+
 ```bash
 npm install
 ```
 
 Generate API Client (Low-level) base on OpenAPI spec.
+
 ```bash
 npm run gen-client
 ```
 
 Build the stack:
+
 ```bash
 npm run build
 ```

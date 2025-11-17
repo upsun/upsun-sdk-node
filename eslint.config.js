@@ -21,12 +21,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: [
-      'dist/**',
-      'node_modules/**',
-      'coverage/**',
-      'src/apis-gen/**', // Code généré automatiquement
-      'tests/**',
-    ],
-  }
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**', 'tests/**'],
+  },
 );

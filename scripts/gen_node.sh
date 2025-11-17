@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 echo "Clean old build..."
 rm -rf ./src/apis-gen

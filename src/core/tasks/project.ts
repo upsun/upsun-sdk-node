@@ -1,11 +1,17 @@
-import { UpsunClient } from "../../upsun.js";
-import { ProjectApi, SubscriptionsApi } from "../../apis-gen/index.js";
-import { TaskBase } from "./taskBase.js";
+import { UpsunClient } from '../../upsun.js';
+import { ProjectApi, SubscriptionsApi } from '../../api/index.js';
+import {
+  AcceptedResponse,
+  ListOrgSubscriptions200Response,
+  Project,
+  Subscription,
+} from '../../model/index.js';
+import { TaskBase } from './task_base.js';
 
 export class ProjectTask extends TaskBase {
   private prjApi: ProjectApi;
   private subApi: SubscriptionsApi;
-  
+
   constructor(protected readonly client: UpsunClient) {
     super(client);
 
@@ -13,15 +19,19 @@ export class ProjectTask extends TaskBase {
     this.subApi = new SubscriptionsApi(this.client.apiConfig);
   }
 
-  async clearBuildCache(projectId: string) {
+  async clearBuildCache(projectId: string): Promise<AcceptedResponse> {
     return await this.prjApi.actionProjectsClearBuildCache({ projectId });
   }
 
-  async create(organizationId: string, projectRegion: string, projectTitle: string,
-      plan: string = "upsun/flexible",
-      defaultBranch: string = "main",
-      environmentCount: number = 2,
-      storage: number = 5) {
+  async create(
+    organizationId: string,
+    projectRegion: string,
+    projectTitle: string,
+    plan: string = 'upsun/flexible',
+    defaultBranch: string = 'main',
+    environmentCount: number = 2,
+    storage: number = 5,
+  ): Promise<Subscription> {
     return await this.subApi.createOrgSubscription({
       organizationId,
       createOrgSubscriptionRequest: {
@@ -30,29 +40,28 @@ export class ProjectTask extends TaskBase {
         projectTitle,
         defaultBranch,
         environments: environmentCount,
-        storage
+        storage,
       },
     });
   }
 
-  async delete(projectId: string) {
-    return await this.prjApi.deleteProjects({ projectId });
+  async delete(projectId: string): Promise<null> {
+    return null; // await this.prjApi.deleteProjects({ projectId });
   }
 
-  async get(projectId: string) {
+  async get(projectId: string): Promise<Project> {
     return await this.prjApi.getProjects({ projectId });
   }
 
-  async getSubscription(organizationId: string, subscriptionId: string) {
-    return await this.subApi.getOrgSubscription({organizationId, subscriptionId });
+  async getSubscription(organizationId: string, subscriptionId: string): Promise<Subscription> {
+    return await this.subApi.getOrgSubscription({ organizationId, subscriptionId });
   }
 
-  async info(projectId: string) {
+  async info(projectId: string): Promise<Project> {
     return await this.prjApi.getProjects({ projectId });
   }
 
-  async list(organizationId: string) {
+  async list(organizationId: string): Promise<ListOrgSubscriptions200Response> {
     return await this.subApi.listOrgSubscriptions({ organizationId });
   }
-
 }

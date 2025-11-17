@@ -1,7 +1,7 @@
-import { EnvironmentBackupsApi } from "../../apis-gen/index.js";
-import { EnvironmentBackupInput } from "../../apis-gen/models/index.js";
-import { UpsunClient } from "../../upsun.js";
-import { TaskBase } from "./taskBase.js";
+import { EnvironmentBackupsApi } from '../../api/index.js';
+import { AcceptedResponse, Backup, EnvironmentBackupInput } from '../../model/index.js';
+import { UpsunClient } from '../../upsun.js';
+import { TaskBase } from './task_base.js';
 
 export class BackupTask extends TaskBase {
   private bckApi: EnvironmentBackupsApi;
@@ -12,22 +12,38 @@ export class BackupTask extends TaskBase {
     this.bckApi = new EnvironmentBackupsApi(this.client.apiConfig);
   }
 
-  async create(projectId: string, environmentId: string, safe: boolean = true) {
+  async create(
+    projectId: string,
+    environmentId: string,
+    safe: boolean = true,
+  ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
-    
-    return await this.bckApi.backupEnvironment({ projectId, environmentId, environmentBackupInput: { safe } as EnvironmentBackupInput });
+
+    return await this.bckApi.backupEnvironment({
+      projectId,
+      environmentId,
+      environmentBackupInput: { safe } as EnvironmentBackupInput,
+    });
   }
 
-  async delete(projectId: string, environmentId: string, backupId: string) {
+  async delete(
+    projectId: string,
+    environmentId: string,
+    backupId: string,
+  ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
     TaskBase.checkBackupId(backupId);
 
-    return await this.bckApi.deleteProjectsEnvironmentsBackups({ projectId, environmentId, backupId });
+    return await this.bckApi.deleteProjectsEnvironmentsBackups({
+      projectId,
+      environmentId,
+      backupId,
+    });
   }
 
-  async get(projectId: string, environmentId: string, backupId: string) {
+  async get(projectId: string, environmentId: string, backupId: string): Promise<Backup> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
     TaskBase.checkBackupId(backupId);
@@ -35,29 +51,35 @@ export class BackupTask extends TaskBase {
     return await this.bckApi.getProjectsEnvironmentsBackups({ projectId, environmentId, backupId });
   }
 
-  async list(projectId: string, environmentId: string) {
+  async list(projectId: string, environmentId: string): Promise<Array<Backup>> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
     return await this.bckApi.listProjectsEnvironmentsBackups({ projectId, environmentId });
   }
 
-  async restore(projectId: string, environmentId: string, backupId: string) {
+  async restore(
+    projectId: string,
+    environmentId: string,
+    backupId: string,
+  ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
     TaskBase.checkBackupId(backupId);
 
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
 
-    return await this.bckApi.restoreBackup({ 
+    return await this.bckApi.restoreBackup({
       projectId,
       environmentId,
       backupId,
-      environmentRestoreInput: { 
+      environmentRestoreInput: {
         environmentName: environmentId,
         branchFrom: null,
         restoreCode: true,
         restoreResources: true,
-        resources: null } });
+        resources: null,
+      },
+    });
   }
 }

@@ -1,10 +1,10 @@
 import { CertificateTask } from '../../../src/core/tasks/certificate.js';
 import { UpsunClient } from '../../../src/upsun.js';
-import { CertManagementApi } from '../../../src/apis-gen/index.js';
+import { CertManagementApi } from '../../../src/api/index.js';
 
 // Mock the UpsunClient and CertManagementApi
 jest.mock('../../../src/upsun');
-jest.mock('../../../src/apis-gen/index.js');
+jest.mock('../../../src/api/index.js');
 
 describe('CertificateTask', () => {
   let certificateTask: CertificateTask;
@@ -16,17 +16,19 @@ describe('CertificateTask', () => {
       createProjectsCertificates: jest.fn(),
       deleteProjectsCertificates: jest.fn(),
       getProjectsCertificates: jest.fn(),
-      listProjectsCertificates: jest.fn()
+      listProjectsCertificates: jest.fn(),
     } as any;
 
-    (CertManagementApi as jest.MockedClass<typeof CertManagementApi>).mockImplementation(() => mockCertApi);
+    (CertManagementApi as jest.MockedClass<typeof CertManagementApi>).mockImplementation(
+      () => mockCertApi,
+    );
 
     mockClient = {
       apiConfig: {
-        basePath: 'https://api.upsun.com'
-      }
+        basePath: 'https://api.upsun.com',
+      },
     } as any;
-    
+
     certificateTask = new CertificateTask(mockClient);
   });
 
@@ -44,14 +46,15 @@ describe('CertificateTask', () => {
       const mockCertificate = {
         id: 'cert-123',
         certificate: '-----BEGIN CERTIFICATE-----',
-        created_at: '2023-01-01T00:00:00Z'
+        created_at: '2023-01-01T00:00:00Z',
       };
 
       mockCertApi.createProjectsCertificates.mockResolvedValue(mockCertificate as any);
 
       const cert = '-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAK\n-----END CERTIFICATE-----';
-      const key = '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQ\n-----END PRIVATE KEY-----';
-      
+      const key =
+        '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQ\n-----END PRIVATE KEY-----';
+
       const result = await certificateTask.add('project-123', cert, key);
       expect(result).toBeDefined();
       expect(mockCertApi.createProjectsCertificates).toHaveBeenCalledWith({
@@ -59,8 +62,8 @@ describe('CertificateTask', () => {
         certificateCreateInput: {
           certificate: cert,
           key: key,
-          chain: []
-        }
+          chain: [],
+        },
       });
     });
 
@@ -68,7 +71,7 @@ describe('CertificateTask', () => {
       const mockCertificate = {
         id: 'cert-123',
         certificate: '-----BEGIN CERTIFICATE-----',
-        created_at: '2023-01-01T00:00:00Z'
+        created_at: '2023-01-01T00:00:00Z',
       };
 
       mockCertApi.createProjectsCertificates.mockResolvedValue(mockCertificate as any);
@@ -76,7 +79,7 @@ describe('CertificateTask', () => {
       const cert = '-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----';
       const key = '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----';
       const chain = ['-----BEGIN CERTIFICATE-----\nchain\n-----END CERTIFICATE-----'];
-      
+
       const result = await certificateTask.add('project-123', cert, key, chain);
       expect(result).toBeDefined();
       expect(mockCertApi.createProjectsCertificates).toHaveBeenCalledWith({
@@ -84,8 +87,8 @@ describe('CertificateTask', () => {
         certificateCreateInput: {
           certificate: cert,
           key: key,
-          chain: chain
-        }
+          chain: chain,
+        },
       });
     });
 
@@ -95,15 +98,21 @@ describe('CertificateTask', () => {
       const cert = '-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----';
       const key = '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----';
 
-      await expect(certificateTask.add('project-123', cert, key)).rejects.toThrow('Invalid certificate');
+      await expect(certificateTask.add('project-123', cert, key)).rejects.toThrow(
+        'Invalid certificate',
+      );
     });
 
     it('should throw error when certificate is missing', async () => {
-      await expect(certificateTask.add('project-123', '', 'key')).rejects.toThrow('Certificate and key are required');
+      await expect(certificateTask.add('project-123', '', 'key')).rejects.toThrow(
+        'Certificate and key are required',
+      );
     });
 
     it('should throw error when key is missing', async () => {
-      await expect(certificateTask.add('project-123', 'cert', '')).rejects.toThrow('Certificate and key are required');
+      await expect(certificateTask.add('project-123', 'cert', '')).rejects.toThrow(
+        'Certificate and key are required',
+      );
     });
   });
 
@@ -122,14 +131,16 @@ describe('CertificateTask', () => {
       expect(result).toBeDefined();
       expect(mockCertApi.deleteProjectsCertificates).toHaveBeenCalledWith({
         projectId: 'project-123',
-        certificateId: 'cert-456'
+        certificateId: 'cert-456',
       });
     });
 
     it('should handle certificate deletion errors', async () => {
       mockCertApi.deleteProjectsCertificates.mockRejectedValue(new Error('Certificate not found'));
 
-      await expect(certificateTask.delete('project-123', 'cert-456')).rejects.toThrow('Certificate not found');
+      await expect(certificateTask.delete('project-123', 'cert-456')).rejects.toThrow(
+        'Certificate not found',
+      );
     });
   });
 
@@ -144,7 +155,7 @@ describe('CertificateTask', () => {
         id: 'cert-123',
         certificate: '-----BEGIN CERTIFICATE-----',
         domains: ['example.com'],
-        created_at: '2023-01-01T00:00:00Z'
+        created_at: '2023-01-01T00:00:00Z',
       };
 
       mockCertApi.getProjectsCertificates.mockResolvedValue(mockCertificate as any);
@@ -154,7 +165,7 @@ describe('CertificateTask', () => {
       expect((result as any).id).toBe('cert-123');
       expect(mockCertApi.getProjectsCertificates).toHaveBeenCalledWith({
         projectId: 'project-123',
-        certificateId: 'cert-456'
+        certificateId: 'cert-456',
       });
     });
   });
@@ -168,7 +179,7 @@ describe('CertificateTask', () => {
     it('should list project certificates', async () => {
       const mockCertificates = [
         { id: 'cert-123', domains: ['example.com'], created_at: '2023-01-01T00:00:00Z' },
-        { id: 'cert-456', domains: ['test.com'], created_at: '2023-01-02T00:00:00Z' }
+        { id: 'cert-456', domains: ['test.com'], created_at: '2023-01-02T00:00:00Z' },
       ];
 
       mockCertApi.listProjectsCertificates.mockResolvedValue(mockCertificates as any);
@@ -178,7 +189,7 @@ describe('CertificateTask', () => {
       expect(result).toHaveLength(2);
       expect((result[0] as any).id).toBe('cert-123');
       expect(mockCertApi.listProjectsCertificates).toHaveBeenCalledWith({
-        projectId: 'project-123'
+        projectId: 'project-123',
       });
     });
 

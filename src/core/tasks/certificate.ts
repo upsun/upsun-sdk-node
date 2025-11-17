@@ -1,20 +1,26 @@
-import { CertManagementApi } from "../../apis-gen/index.js";
-import { UpsunClient } from "../../upsun.js";
-import { TaskBase } from "./taskBase.js";
+import { CertManagementApi } from '../../api/index.js';
+import { AcceptedResponse, Certificate, CertificateCollection } from '../../model/index.js';
+import { UpsunClient } from '../../upsun.js';
+import { TaskBase } from './task_base.js';
 
 export class CertificateTask extends TaskBase {
   private certApi: CertManagementApi;
-  
+
   constructor(protected readonly client: UpsunClient) {
     super(client);
 
     this.certApi = new CertManagementApi(this.client.apiConfig);
   }
 
-  async add(projectId: string, certificate: string, key: string, chain: string[] = []) {
+  async add(
+    projectId: string,
+    certificate: string,
+    key: string,
+    chain: string[] = [],
+  ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     if (!certificate || !key) {
-      throw new Error("Certificate and key are required");
+      throw new Error('Certificate and key are required');
     }
 
     return await this.certApi.createProjectsCertificates({
@@ -22,35 +28,36 @@ export class CertificateTask extends TaskBase {
       certificateCreateInput: {
         certificate,
         key,
-        chain
-      }});
+        chain,
+      },
+    });
   }
 
-  async delete(projectId: string, certificateId: string) {
+  async delete(projectId: string, certificateId: string): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkCertificateId(certificateId);
 
     return await this.certApi.deleteProjectsCertificates({
       projectId,
-      certificateId
+      certificateId,
     });
   }
 
-  async get(projectId: string, certificateId: string) {
+  async get(projectId: string, certificateId: string): Promise<Certificate> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkCertificateId(certificateId);
 
     return await this.certApi.getProjectsCertificates({
       projectId,
-      certificateId
+      certificateId,
     });
   }
 
-  async list(projectId: string) {
+  async list(projectId: string): Promise<CertificateCollection> {
     TaskBase.checkProjectId(projectId);
 
     return await this.certApi.listProjectsCertificates({
-      projectId
+      projectId,
     });
   }
 }

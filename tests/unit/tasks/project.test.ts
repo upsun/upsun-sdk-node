@@ -12,10 +12,10 @@ describe('ProjectTask', () => {
   beforeEach(() => {
     mockClient = {
       apiConfig: {
-        basePath: 'https://api.upsun.com'
-      }
+        basePath: 'https://api.upsun.com',
+      },
     } as any;
-    
+
     projectTask = new ProjectTask(mockClient);
   });
 

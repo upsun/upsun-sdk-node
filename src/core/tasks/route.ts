@@ -1,6 +1,7 @@
-import { RoutingApi } from "../../apis-gen/index.js";
-import { UpsunClient } from "../../upsun.js";
-import { TaskBase } from "./taskBase.js";
+import { RoutingApi } from '../../api/index.js';
+import { Route, RouteCollection } from '../../model/index.js';
+import { UpsunClient } from '../../upsun.js';
+import { TaskBase } from './task_base.js';
 
 export class RouteTask extends TaskBase {
   private rteApi: RoutingApi;
@@ -11,11 +12,15 @@ export class RouteTask extends TaskBase {
     this.rteApi = new RoutingApi(this.client.apiConfig);
   }
 
-  async get(projectId: string, env_name: string, routeId: string) {
-    return await this.rteApi.getProjectsEnvironmentsRoutes({ projectId, environmentId: env_name, routeId });
+  async get(projectId: string, env_name: string, routeId: string): Promise<Route> {
+    return await this.rteApi.getProjectsEnvironmentsRoutes({
+      projectId,
+      environmentId: env_name,
+      routeId,
+    });
   }
 
-  async list(projectId: string, env_name: string) {
+  async list(projectId: string, env_name: string): Promise<RouteCollection> {
     return await this.rteApi.listProjectsEnvironmentsRoutes({ projectId, environmentId: env_name });
   }
 

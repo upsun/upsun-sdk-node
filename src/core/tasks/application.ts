@@ -1,11 +1,11 @@
-import { DeploymentApi } from "../../apis-gen/index.js";
-import { Deployment } from "../../apis-gen/models/index.js";
-import { UpsunClient } from "../../upsun.js";
-import { TaskBase } from "./taskBase.js";
+import { DeploymentApi } from '../../api/index.js';
+import { Deployment } from '../../model/index.js';
+import { UpsunClient } from '../../upsun.js';
+import { TaskBase } from './task_base.js';
 
 export class ApplicationTask extends TaskBase {
   private depApi: DeploymentApi;
-  
+
   constructor(protected readonly client: UpsunClient) {
     super(client);
 
@@ -17,10 +17,14 @@ export class ApplicationTask extends TaskBase {
     TaskBase.checkEnvironmentId(environmentId);
     TaskBase.checkApplicationId(applicationId);
 
-    return await this.depApi.getProjectsEnvironmentsDeployments({ projectId, environmentId, deploymentId: applicationId });
+    return await this.depApi.getProjectsEnvironmentsDeployments({
+      projectId,
+      environmentId,
+      deploymentId: applicationId,
+    });
   }
 
-  async list(projectId: string, environmentId: string) :Promise<Array<Deployment>> {
+  async list(projectId: string, environmentId: string): Promise<Array<Deployment>> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 

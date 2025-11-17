@@ -1,10 +1,10 @@
 import { DomainTask } from '../../../src/core/tasks/domain.js';
 import { UpsunClient } from '../../../src/upsun.js';
-import { DomainManagementApi } from '../../../src/apis-gen/index.js';
+import { DomainManagementApi } from '../../../src/api/index.js';
 
 // Mock the UpsunClient and DomainManagementApi
-jest.mock('../../../src/upsun');
-jest.mock('../../../src/apis-gen/index.js');
+jest.mock('../../../src/upsun.js');
+jest.mock('../../../src/api/index.js');
 
 describe('DomainTask', () => {
   let domainTask: DomainTask;
@@ -20,17 +20,19 @@ describe('DomainTask', () => {
       getProjectsDomains: jest.fn(),
       getProjectsEnvironmentsDomains: jest.fn(),
       listProjectsDomains: jest.fn(),
-      listProjectsEnvironmentsDomains: jest.fn()
+      listProjectsEnvironmentsDomains: jest.fn(),
     } as any;
 
-    (DomainManagementApi as jest.MockedClass<typeof DomainManagementApi>).mockImplementation(() => mockDomainApi);
+    (DomainManagementApi as jest.MockedClass<typeof DomainManagementApi>).mockImplementation(
+      () => mockDomainApi,
+    );
 
     mockClient = {
       apiConfig: {
-        basePath: 'https://api.upsun.com'
-      }
+        basePath: 'https://api.upsun.com',
+      },
     } as any;
-    
+
     domainTask = new DomainTask(mockClient);
   });
 
@@ -48,7 +50,7 @@ describe('DomainTask', () => {
       const mockDomain = {
         name: 'example.com',
         ssl: { has_certificate: false },
-        created_at: '2023-01-01T00:00:00Z'
+        created_at: '2023-01-01T00:00:00Z',
       };
 
       mockDomainApi.createProjectsDomains.mockResolvedValue(mockDomain as any);
@@ -57,7 +59,7 @@ describe('DomainTask', () => {
       expect(result).toBeDefined();
       expect(mockDomainApi.createProjectsDomains).toHaveBeenCalledWith({
         projectId: 'project-123',
-        domainCreateInput: { name: 'example.com' }
+        domainCreateInput: { name: 'example.com' },
       });
     });
 
@@ -65,7 +67,7 @@ describe('DomainTask', () => {
       const mockDomain = {
         name: 'example.com',
         ssl: { has_certificate: false },
-        created_at: '2023-01-01T00:00:00Z'
+        created_at: '2023-01-01T00:00:00Z',
       };
 
       mockDomainApi.createProjectsEnvironmentsDomains.mockResolvedValue(mockDomain as any);
@@ -75,14 +77,16 @@ describe('DomainTask', () => {
       expect(mockDomainApi.createProjectsEnvironmentsDomains).toHaveBeenCalledWith({
         projectId: 'project-123',
         environmentId: 'env-456',
-        domainCreateInput: { name: 'example.com' }
+        domainCreateInput: { name: 'example.com' },
       });
     });
 
     it('should handle domain addition errors', async () => {
       mockDomainApi.createProjectsDomains.mockRejectedValue(new Error('Domain already exists'));
 
-      await expect(domainTask.add('project-123', 'example.com')).rejects.toThrow('Domain already exists');
+      await expect(domainTask.add('project-123', 'example.com')).rejects.toThrow(
+        'Domain already exists',
+      );
     });
   });
 
@@ -101,7 +105,7 @@ describe('DomainTask', () => {
       expect(result).toBeDefined();
       expect(mockDomainApi.deleteProjectsDomains).toHaveBeenCalledWith({
         projectId: 'project-123',
-        domainId: 'domain-456'
+        domainId: 'domain-456',
       });
     });
 
@@ -115,14 +119,16 @@ describe('DomainTask', () => {
       expect(mockDomainApi.deleteProjectsEnvironmentsDomains).toHaveBeenCalledWith({
         projectId: 'project-123',
         environmentId: 'env-789',
-        domainId: 'domain-456'
+        domainId: 'domain-456',
       });
     });
 
     it('should handle domain deletion errors', async () => {
       mockDomainApi.deleteProjectsDomains.mockRejectedValue(new Error('Domain not found'));
 
-      await expect(domainTask.delete('project-123', 'domain-456')).rejects.toThrow('Domain not found');
+      await expect(domainTask.delete('project-123', 'domain-456')).rejects.toThrow(
+        'Domain not found',
+      );
     });
   });
 
@@ -136,7 +142,7 @@ describe('DomainTask', () => {
       const mockDomain = {
         name: 'example.com',
         ssl: { has_certificate: true },
-        created_at: '2023-01-01T00:00:00Z'
+        created_at: '2023-01-01T00:00:00Z',
       };
 
       mockDomainApi.getProjectsDomains.mockResolvedValue(mockDomain as any);
@@ -146,7 +152,7 @@ describe('DomainTask', () => {
       expect((result as any).name).toBe('example.com');
       expect(mockDomainApi.getProjectsDomains).toHaveBeenCalledWith({
         projectId: 'project-123',
-        domainId: 'domain-456'
+        domainId: 'domain-456',
       });
     });
 
@@ -154,7 +160,7 @@ describe('DomainTask', () => {
       const mockDomain = {
         name: 'example.com',
         ssl: { has_certificate: true },
-        created_at: '2023-01-01T00:00:00Z'
+        created_at: '2023-01-01T00:00:00Z',
       };
 
       mockDomainApi.getProjectsEnvironmentsDomains.mockResolvedValue(mockDomain as any);
@@ -165,7 +171,7 @@ describe('DomainTask', () => {
       expect(mockDomainApi.getProjectsEnvironmentsDomains).toHaveBeenCalledWith({
         projectId: 'project-123',
         environmentId: 'env-789',
-        domainId: 'domain-456'
+        domainId: 'domain-456',
       });
     });
   });
@@ -179,7 +185,7 @@ describe('DomainTask', () => {
     it('should list project domains', async () => {
       const mockDomains = [
         { name: 'example.com', ssl: { has_certificate: true } },
-        { name: 'test.com', ssl: { has_certificate: false } }
+        { name: 'test.com', ssl: { has_certificate: false } },
       ];
 
       mockDomainApi.listProjectsDomains.mockResolvedValue(mockDomains as any);
@@ -189,14 +195,12 @@ describe('DomainTask', () => {
       expect(result).toHaveLength(2);
       expect((result[0] as any).name).toBe('example.com');
       expect(mockDomainApi.listProjectsDomains).toHaveBeenCalledWith({
-        projectId: 'project-123'
+        projectId: 'project-123',
       });
     });
 
     it('should list environment domains', async () => {
-      const mockDomains = [
-        { name: 'env-example.com', ssl: { has_certificate: true } }
-      ];
+      const mockDomains = [{ name: 'env-example.com', ssl: { has_certificate: true } }];
 
       mockDomainApi.listProjectsEnvironmentsDomains.mockResolvedValue(mockDomains as any);
 
@@ -206,7 +210,7 @@ describe('DomainTask', () => {
       expect((result[0] as any).name).toBe('env-example.com');
       expect(mockDomainApi.listProjectsEnvironmentsDomains).toHaveBeenCalledWith({
         projectId: 'project-123',
-        environmentId: 'env-456'
+        environmentId: 'env-456',
       });
     });
 
@@ -225,7 +229,9 @@ describe('DomainTask', () => {
     });
 
     it('should throw "Method not implemented" error', async () => {
-      await expect(domainTask.update('project-123', 'example.com')).rejects.toThrow('Method not implemented.');
+      await expect(domainTask.update('project-123', 'example.com')).rejects.toThrow(
+        'Method not implemented.',
+      );
     });
   });
 });

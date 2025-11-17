@@ -11,10 +11,10 @@ describe('MountTask', () => {
   beforeEach(() => {
     mockClient = {
       apiConfig: {
-        basePath: 'https://api.upsun.com'
-      }
+        basePath: 'https://api.upsun.com',
+      },
     } as any;
-    
+
     mountTask = new MountTask(mockClient);
   });
 
@@ -29,7 +29,9 @@ describe('MountTask', () => {
     });
 
     it('should throw "Cannot be implemented" error', async () => {
-      await expect(mountTask.download('project-123', 'mount-456')).rejects.toThrow('Cannot be implemented');
+      await expect(mountTask.download('project-123', 'mount-456')).rejects.toThrow(
+        'Cannot be implemented',
+      );
     });
   });
 
@@ -51,7 +53,9 @@ describe('MountTask', () => {
     });
 
     it('should throw "Cannot be implemented" error', async () => {
-      await expect(mountTask.upload('project-123', 'mount-456')).rejects.toThrow('Cannot be implemented');
+      await expect(mountTask.upload('project-123', 'mount-456')).rejects.toThrow(
+        'Cannot be implemented',
+      );
     });
   });
 });

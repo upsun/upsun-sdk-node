@@ -3,11 +3,11 @@ import nock from 'nock';
 
 describe('UpsunClient', () => {
   let client: UpsunClient;
-  
+
   beforeEach(() => {
     const config: UpsunConfig = {
       ...DEFAULT_UPSUN_CONFIG,
-      apiKey: 'test-api-key'
+      apiKey: 'test-api-key',
     };
     client = new UpsunClient(config);
   });
@@ -32,9 +32,9 @@ describe('UpsunClient', () => {
         apiKey: 'custom-key',
         token_endpoint: 'custom/token',
         refresh_endpoint: 'custom/refresh',
-        clientId: 'custom-client'
+        clientId: 'custom-client',
       };
-      
+
       const customClient = new UpsunClient(customConfig);
       expect(customClient).toBeDefined();
     });

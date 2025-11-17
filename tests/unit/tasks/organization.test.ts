@@ -1,11 +1,11 @@
 import { OrganizationTask } from '../../../src/core/tasks/organization.js';
 import { UpsunClient } from '../../../src/upsun.js';
-import { OrganizationsApi } from '../../../src/apis-gen/index.js';
+import { OrganizationsApi } from '../../../src/api/index.js';
 import nock from 'nock';
 
 // Mock the UpsunClient and OrganizationsApi
 jest.mock('../../../src/upsun');
-jest.mock('../../../src/apis-gen/index.js');
+jest.mock('../../../src/api/index.js');
 
 describe('OrganizationTask', () => {
   let organizationTask: OrganizationTask;
@@ -14,30 +14,30 @@ describe('OrganizationTask', () => {
 
   beforeEach(() => {
     // Mock OAuth2 authentication
-    nock('https://auth.upsun.com')
-      .post('/oauth2/token')
-      .reply(200, {
-        access_token: 'mock-access-token',
-        token_type: 'bearer',
-        expires_in: 3600
-      });
+    nock('https://auth.upsun.com').post('/oauth2/token').reply(200, {
+      access_token: 'mock-access-token',
+      token_type: 'bearer',
+      expires_in: 3600,
+    });
 
     mockOrgApi = {
       getOrg: jest.fn(),
       createOrg: jest.fn(),
       listUserOrgs: jest.fn(),
-      deleteOrg: jest.fn()
+      deleteOrg: jest.fn(),
     } as any;
 
-    (OrganizationsApi as jest.MockedClass<typeof OrganizationsApi>).mockImplementation(() => mockOrgApi);
+    (OrganizationsApi as jest.MockedClass<typeof OrganizationsApi>).mockImplementation(
+      () => mockOrgApi,
+    );
 
     mockClient = {
       apiConfig: {
-        basePath: 'https://api.upsun.com'
+        basePath: 'https://api.upsun.com',
       },
-      getUserId: jest.fn().mockResolvedValue('user-123')
+      getUserId: jest.fn().mockResolvedValue('user-123'),
     } as any;
-    
+
     organizationTask = new OrganizationTask(mockClient);
   });
 
@@ -73,7 +73,7 @@ describe('OrganizationTask', () => {
         name: 'Test Organization',
         description: 'A test organization',
         created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-02T00:00:00Z'
+        updated_at: '2023-01-02T00:00:00Z',
       };
 
       mockOrgApi.getOrg.mockResolvedValue(mockOrganization);
@@ -95,27 +95,29 @@ describe('OrganizationTask', () => {
       const mockOrganization = {
         id: 'org-123',
         name: 'Test Organization',
-        created_at: '2023-01-01T00:00:00Z'
+        created_at: '2023-01-01T00:00:00Z',
       };
 
       mockOrgApi.createOrg.mockResolvedValue(mockOrganization);
 
       const result = await organizationTask.create('Test Organization');
       expect(result).toEqual(mockOrganization);
-      expect(mockOrgApi.createOrg).toHaveBeenCalledWith({ 
-        createOrgRequest: { 
-          ownerId: undefined, 
-          name: undefined, 
-          label: 'Test Organization', 
-          country: undefined 
-        } 
+      expect(mockOrgApi.createOrg).toHaveBeenCalledWith({
+        createOrgRequest: {
+          ownerId: undefined,
+          name: undefined,
+          label: 'Test Organization',
+          country: undefined,
+        },
       });
     });
 
     it('should handle creation errors', async () => {
       mockOrgApi.createOrg.mockRejectedValue(new Error('Invalid organization name'));
 
-      await expect(organizationTask.create('Invalid Name')).rejects.toThrow('Invalid organization name');
+      await expect(organizationTask.create('Invalid Name')).rejects.toThrow(
+        'Invalid organization name',
+      );
     });
   });
 

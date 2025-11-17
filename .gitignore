@@ -236,4 +236,8 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,node,linux,macos,windows
 
-src/apis-gen
+src/.openapi-generator
+openapitools.json
+src/api/**
+src/model/**
+src/core/runtime.ts

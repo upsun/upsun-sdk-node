@@ -1,10 +1,10 @@
 import { EnvironementTask } from '../../../src/core/tasks/environment.js';
 import { UpsunClient } from '../../../src/upsun.js';
-import { EnvironmentApi } from '../../../src/apis-gen/index.js';
+import { EnvironmentApi } from '../../../src/api/index.js';
 
 // Mock the UpsunClient and EnvironmentApi
 jest.mock('../../../src/upsun');
-jest.mock('../../../src/apis-gen/index.js');
+jest.mock('../../../src/api/index.js');
 
 describe('EnvironementTask', () => {
   let environmentTask: EnvironementTask;
@@ -21,17 +21,19 @@ describe('EnvironementTask', () => {
       deleteProjectsEnvironments: jest.fn(),
       redeployEnvironment: jest.fn(),
       mergeEnvironment: jest.fn(),
-      deactivateEnvironment: jest.fn()
+      deactivateEnvironment: jest.fn(),
     } as any;
 
-    (EnvironmentApi as jest.MockedClass<typeof EnvironmentApi>).mockImplementation(() => mockEnvironmentApi);
+    (EnvironmentApi as jest.MockedClass<typeof EnvironmentApi>).mockImplementation(
+      () => mockEnvironmentApi,
+    );
 
     mockClient = {
       apiConfig: {
-        basePath: 'https://api.upsun.com'
-      }
+        basePath: 'https://api.upsun.com',
+      },
     } as any;
-    
+
     environmentTask = new EnvironementTask(mockClient);
   });
 
@@ -48,7 +50,7 @@ describe('EnvironementTask', () => {
     it('should list project environments', async () => {
       const mockEnvironments = [
         { id: 'env-1', name: 'main' },
-        { id: 'env-2', name: 'staging' }
+        { id: 'env-2', name: 'staging' },
       ];
 
       mockEnvironmentApi.listProjectsEnvironments.mockResolvedValue(mockEnvironments as any);
@@ -57,7 +59,7 @@ describe('EnvironementTask', () => {
       expect(result).toBeDefined();
       expect(result).toHaveLength(2);
       expect(mockEnvironmentApi.listProjectsEnvironments).toHaveBeenCalledWith({
-        projectId: 'project-123'
+        projectId: 'project-123',
       });
     });
   });
@@ -72,7 +74,7 @@ describe('EnvironementTask', () => {
       const mockEnvironment = {
         id: 'env-123',
         name: 'main',
-        status: 'active'
+        status: 'active',
       };
 
       mockEnvironmentApi.getEnvironment.mockResolvedValue(mockEnvironment as any);
@@ -82,7 +84,7 @@ describe('EnvironementTask', () => {
       expect((result as any).id).toBe('env-123');
       expect(mockEnvironmentApi.getEnvironment).toHaveBeenCalledWith({
         projectId: 'project-123',
-        environmentId: 'main'
+        environmentId: 'main',
       });
     });
   });
@@ -142,13 +144,17 @@ describe('EnvironementTask', () => {
 
   describe('logs', () => {
     it('should throw not implemented error', async () => {
-      await expect(environmentTask.logs('project-123', 'main', 'app')).rejects.toThrow('Not implemented');
+      await expect(environmentTask.logs('project-123', 'main', 'app')).rejects.toThrow(
+        'Not implemented',
+      );
     });
   });
 
   describe('relationships', () => {
     it('should throw not implemented error', async () => {
-      await expect(environmentTask.relationships('project-123', 'main')).rejects.toThrow('Not implemented');
+      await expect(environmentTask.relationships('project-123', 'main')).rejects.toThrow(
+        'Not implemented',
+      );
     });
   });
 

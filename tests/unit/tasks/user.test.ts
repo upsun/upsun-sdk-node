@@ -1,10 +1,10 @@
 import { UserTask } from '../../../src/core/tasks/user.js';
 import { UpsunClient } from '../../../src/upsun.js';
-import { UsersApi } from '../../../src/apis-gen/index.js';
+import { UsersApi } from '../../../src/api/index.js';
 
 // Mock the UpsunClient and UsersApi
 jest.mock('../../../src/upsun');
-jest.mock('../../../src/apis-gen/index.js');
+jest.mock('../../../src/api/index.js');
 
 describe('UserTask', () => {
   let userTask: UserTask;
@@ -13,17 +13,17 @@ describe('UserTask', () => {
 
   beforeEach(() => {
     mockUsersApi = {
-      getCurrentUser: jest.fn()
+      getCurrentUser: jest.fn(),
     } as any;
 
     (UsersApi as jest.MockedClass<typeof UsersApi>).mockImplementation(() => mockUsersApi);
 
     mockClient = {
       apiConfig: {
-        basePath: 'https://api.upsun.com'
-      }
+        basePath: 'https://api.upsun.com',
+      },
     } as any;
-    
+
     userTask = new UserTask(mockClient);
   });
 
@@ -42,7 +42,7 @@ describe('UserTask', () => {
         id: 'user-123',
         email: 'test@example.com',
         name: 'Test User',
-        created_at: '2023-01-01T00:00:00Z'
+        created_at: '2023-01-01T00:00:00Z',
       };
 
       mockUsersApi.getCurrentUser.mockResolvedValue(mockUser as any);

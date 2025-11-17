@@ -27,11 +27,11 @@
     "test:unit": "jest --testPathPatterns=unit",
     "test:integration": "jest --testPathPatterns=integration",
 
-    "spec:clean": "rm -Rf src/api/* ; rm -Rf src/model/* ; rm -Rf src/api-gen/*",
+    "spec:clean": "rm -Rf src/api/* ; rm -Rf src/model/* ; rm -Rf src/core/runtime.ts",
     "spec:dl": "wget -O ./schema/openapispec-upsun.json https://docs.upsun.com/api/openapispec-upsun.json",
     "spec:patch": "sed -i 's/HTTP access permissions/Http access permissions/g' ./schema/openapispec-upsun.json",
     "spec:generate:install": "npm install -g @openapitools/openapi-generator-cli",
-    "spec:generate": "openapi-generator-cli generate -i ./schema/openapispec-upsun-processed.json -g typescript-fetch -o ./src/apis-gen --additional-properties=withInterfaces=true,importFileExtension=.js,supportsES6=true",
+    "spec:generate": "npx openapi-generator-cli generate -c templates/config.yaml",
 
     "release-version": "bash ./scripts/release-version.sh $npm_config_tag",
 

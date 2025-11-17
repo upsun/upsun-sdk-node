@@ -1,29 +1,29 @@
 import { SshTask } from '../../../src/core/tasks/ssh.js';
 import { UpsunClient } from '../../../src/upsun.js';
-import { SSHKeysApi } from '../../../src/apis-gen/index.js';
+import { SshKeysApi } from '../../../src/api/index.js';
 
 // Mock the UpsunClient and SSHKeysApi
 jest.mock('../../../src/upsun');
-jest.mock('../../../src/apis-gen/index.js');
+jest.mock('../../../src/api/index.js');
 
 describe('SshTask', () => {
   let sshTask: SshTask;
   let mockClient: jest.Mocked<UpsunClient>;
-  let mockSshApi: jest.Mocked<SSHKeysApi>;
+  let mockSshApi: jest.Mocked<SshKeysApi>;
 
   beforeEach(() => {
     mockSshApi = {
-      createSshKey: jest.fn()
+      createSshKey: jest.fn(),
     } as any;
 
-    (SSHKeysApi as jest.MockedClass<typeof SSHKeysApi>).mockImplementation(() => mockSshApi);
+    (SshKeysApi as jest.MockedClass<typeof SshKeysApi>).mockImplementation(() => mockSshApi);
 
     mockClient = {
       apiConfig: {
-        basePath: 'https://api.upsun.com'
-      }
+        basePath: 'https://api.upsun.com',
+      },
     } as any;
-    
+
     sshTask = new SshTask(mockClient);
   });
 
@@ -42,27 +42,32 @@ describe('SshTask', () => {
         id: 'key-123',
         title: 'test-key',
         value: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB...',
-        created_at: '2023-01-01T00:00:00Z'
+        created_at: '2023-01-01T00:00:00Z',
       };
 
       mockSshApi.createSshKey.mockResolvedValue(mockSshKey as any);
 
-      const result = await sshTask.add('user-456', 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB...', 'test-key');
+      const result = await sshTask.add(
+        'user-456',
+        'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB...',
+        'test-key',
+      );
       expect(result).toBeDefined();
       expect(mockSshApi.createSshKey).toHaveBeenCalledWith({
         createSshKeyRequest: {
           uuid: 'user-456',
           value: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB...',
-          title: 'test-key'
-        }
+          title: 'test-key',
+        },
       });
     });
 
     it('should handle SSH key addition errors', async () => {
       mockSshApi.createSshKey.mockRejectedValue(new Error('SSH key already exists'));
 
-      await expect(sshTask.add('user-456', 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB...', 'test-key'))
-        .rejects.toThrow('SSH key already exists');
+      await expect(
+        sshTask.add('user-456', 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB...', 'test-key'),
+      ).rejects.toThrow('SSH key already exists');
     });
   });
 
