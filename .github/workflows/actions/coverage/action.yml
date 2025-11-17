@@ -1,0 +1,46 @@
+name: Code Coverage Report
+description: Generate code coverage report and publish them
+inputs:
+  default-runtime-version:
+    description: "Version used to setup runtime"
+    required: true
+  codecov-secret:
+    description: "CodeCov secret token"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up runtime - Node.js ${{ inputs.default-runtime-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.default-runtime-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Generate OpenAPI client
+      shell: bash
+      run: npm run spec:generate
+      
+    - name: Run unit tests with coverage
+      shell: bash
+      run: npm run test:coverage:ci
+
+    - name: Upload coverage to Codecov
+      if: success()
+      uses: codecov/codecov-action@v3
+      with:
+        files: coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+        slug: upsun/upsun-sdk-node
+        token: ${{ inputs.codecov-secret }}

@@ -16,23 +16,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up runtime - Node.js ${{ env.PRIMARY_NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.PRIMARY_NODE_VERSION }}
-        cache: 'npm'
-    
-    - name: Validate dependency file
-      run: npm install --dry-run
+      - name: Set up runtime - Node.js ${{ env.PRIMARY_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.PRIMARY_NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Validate dependency file
+        run: npm install --dry-run
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run JS/TS lint (eslint, prettier)
-      run: npm run lint:all
+      - name: Run JS/TS lint (eslint, prettier)
+        run: npm run lint:all
 
   tests:
     name:  Test on Node.js ${{ matrix.node-version }}
@@ -54,6 +54,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Generate OpenAPI client
+        run: npm run spec:generate
 
       - name: Run unit tests
         run: npm run test:unit
@@ -92,17 +100,25 @@ jobs:
     needs: [ coverage, quality ]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up runtime - Node.js ${{ env.PRIMARY_NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.PRIMARY_NODE_VERSION }}
-        cache: 'npm'
+      - name: Set up runtime - Node.js ${{ env.PRIMARY_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.PRIMARY_NODE_VERSION }}
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Build project
-      run: npm run build
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Generate OpenAPI client
+        run: npm run spec:generate
+
+      - name: Build project
+        run: npm run build

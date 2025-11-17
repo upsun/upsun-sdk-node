@@ -72,7 +72,7 @@ pids
 lib-cov
 
 # Coverage directory used by tools like istanbul
-coverage
+/coverage
 *.lcov
 
 # nyc test coverage
@@ -235,7 +235,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,node,linux,macos,windows
-
+!.github/**
 src/.openapi-generator
 openapitools.json
 src/api/**
