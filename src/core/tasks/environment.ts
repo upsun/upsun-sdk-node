@@ -3,8 +3,8 @@ import { EnvironmentApi } from "../../apis-gen/index.js";
 import { 
   EnvironmentActivateInput,
   EnvironmentMergeInput,
-  Resources1,
-  Resources1InitEnum,
+  Resources2,
+  Resources2InitEnum,
   Resources3,
   Resources3InitEnum
 } from "../../apis-gen/models/index.js";
@@ -25,7 +25,7 @@ export class EnvironementTask extends TaskBase {
     return await api.activateEnvironment({
       projectId,
       environmentId: env_name,
-      environmentActivateInput: { resources: { init: Resources1InitEnum.Default } as Resources1 } as EnvironmentActivateInput
+      environmentActivateInput: { resources: { init: Resources2InitEnum.Default } as Resources2 } as EnvironmentActivateInput
     });
   }
 

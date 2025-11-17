@@ -183,7 +183,7 @@ export class UpsunClient {
   /**
    * Get the access token for authentication.
    */
-  protected async getToken(name?: string, scopes?: string[]): Promise<string> {
+  public async getToken(name?: string, scopes?: string[]): Promise<string> {
     if (this.auth) {
       return await this.auth.getAuthorization()
     } else if (this.accessToken) {

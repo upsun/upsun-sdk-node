@@ -1,0 +1,24 @@
+name: Generate Documentation
+description: Generate documentation of the project
+inputs:
+  default-runtime-version: 
+    description: "Version used to setup runtime"
+    required: true
+    
+runs:
+  using: "composite"
+  steps:
+    - name: Set up runtime - Node.js ${{ inputs.default-runtime-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.default-runtime-version }}
+        cache: 'npm'
+  
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+  
+    - name: Generate documentation (with docs generator)
+      if: false
+      shell: bash
+      run: npm run docs

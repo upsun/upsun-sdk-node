@@ -10,20 +10,37 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "run": "node dist/index.js",
-    "build": "tsc -p tsconfig.json ",
+    "run": "node dist/app.js",
+
+    "build": "tsc -p tsconfig.json",
     "build:watch": "tsc --watch",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
-    "prettier": "prettier --write .",
-    "prettier:check": "prettier --check .",
-    "gen-client": "./scripts/gen_node.sh",
-    "test": "jest",
+
+    "lint:es": "eslint . --ext .ts",
+    "lint:prettier": "prettier --check .",
+
+    "fix:es": "eslint . --ext .ts --fix",
+    "fix:prettier": "prettier --write .",
+
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:unit": "jest --testPathPattern=unit",
-    "test:integration": "jest --testPathPattern=integration",
-    "release-version": "bash ./scripts/release-version.sh $npm_config_tag"
+    "test:coverage:ci": "jest --coverage --ci",
+    "test:unit": "jest --testPathPatterns=unit",
+    "test:integration": "jest --testPathPatterns=integration",
+
+    "spec:clean": "rm -Rf src/api/* ; rm -Rf src/model/* ; rm -Rf src/api-gen/*",
+    "spec:dl": "wget -O ./schema/openapispec-upsun.json https://docs.upsun.com/api/openapispec-upsun.json",
+    "spec:patch": "sed -i 's/HTTP access permissions/Http access permissions/g' ./schema/openapispec-upsun.json",
+    "spec:generate:install": "npm install -g @openapitools/openapi-generator-cli",
+    "spec:generate": "openapi-generator-cli generate -i ./schema/openapispec-upsun-processed.json -g typescript-fetch -o ./src/apis-gen --additional-properties=withInterfaces=true,importFileExtension=.js,supportsES6=true",
+
+    "release-version": "bash ./scripts/release-version.sh $npm_config_tag",
+
+    "spec:full": "",
+    "lint:all": "npm run lint:es && npm run lint:prettier",
+    "fix:all": "npm run fix:es && npm run fix:prettier",
+    "test:all": "npm run test:unit",
+    "qa": "npm run lint:all && npm run test:all",
+    "qa:all": "npm run build && npm run lint:all && npm run test:all"
   },
   "keywords": [],
   "author": "Mickael GAILLARD",
