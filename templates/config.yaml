@@ -1,5 +1,5 @@
 generatorName: typescript-fetch
-inputSpec: ./schema/openapispec-upsun-processed.json
+inputSpec: ./schema/openapispec-upsun.json
 outputDir: src
 packageName: upsun-client
 templateDir: ./templates/node
@@ -12,6 +12,27 @@ apiDocs: false
 modelDocs: false
 
 additionalProperties:
+  sdkName: upsun-sdk-node
+  sdkVersion: 0.1.0
+  sdkDescription: The official Upsun SDK for Node.js
+  licenseName: MIT
+  artifactUrl: https://github.com/upsun/upsun-sdk-node
+  authorName: Upsun Advocacy Team
+  contributors: |
+        [
+            {
+                "name": "Florent HUCK",
+                "email": "florent.huck@upsun.com"
+            },
+            {
+                "name": "Mickael GAILLARD",
+                "email": "mickael.gaillard@upsun.com"
+            },
+            {
+                "name": "Upsun Advocacy Team",
+                "homepage": "https://www.upsun.com"
+            }
+        ],
   importFileExtension: .js
   #Bug on OpenApiGenerator => fileNaming: kebab-case
   enumPropertyNaming: UPPERCASE

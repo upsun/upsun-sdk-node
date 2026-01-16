@@ -21,6 +21,7 @@
     "fix:es": "eslint . --ext .ts --fix",
     "fix:prettier": "prettier --write .",
 
+    "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:coverage:ci": "jest --coverage --ci",
@@ -28,7 +29,7 @@
     "test:integration": "jest --testPathPatterns=integration",
 
     "spec:clean": "rm -Rf src/api/* ; rm -Rf src/model/* ; rm -Rf src/core/runtime.ts",
-    "spec:dl": "wget -O ./schema/openapispec-upsun.json https://docs.upsun.com/api/openapispec-upsun.json",
+    "spec:dl": "wget -O ./schema/openapispec-upsun.json 'https://meta.upsun.com/openapi-spec?sdks=true'",
     "spec:patch": "sed -i 's/HTTP access permissions/Http access permissions/g' ./schema/openapispec-upsun.json",
     "spec:generate:install": "npm install -g @openapitools/openapi-generator-cli",
     "spec:generate": "npx openapi-generator-cli generate -c templates/config.yaml",
@@ -44,6 +45,20 @@
   },
   "keywords": [],
   "author": "Mickael GAILLARD",
+  "contributors": [
+    {
+        "name": "Mickael GAILLARD",
+        "email": "mickael.gaillard@upsun.com"
+    },
+    {
+        "name": "Florent HUCK",
+        "email": "florent.huck@upsun.com"
+    },
+    {
+        "name": "Upsun Advocacy Team",
+        "homepage": "https://www.upsun.com"
+    }
+  ],
   "license": "Apache v2.0",
   "description": "Upsun SDK for Node.js",
   "devDependencies": {
@@ -64,5 +79,9 @@
   },
   "dependencies": {
     "dotenv": "^17.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/upsun/upsun-sdk-node"
   }
 }

@@ -49,7 +49,7 @@ if (FULL_TEST) {
       const subCreated = await upsun.project.create(org.id, 'eu-3.platform.sh', 'Demo', 'main');
 
       let prjCreated = await upsun.project.getSubscription(org.id, subCreated.id || '');
-      while (prjCreated.status !== SubscriptionStatusEnum.Active) {
+      while (prjCreated.status !== SubscriptionStatusEnum.ACTIVE) {
         console.log('Waiting for project to be active...');
         await delay(10000);
         prjCreated = await upsun.project.getSubscription(org.id, subCreated.id || '');
