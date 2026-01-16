@@ -9,13 +9,11 @@ import {
   {{classname}}ToJSONTyped,
 } from './{{filename}}{{importFileExtension}}';
 {{/tsImports}}
-
 {{/hasImports}}
-{{#discriminator}}
-{{#discriminator.mappedModels}}
-import { type {{modelName}}, {{modelName}}FromJSONTyped, {{modelName}}ToJSON, {{modelName}}ToJSONTyped } from './{{modelName}}{{importFileExtension}}';
-{{/discriminator.mappedModels}}
-{{/discriminator}}
+{{#vendorExtensions.x-uniqueDiscriminatorModels}}
+import { type {{.}}, {{.}}FromJSONTyped, {{.}}ToJSON, {{.}}ToJSONTyped } from './{{.}}{{importFileExtension}}';
+{{/vendorExtensions.x-uniqueDiscriminatorModels}}
+
 {{>modelGenericInterfaces}}
 
 /**
@@ -42,8 +40,8 @@ export function {{classname}}FromJSONTyped(json: any, ignoreDiscriminator: boole
 {{#discriminator}}
   if (!ignoreDiscriminator) {
 {{#discriminator.mappedModels}}
-    if (json['{{discriminator.propertyBaseName}}'] === '{{mappingName}}') {
-      return {{modelName}}FromJSONTyped(json, ignoreDiscriminator);
+    if (json['{{discriminator.propertyBaseName}}'] === '{{mappingName}}') { // pouette
+      return {{modelName}}FromJSONTyped(json, ignoreDiscriminator) as {{classname}};
     }
 {{/discriminator.mappedModels}}
   }
@@ -123,7 +121,7 @@ export function {{classname}}ToJSONTyped(value?: {{#hasReadOnly}}Omit<{{classnam
     switch (value['{{discriminator.propertyName}}']) {
     {{#discriminator.mappedModels}}
       case '{{mappingName}}':
-        return {{modelName}}ToJSONTyped(value as {{modelName}}, ignoreDiscriminator);
+        return {{modelName}}ToJSONTyped(value as {{modelName}}, ignoreDiscriminator) as {{classname}};
     {{/discriminator.mappedModels}}
       default:
         return value;
