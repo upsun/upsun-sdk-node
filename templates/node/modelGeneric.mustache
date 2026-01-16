@@ -10,6 +10,13 @@ import {
 } from './{{filename}}{{importFileExtension}}';
 {{/tsImports}}
 {{/hasImports}}
+{{! 
+  x-uniqueDiscriminatorModels is a vendor extension listing all concrete models
+  that can appear as discriminator targets for this type. Unlike the standard
+  discriminator.mappedModels handling used in {{classname}}FromJSONTyped below,
+  this extension is only used here to ensure we generate the necessary imports
+  for those models even when they are not directly referenced via mappedModels.
+}}
 {{#vendorExtensions.x-uniqueDiscriminatorModels}}
 import { type {{.}}, {{.}}FromJSONTyped, {{.}}ToJSON, {{.}}ToJSONTyped } from './{{.}}{{importFileExtension}}';
 {{/vendorExtensions.x-uniqueDiscriminatorModels}}
