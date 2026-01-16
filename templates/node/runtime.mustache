@@ -139,6 +139,13 @@ export class BaseAPI {
     }
 
     const headers = Object.assign({}, this.configuration.headers, context.headers);
+    const accessTokenFactory = this.configuration.accessToken;
+    if (accessTokenFactory && !headers.Authorization) {
+      const token = await accessTokenFactory();
+      if (token) {
+        headers.Authorization = token;
+      }
+    }
     Object.keys(headers).forEach(key => headers[key] === undefined ? delete headers[key] : {});
 
     const initOverrideFn =
