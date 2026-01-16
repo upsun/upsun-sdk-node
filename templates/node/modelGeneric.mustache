@@ -40,7 +40,7 @@ export function {{classname}}FromJSONTyped(json: any, ignoreDiscriminator: boole
 {{#discriminator}}
   if (!ignoreDiscriminator) {
 {{#discriminator.mappedModels}}
-    if (json['{{discriminator.propertyBaseName}}'] === '{{mappingName}}') { // pouette
+    if (json['{{discriminator.propertyBaseName}}'] === '{{mappingName}}') {
       return {{modelName}}FromJSONTyped(json, ignoreDiscriminator) as {{classname}};
     }
 {{/discriminator.mappedModels}}
