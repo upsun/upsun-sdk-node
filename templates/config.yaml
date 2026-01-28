@@ -10,8 +10,11 @@ apiTests: true
 modelTests: true
 apiDocs: false
 modelDocs: false
+authMethods:
+isOAuth: true
 
 additionalProperties:
+  isApiKey: true
   sdkName: upsun-sdk-node
   sdkVersion: 0.1.0
   sdkDescription: The official Upsun SDK for Node.js

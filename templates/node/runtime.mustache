@@ -126,7 +126,19 @@ export class BaseAPI {
     if (response && (response.status >= 200 && response.status < 300)) {
       return response;
     }
-    throw new ResponseError(response, 'Response returned an error code');
+    let errorMessage = `HTTP ${response?.status} ${response?.statusText || 'Error'}`;
+    if (response) {
+      const responseClone = response.clone();
+      try {
+        const responseBody = await responseClone.text();
+        if (responseBody) {
+          errorMessage += ` – ${responseBody}`;
+        }
+      } catch {
+        // ignore body parse failures
+      }
+    }
+    throw new ResponseError(response, errorMessage);
   }
 
   private async createFetchParams(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction) {
@@ -139,13 +151,6 @@ export class BaseAPI {
     }
 
     const headers = Object.assign({}, this.configuration.headers, context.headers);
-    const accessTokenFactory = this.configuration.accessToken;
-    if (accessTokenFactory && !headers.Authorization) {
-      const token = await accessTokenFactory();
-      if (token) {
-        headers.Authorization = token;
-      }
-    }
     Object.keys(headers).forEach(key => headers[key] === undefined ? delete headers[key] : {});
 
     const initOverrideFn =

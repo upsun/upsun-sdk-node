@@ -45,8 +45,11 @@ export class ProjectTask extends TaskBase {
     });
   }
 
-  async delete(projectId: string): Promise<null> {
-    return null; // await this.prjApi.deleteProjects({ projectId });
+  async delete(projectId: string): Promise<void> {
+    const project = await this.prjApi.getProjects({ projectId });
+    const subscriptionId = TaskBase.extractSubscriptionId(project.subscription.licenseUri);
+
+    return await this.subApi.deleteOrgSubscription({ organizationId: project.organization as string, subscriptionId });
   }
 
   async get(projectId: string): Promise<Project> {

@@ -186,7 +186,7 @@ export class UpsunClient {
     if (this.auth) {
       return await this.auth.getAuthorization();
     } else if (this.accessToken) {
-      return `Bearer ${this.accessToken}`;
+      return `${this.accessToken}`;
     } else {
       throw new Error(
         'No authentication method available. Please provide an API key or set a bearer token.',

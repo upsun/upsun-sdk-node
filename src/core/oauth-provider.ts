@@ -118,6 +118,6 @@ export class OAuth2Client {
     await this.ensureValidToken();
 
     //TODO use typeToken.
-    return `Bearer ${this.accessToken}`;
+    return `${this.accessToken}`;
   }
 }

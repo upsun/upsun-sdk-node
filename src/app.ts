@@ -1,12 +1,14 @@
 /* eslint-disable no-console */
+import { exit } from 'process';
 import { SubscriptionStatusEnum } from './model/index.js';
 import { UpsunClient, UpsunConfig } from './upsun.js';
 import dotenv from 'dotenv';
+import { ResponseError } from './index.js';
 
 dotenv.config();
 
-const DISABLED: boolean = true;
-const FULL_TEST: boolean = false;
+const DISABLED: boolean = false;
+const FULL_TEST: boolean = true;
 const MODE_USE: string = 'API'; // 'API' or 'BEARER'
 
 function delay(ms: number): Promise<void> {
@@ -26,29 +28,51 @@ if (MODE_USE === 'API') {
   }
 } else if (MODE_USE === 'BEARER') {
   upsun = new UpsunClient();
-  upsun.setBearerToken('token');
+  upsun.setBearerToken('Your_Bearer_Token_Here'); // Replace with your bearer token
 } else {
   throw new Error('Invalid MODE_USE value. Use API or BEARER.');
 }
 
-const orgs = await upsun.organization.list();
-console.log(orgs);
+console.log('--- it\'s me ---');
+// const me = await upsun.user.me();
+// console.log(me);
 
-const orgName = 'Perso-home'; // Replace with your organization ID
-const org = orgs.items?.find(p => p.label === orgName) ?? null;
-console.log(org);
+console.log('--- List Organizations ---');
+//const accessToken = await upsun.getToken();
+//console.log('Access Token:', accessToken);
+// console.log(orgs);
+
+// console.log(org);
 
 //const tt = await upsun.metrics.fetchMetrics("a6gx2dq4x235u", "master", "eu-3");
-const tt = await upsun.metrics.fetchMetrics('3byyvv7dtvdye', 'master', 'ch-1');
-console.log(tt);
+// const tt = await upsun.metrics.fetchMetrics('3byyvv7dtvdye', 'master', 'ch-1');
+// console.log(tt);
+
+console.log('--- Delete Project ---');
+/* upsun.project.delete('y4q5rwg4uzv5g').then(() => {
+  console.log('Project deleted successfully');
+}).catch((error) => {
+  console.error('Error deleting project:', error);
+}); */
 
 if (FULL_TEST) {
   try {
-    if (org && org.id) {
+    const orgs = await upsun.organization.list();
+    const orgName = 'demo-test-org'; // Replace with your organization name (ex: 'perso-home')
+    const org = orgs.items?.find(p => p.name === orgName) ?? null;
+    if (org && org?.id) {
       // Create Project
-      const subCreated = await upsun.project.create(org.id, 'eu-3.platform.sh', 'Demo', 'main');
+      console.log('--- Create Project ---');
+      const subCreated = await upsun.project.create(
+        org?.id, 
+        'eu-3.platform.sh', 
+        'Demo', 
+        'upsun/flexible',
+        'main'
+      );
 
-      let prjCreated = await upsun.project.getSubscription(org.id, subCreated.id || '');
+      console.log('Project created:', subCreated);
+      let prjCreated = await upsun.project.getSubscription(org?.id, subCreated.id || '');
       while (prjCreated.status !== SubscriptionStatusEnum.ACTIVE) {
         console.log('Waiting for project to be active...');
         await delay(10000);
@@ -93,6 +117,15 @@ if (FULL_TEST) {
       }
     }
   } catch (error) {
-    console.error('An error occurred:', error);
+    if (error instanceof ResponseError) {
+      const responseText = await error.response.text();
+      console.error(`Create Project failed: HTTP ${error.response.status}`, responseText);
+      if (error.response.status === 403) {
+        throw new Error('You do not have permission to create a project for this organization (403 Forbidden)');
+      }
+    } else {
+      console.error('An unexpected error occurred:', error);
+      throw error;
+    }
   }
 }

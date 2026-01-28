@@ -44,4 +44,13 @@ export abstract class TaskBase {
       throw new Error('Certificate ID is required');
     }
   }
+
+  // works for URIs like /subscriptions/{subscriptionId} to extract subscriptionId
+  // as the subscriptionId is not returned directly in the project object (emty field)
+  // e.g. /subscriptions/abc123
+  static extractSubscriptionId(projectLicenceUri: string): string {
+    const url = new URL(projectLicenceUri);
+    const path = url.pathname;
+    return path.substring(path.lastIndexOf('/') + 1);
+  }
 }
