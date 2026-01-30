@@ -2,6 +2,8 @@ import {
   // Common
   Configuration,
   ConfigurationParameters,
+  HTTPHeaders,
+  Middleware,
   OAuth2Client,
   // Tasks
   ActivityTask,
@@ -97,6 +99,8 @@ export class UpsunClient {
 
   public resource: ResourcesTask;
 
+  private authMiddleware: Middleware;
+
   /**
    * Constructor for the UpsunClient class.
    *
@@ -108,25 +112,22 @@ export class UpsunClient {
       ...config,
     };
 
-    // Initialize the API configuration with the base URL and access token.
-    // The access token is obtained through the getToken method.
-    // The getToken method is bound to the current instance of the UpsunClient.
-    const param: ConfigurationParameters = {
-      basePath: this.upsunConfig.base_url,
-      accessToken: this.getToken.bind(this),
-    };
-    this.apiConfig = new Configuration(param);
-
     if (this.upsunConfig.apiKey) {
-      // Initialize the OAuth2Client with the authentication URL, client ID, and API key.
-      // The OAuth2Client is responsible for handling the OAuth2 authentication flow.
-      // The auth_url is used to obtain the access token, and the clientId and apiKey are used for authentication.
       this.auth = new OAuth2Client(
         `${this.upsunConfig.auth_url}/${this.upsunConfig.token_endpoint}`,
         this.upsunConfig.clientId,
         this.upsunConfig.apiKey,
       );
     }
+
+    this.authMiddleware = this.createAuthRetryMiddleware();
+
+    const param: ConfigurationParameters = {
+      basePath: this.upsunConfig.base_url,
+      accessToken: this.getToken.bind(this),
+      middleware: [this.authMiddleware],
+    };
+    this.apiConfig = new Configuration(param);
 
     // Initialize the commands tasks.
     this.activity = new ActivityTask(this);
@@ -150,6 +151,56 @@ export class UpsunClient {
     this.worker = new WorkerTask(this);
 
     this.resource = new ResourcesTask(this);
+  }
+
+  private createAuthRetryMiddleware(): Middleware {
+    type RetryableInit = RequestInit & { __upsunRetry?: boolean };
+
+    return {
+      post: async ({ fetch, url, init, response }) => {
+        if (response.status !== 401) {
+          return response;
+        }
+        const retryInit: RetryableInit = {
+          ...(init || {}),
+          __upsunRetry: (init as RetryableInit)?.__upsunRetry,
+        };
+        if (retryInit.__upsunRetry) {
+          return response;
+        }
+        retryInit.__upsunRetry = true;
+        if (!this.auth) {
+          return response;
+        }
+        console.log('[UpsunClient] refreshing authentication after 401 response');
+        await this.auth.exchangeCodeForToken();
+        const token = await this.getToken();
+        retryInit.headers = {
+          ...this.cloneHeaders(init.headers),
+          Authorization: `Bearer ${token}`,
+        };
+        return fetch(url, retryInit);
+      },
+    };
+  }
+
+  private cloneHeaders(headers?: HeadersInit): HTTPHeaders {
+    const normalized: HTTPHeaders = {};
+    if (!headers) {
+      return normalized;
+    }
+    if (headers instanceof Headers) {
+      headers.forEach((value, key) => {
+        normalized[key] = value;
+      });
+    } else if (Array.isArray(headers)) {
+      headers.forEach(([key, value]) => {
+        normalized[key] = value;
+      });
+    } else {
+      Object.assign(normalized, headers);
+    }
+    return normalized;
   }
 
   /**

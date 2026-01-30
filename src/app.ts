@@ -10,6 +10,7 @@ dotenv.config();
 const DISABLED: boolean = false;
 const FULL_TEST: boolean = true;
 const MODE_USE: string = 'API'; // 'API' or 'BEARER'
+const projectTestId = 'iok5pcum4s4au'; // Replace with your project ID
 
 function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -42,6 +43,7 @@ console.log('--- List Organizations ---');
 //console.log('Access Token:', accessToken);
 // console.log(orgs);
 
+
 // console.log(org);
 
 //const tt = await upsun.metrics.fetchMetrics("a6gx2dq4x235u", "master", "eu-3");
@@ -54,78 +56,119 @@ console.log('--- Delete Project ---');
 }).catch((error) => {
   console.error('Error deleting project:', error);
 }); */
+let prjCreatedObject = null;
 
 if (FULL_TEST) {
   try {
     const orgs = await upsun.organization.list();
-    const orgName = 'demo-test-org'; // Replace with your organization name (ex: 'perso-home')
+    const orgName = 'florent-huck'; // Replace with your organization name (ex: 'perso-home')
     const org = orgs.items?.find(p => p.name === orgName) ?? null;
     if (org && org?.id) {
       // Create Project
-      console.log('--- Create Project ---');
-      const subCreated = await upsun.project.create(
-        org?.id, 
-        'eu-3.platform.sh', 
-        'Demo', 
-        'upsun/flexible',
-        'main'
-      );
+      // console.log('--- Create Project ---');
+      // const subCreated = await upsun.project.create(
+      //   org?.id, 
+      //   'eu-5.platform.sh', 
+      //   'Demo test from sdk-node '+new Date().toISOString(), 
+      //   'upsun/flexible',
+      //   'main'
+      // );
 
-      console.log('Project created:', subCreated);
-      let prjCreated = await upsun.project.getSubscription(org?.id, subCreated.id || '');
-      while (prjCreated.status !== SubscriptionStatusEnum.ACTIVE) {
-        console.log('Waiting for project to be active...');
+      // const maxAttempts = 12;
+      // let prjCreated = null;
+      /* for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          prjCreated = await upsun.project.getSubscription(org!.id, subCreated.id || '');
+          console.log(`Statut de la souscription : ${prjCreated.status}`);
+          if (prjCreated.status === SubscriptionStatusEnum.ACTIVE) {
+            break;
+          }
+        } catch (error) {
+          if (error instanceof ResponseError && [404, 202].includes(error.response.status)) {
+            console.log(`Ressource non prête (code ${error.response.status}), attente…`);
+          } else {
+            throw error;
+          }
+        }
         await delay(10000);
-        prjCreated = await upsun.project.getSubscription(org.id, subCreated.id || '');
       }
 
-      // Sample code to get all projects
-      // const orgId = "name=Perso-home"; // Replace with your organization ID
-      const prjs = await upsun.project.list(org.id);
+      if (!prjCreated || prjCreated.status !== SubscriptionStatusEnum.ACTIVE) {
+        throw new Error('Subscription never transitioned to ACTIVE state within the allotted time');
+      } else {
+        console.log('Project created:', prjCreated);
+      } */
 
-      // Select a specific project
-      const prjName = 'POC-mcp-stack'; // Replace with your project name
-      const prj = prjs.items?.find(p => p.projectTitle === prjName) ?? null;
-      console.log(prj);
+      // Sample code to get a project
+      // console.log('--- Get project ---');
+      // prjCreatedObject = await upsun.project.get(prjCreated.projectId || '');
+      // console.log(prjCreatedObject);
 
       // Wait 15 minutes before redeploying (test renew access token)
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      DISABLED || (await delay(6000 * 15));
+      //DISABLED || (await delay(6000 * 15));
 
       // Work with project
-      if (prj && prj.projectId) {
+      const prj = await upsun.project.get(projectTestId || '');
+
+      if (prj && prj.id) {
         const envName = 'main'; // Replace with your environment name
 
-        const res = await upsun.resource.get(prj.projectId, envName);
+        console.log('--- Get Resources ---');
+        const res = await upsun.resource.get(prj.id, prj.defaultBranch || 'main', 'workers', 'app--app-worker');
         console.log(res);
 
+        console.log('--- Set Resources ---');
+        const response = await upsun.resource.set(
+          prj.id || '',
+          prj.defaultBranch || 'main',
+          { 'app': { 
+              resources: { profileSize: '1' },
+              disk: 1024,
+              instanceCount: 2,
+            }
+          },
+          {
+            'mysql': { 
+              resources: { profileSize: '1' },
+              disk: 2048,
+            }
+          },
+          {
+            'app--app-worker': { 
+              resources: { profileSize: '1' },
+              instanceCount: 2,
+            }
+          }
+        );
+
         // Get console URL
-        // const web = await upsun.route.web(prj.projectId);
-        // console.log(web.ui);
+        const route = await upsun.route.list(prj.id, prj.defaultBranch || 'main');
+        console.log(route);
 
         // Redeploy the project
-        const result = await upsun.environment.redeploy(prj.projectId, envName);
+        const result = await upsun.environment.redeploy(prj.id, envName);
         console.log(result);
 
         // List all activities
-        const activities = await upsun.activity.list(prj.projectId);
+        const activities = await upsun.activity.list(prj.id);
         console.log(activities);
 
         // List routes of prj/env
-        const routes = await upsun.route.list(prj.projectId, envName);
+        const routes = await upsun.route.list(prj.id, envName);
         console.log(routes);
       }
     }
   } catch (error) {
-    if (error instanceof ResponseError) {
-      const responseText = await error.response.text();
-      console.error(`Create Project failed: HTTP ${error.response.status}`, responseText);
-      if (error.response.status === 403) {
-        throw new Error('You do not have permission to create a project for this organization (403 Forbidden)');
+    console.error(error);
+    if(FULL_TEST && prjCreatedObject){
+      console.log('--- Cleanup: Delete Project ---');
+      try {
+        // await upsun.project.delete(prjCreatedObject?.id || '');
+        console.log('Project deleted successfully');
+      } catch (deleteError) {
+        console.error('Error deleting project:', deleteError);
       }
-    } else {
-      console.error('An unexpected error occurred:', error);
-      throw error;
     }
   }
 }

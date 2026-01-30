@@ -82,6 +82,7 @@ export class OAuth2Client {
       client_id: this.clientId,
     });
 
+    console.log('[OAuth2Client] using refresh_token to refresh access token');
     const response = await fetch(this.tokenEndpoint, {
       method: 'POST',
       headers: {
@@ -104,7 +105,16 @@ export class OAuth2Client {
   private async ensureValidToken(): Promise<void> {
     const buffer = 60 * 1000;
     if (!this.accessToken || Date.now() > this.tokenExpiry - buffer) {
-      //await this.refreshAccessToken();
+      if (this.refreshToken) {
+        try {
+          await this.refreshAccessToken();
+          return;
+        } catch {
+          // fall back to exchanging a new token when refresh fails
+          this.accessToken = null;
+        }
+      }
+      console.log('[OAuth2Client] exchanging API token for new access token');
       await this.exchangeCodeForToken();
     }
   }
