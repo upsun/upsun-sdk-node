@@ -61,7 +61,7 @@ export class CertificateTask extends TaskBase {
     });
   }
 
-  async update(projectId: string, certificateId: string, certificate: string, key: string, chain: string[] = []): Promise<AcceptedResponse> {
+  async update(projectId: string, certificateId: string, chain: string[] = [], isInvalid: boolean = false): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkCertificateId(certificateId);
 
@@ -69,9 +69,8 @@ export class CertificateTask extends TaskBase {
       projectId,
       certificateId,
       certificatePatch: {
-        certificate,
-        key,
         chain,
+        isInvalid
       } as CertificatePatch,
     });
   }
