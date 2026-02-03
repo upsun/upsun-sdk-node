@@ -6,26 +6,26 @@ import {
   Middleware,
   OAuth2Client,
   // Tasks
-  ActivityTask,
-  ApplicationTask,
-  BackupTask,
-  CertificateTask,
-  DomainTask,
-  EnvironementTask,
+  ActivitiesTask,
+  ApplicationsTask,
+  BackupsTask,
+  CertificatesTask,
+  DomainsTask,
+  EnvironmentsTask,
   MetricsTask,
-  MountTask,
-  OperationTask,
-  OrganizationTask,
-  ProjectTask,
+  MountsTask,
+  OperationsTask,
+  OrganizationsTask,
+  ProjectsTask,
   ResourcesTask,
-  RouteTask,
-  ServiceTask,
-  SourceOperationTask,
+  RoutesTask,
+  ServicesTask,
+  SourceOperationsTask,
   SshTask,
-  TeamTask,
-  UserTask,
-  VariableTask,
-  WorkerTask,
+  TeamsTask,
+  UsersTask,
+  VariablesTask,
+  WorkersTask,
 } from './core/index.js';
 
 /**
@@ -77,27 +77,27 @@ export class UpsunClient {
   protected userId!: string;
 
   // Facades - Tasks.
-  public activity: ActivityTask;
-  public application: ApplicationTask;
-  public backup: BackupTask;
-  public certificate: CertificateTask;
-  public domain: DomainTask;
-  public environment: EnvironementTask;
+  public activities: ActivitiesTask;
+  public applications: ApplicationsTask;
+  public backups: BackupsTask;
+  public certificates: CertificatesTask;
+  public domains: DomainsTask;
+  public environments: EnvironmentsTask;
   public metrics: MetricsTask;
-  public mount: MountTask;
-  public operation: OperationTask;
-  public organization: OrganizationTask;
-  public project: ProjectTask;
-  public route: RouteTask;
-  public service: ServiceTask;
-  public sourceOperation: SourceOperationTask;
+  public mounts: MountsTask;
+  public operations: OperationsTask;
+  public organizations: OrganizationsTask;
+  public projects: ProjectsTask;
+  public routes: RoutesTask;
+  public services: ServicesTask;
+  public sourceOperations: SourceOperationsTask;
   public ssh: SshTask;
-  public team: TeamTask;
-  public user: UserTask;
-  public variable: VariableTask;
-  public worker: WorkerTask;
+  public teams: TeamsTask;
+  public users: UsersTask;
+  public variables: VariablesTask;
+  public workers: WorkersTask;
 
-  public resource: ResourcesTask;
+  public resources: ResourcesTask;
 
   private authMiddleware: Middleware;
 
@@ -130,27 +130,27 @@ export class UpsunClient {
     this.apiConfig = new Configuration(param);
 
     // Initialize the commands tasks.
-    this.activity = new ActivityTask(this);
-    this.application = new ApplicationTask(this);
-    this.backup = new BackupTask(this);
-    this.certificate = new CertificateTask(this);
-    this.domain = new DomainTask(this);
-    this.environment = new EnvironementTask(this);
+    this.activities = new ActivitiesTask(this);
+    this.applications = new ApplicationsTask(this);
+    this.backups = new BackupsTask(this);
+    this.certificates = new CertificatesTask(this);
+    this.domains = new DomainsTask(this);
+    this.environments = new EnvironmentsTask(this);
     this.metrics = new MetricsTask(this);
-    this.mount = new MountTask(this);
-    this.operation = new OperationTask(this);
-    this.organization = new OrganizationTask(this);
-    this.project = new ProjectTask(this);
-    this.route = new RouteTask(this);
-    this.service = new ServiceTask(this);
-    this.sourceOperation = new SourceOperationTask(this);
+    this.mounts = new MountsTask(this);
+    this.operations = new OperationsTask(this);
+    this.organizations = new OrganizationsTask(this);
+    this.projects = new ProjectsTask(this);
+    this.routes = new RoutesTask(this);
+    this.services = new ServicesTask(this);
+    this.sourceOperations = new SourceOperationsTask(this);
     this.ssh = new SshTask(this);
-    this.team = new TeamTask(this);
-    this.user = new UserTask(this);
-    this.variable = new VariableTask(this);
-    this.worker = new WorkerTask(this);
+    this.teams = new TeamsTask(this);
+    this.users = new UsersTask(this);
+    this.variables = new VariablesTask(this);
+    this.workers = new WorkersTask(this);
 
-    this.resource = new ResourcesTask(this);
+    this.resources = new ResourcesTask(this);
   }
 
   private createAuthRetryMiddleware(): Middleware {
@@ -220,7 +220,7 @@ export class UpsunClient {
 
   async getUserId(): Promise<string | undefined> {
     if (this.userId == null) {
-      this.userId = (await this.user.me()).id;
+      this.userId = (await this.users.me()).id;
     }
 
     return this.userId;

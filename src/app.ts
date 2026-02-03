@@ -60,13 +60,13 @@ let prjCreatedObject = null;
 
 if (FULL_TEST) {
   try {
-    const orgs = await upsun.organization.list();
+    const orgs = await upsun.organizations.list();
     const orgName = 'florent-huck'; // Replace with your organization name (ex: 'perso-home')
     const org = orgs.items?.find(p => p.name === orgName) ?? null;
     if (org && org?.id) {
       // Create Project
       // console.log('--- Create Project ---');
-      // const subCreated = await upsun.project.create(
+      // const subCreated = await upsun.projects.create(
       //   org?.id, 
       //   'eu-5.platform.sh', 
       //   'Demo test from sdk-node '+new Date().toISOString(), 
@@ -78,7 +78,7 @@ if (FULL_TEST) {
       // let prjCreated = null;
       /* for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {
-          prjCreated = await upsun.project.getSubscription(org!.id, subCreated.id || '');
+          prjCreated = await upsun.projects.getSubscription(org!.id, subCreated.id || '');
           console.log(`Statut de la souscription : ${prjCreated.status}`);
           if (prjCreated.status === SubscriptionStatusEnum.ACTIVE) {
             break;
@@ -101,7 +101,7 @@ if (FULL_TEST) {
 
       // Sample code to get a project
       // console.log('--- Get project ---');
-      // prjCreatedObject = await upsun.project.get(prjCreated.projectId || '');
+      // prjCreatedObject = await upsun.projects.get(prjCreated.projectId || '');
       // console.log(prjCreatedObject);
 
       // Wait 15 minutes before redeploying (test renew access token)
@@ -109,17 +109,17 @@ if (FULL_TEST) {
       //DISABLED || (await delay(6000 * 15));
 
       // Work with project
-      const prj = await upsun.project.get(projectTestId || '');
+      const prj = await upsun.projects.get(projectTestId || '');
 
       if (prj && prj.id) {
         const envName = 'main'; // Replace with your environment name
 
         console.log('--- Get Resources ---');
-        const res = await upsun.resource.get(prj.id, prj.defaultBranch || 'main', 'workers', 'app--app-worker');
+        const res = await upsun.resources.get(prj.id, prj.defaultBranch || 'main', 'workers', 'app--app-worker');
         console.log(res);
 
         console.log('--- Set Resources ---');
-        const response = await upsun.resource.set(
+        const response = await upsun.resources.set(
           prj.id || '',
           prj.defaultBranch || 'main',
           { 'app': { 
@@ -143,28 +143,36 @@ if (FULL_TEST) {
         );
 
         // Get console URL
-        const route = await upsun.route.list(prj.id, prj.defaultBranch || 'main');
+        const route = await upsun.routes.list(prj.id, prj.defaultBranch || 'main');
         console.log(route);
 
         // Redeploy the project
-        const result = await upsun.environment.redeploy(prj.id, envName);
+        const result = await upsun.environments.redeploy(prj.id, envName);
         console.log(result);
 
         // List all activities
-        const activities = await upsun.activity.list(prj.id);
+        const activities = await upsun.activities.list(prj.id);
         console.log(activities);
 
+        const latestActivity = activities[0];
+        if (latestActivity && latestActivity.id) {
+          // Get activity details
+          const activityDetails = await upsun.activities.get(prj.id, latestActivity.id);
+          console.log(activityDetails);
+        }
+
         // List routes of prj/env
-        const routes = await upsun.route.list(prj.id, envName);
+        const routes = await upsun.routes.list(prj.id, envName);
         console.log(routes);
       }
     }
   } catch (error) {
     console.error(error);
+  } finally {
     if(FULL_TEST && prjCreatedObject){
       console.log('--- Cleanup: Delete Project ---');
       try {
-        // await upsun.project.delete(prjCreatedObject?.id || '');
+        // await upsun.projects.delete(prjCreatedObject?.id || '');
         console.log('Project deleted successfully');
       } catch (deleteError) {
         console.error('Error deleting project:', deleteError);

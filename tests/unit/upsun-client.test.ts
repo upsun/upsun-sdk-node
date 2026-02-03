@@ -20,9 +20,9 @@ describe('UpsunClient', () => {
     it('should initialize with default config', () => {
       const defaultClient = new UpsunClient();
       expect(defaultClient).toBeDefined();
-      expect(defaultClient.activity).toBeDefined();
-      expect(defaultClient.project).toBeDefined();
-      expect(defaultClient.environment).toBeDefined();
+      expect(defaultClient.activities).toBeDefined();
+      expect(defaultClient.projects).toBeDefined();
+      expect(defaultClient.environments).toBeDefined();
     });
 
     it('should initialize with custom config', () => {
@@ -42,25 +42,25 @@ describe('UpsunClient', () => {
 
   describe('task initialization', () => {
     it('should initialize all task instances', () => {
-      expect(client.activity).toBeDefined();
-      expect(client.application).toBeDefined();
-      expect(client.backup).toBeDefined();
-      expect(client.certificate).toBeDefined();
-      expect(client.domain).toBeDefined();
-      expect(client.environment).toBeDefined();
+      expect(client.activities).toBeDefined();
+      expect(client.applications).toBeDefined();
+      expect(client.backups).toBeDefined();
+      expect(client.certificates).toBeDefined();
+      expect(client.domains).toBeDefined();
+      expect(client.environments).toBeDefined();
       expect(client.metrics).toBeDefined();
-      expect(client.mount).toBeDefined();
-      expect(client.operation).toBeDefined();
-      expect(client.organization).toBeDefined();
-      expect(client.project).toBeDefined();
-      expect(client.route).toBeDefined();
-      expect(client.service).toBeDefined();
-      expect(client.sourceOperation).toBeDefined();
-      expect(client.team).toBeDefined();
-      expect(client.user).toBeDefined();
-      expect(client.variable).toBeDefined();
-      expect(client.worker).toBeDefined();
-      expect(client.resource).toBeDefined();
+      expect(client.mounts).toBeDefined();
+      expect(client.operations).toBeDefined();
+      expect(client.organizations).toBeDefined();
+      expect(client.projects).toBeDefined();
+      expect(client.routes).toBeDefined();
+      expect(client.services).toBeDefined();
+      expect(client.sourceOperations).toBeDefined();
+      expect(client.teams).toBeDefined();
+      expect(client.users).toBeDefined();
+      expect(client.variables).toBeDefined();
+      expect(client.workers).toBeDefined();
+      expect(client.resources).toBeDefined();
     });
   });
 
