@@ -45,6 +45,12 @@ export abstract class TaskBase {
     }
   }
 
+  static checkSubscriptionId(subscriptionId: string): void {
+    if (!subscriptionId) {
+      throw new Error('Subscription ID is required');
+    }
+  }
+
   // works for URIs like /subscriptions/{subscriptionId} to extract subscriptionId
   // as the subscriptionId is not returned directly in the project object (emty field)
   // e.g. /subscriptions/abc123

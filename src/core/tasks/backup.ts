@@ -67,8 +67,6 @@ export class BackupTask extends TaskBase {
     TaskBase.checkEnvironmentId(environmentId);
     TaskBase.checkBackupId(backupId);
 
-    throw new Error('Not implemented');
-
     return await this.bckApi.restoreBackup({
       projectId,
       environmentId,

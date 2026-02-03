@@ -46,25 +46,38 @@ export class ProjectTask extends TaskBase {
   }
 
   async delete(projectId: string): Promise<void> {
+    TaskBase.checkProjectId(projectId);
+    
     const project = await this.prjApi.getProjects({ projectId });
+
     const subscriptionId = TaskBase.extractSubscriptionId(project.subscription.licenseUri);
+    TaskBase.checkSubscriptionId(subscriptionId);
 
     return await this.subApi.deleteOrgSubscription({ organizationId: project.organization as string, subscriptionId });
   }
 
   async get(projectId: string): Promise<Project> {
+    TaskBase.checkProjectId(projectId);
+
     return await this.prjApi.getProjects({ projectId });
   }
 
   async getSubscription(organizationId: string, subscriptionId: string): Promise<Subscription> {
+    TaskBase.checkOrganizationId(organizationId);
+    TaskBase.checkSubscriptionId(subscriptionId);
+
     return await this.subApi.getOrgSubscription({ organizationId, subscriptionId });
   }
 
   async info(projectId: string): Promise<Project> {
+    TaskBase.checkProjectId(projectId);
+
     return await this.prjApi.getProjects({ projectId });
   }
 
   async list(organizationId: string): Promise<ListOrgSubscriptions200Response> {
+    TaskBase.checkOrganizationId(organizationId);
+
     return await this.subApi.listOrgSubscriptions({ organizationId });
   }
 }

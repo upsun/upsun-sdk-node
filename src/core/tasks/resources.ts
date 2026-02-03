@@ -33,6 +33,9 @@ export class ResourcesTask extends TaskBase {
     type: DeploymentResourceGroup = 'webapps',
     app: string = 'app',
   ): Promise<Resources> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
     const deploymentCollection = await this.deploymentApi.listProjectsEnvironmentsDeployments(
       { projectId, environmentId }
     );
@@ -42,6 +45,7 @@ export class ResourcesTask extends TaskBase {
       return {} as Resources;
     }
     const group = currentDeployment[type] ?? {};
+    
     return group[app]?.resources ?? ({} as Resources);
   }
 
@@ -63,6 +67,9 @@ export class ResourcesTask extends TaskBase {
     services: { [key: string]: UpdateProjectsEnvironmentsDeploymentsNextRequestServicesValue; } = {} as { [key: string]: UpdateProjectsEnvironmentsDeploymentsNextRequestServicesValue; },
     workers: { [key: string]: UpdateProjectsEnvironmentsDeploymentsNextRequestWorkersValue; } = {} as { [key: string]: UpdateProjectsEnvironmentsDeploymentsNextRequestWorkersValue; },
   ): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+    
     return await this.deploymentApi.updateProjectsEnvironmentsDeploymentsNext({
       projectId,
       environmentId,

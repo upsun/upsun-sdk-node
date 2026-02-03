@@ -17,7 +17,7 @@ describe('BackupTask', () => {
       deleteProjectsEnvironmentsBackups: jest.fn(),
       getProjectsEnvironmentsBackups: jest.fn(),
       listProjectsEnvironmentsBackups: jest.fn(),
-      restoreEnvironmentBackup: jest.fn(),
+      restoreBackup: jest.fn(),
     } as any;
 
     (EnvironmentBackupsApi as jest.MockedClass<typeof EnvironmentBackupsApi>).mockImplementation(
@@ -117,13 +117,36 @@ describe('BackupTask', () => {
     });
 
     it('should restore from backup', async () => {
-      await expect(backupTask.restore('project-123', 'main', 'backup-1')).rejects.toThrow(
-        'Not implemented',
-      );
+      const mockActivity = {
+        id: 'activity-restore-123',
+        type: 'environment.restore',
+      };
+
+      mockBackupsApi.restoreBackup.mockResolvedValue(mockActivity as any);
+
+      const result = await backupTask.restore('project-123', 'main', 'backup-1');
+
+      expect(result).toBeDefined();
+      expect(result).toEqual(mockActivity);
+      expect(mockBackupsApi.restoreBackup).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+        backupId: 'backup-1',
+        environmentRestoreInput: {
+          environmentName: 'main',
+          branchFrom: null,
+          restoreCode: true,
+          restoreResources: true,
+          resources: null,
+        },
+      });
     });
+
     it('should handle restore errors', async () => {
-      await expect(backupTask.restore('project-123', 'main', 'invalid-backup')).rejects.toThrow(
-        'Not implemented',
+      mockBackupsApi.restoreBackup.mockRejectedValue(new Error('Restore failed'));
+
+      await expect(backupTask.restore('project-123', 'main', 'backup-1')).rejects.toThrow(
+        'Restore failed',
       );
     });
   });

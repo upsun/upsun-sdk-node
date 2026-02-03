@@ -1,5 +1,5 @@
-import { CertManagementApi } from '../../api/index.js';
-import { AcceptedResponse, Certificate, CertificateCollection } from '../../model/index.js';
+import { CertManagementApi, UpdateProjectsProvisionersRequest } from '../../api/index.js';
+import { AcceptedResponse, Certificate, CertificateCollection, CertificatePatch } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
@@ -58,6 +58,21 @@ export class CertificateTask extends TaskBase {
 
     return await this.certApi.listProjectsCertificates({
       projectId,
+    });
+  }
+
+  async update(projectId: string, certificateId: string, certificate: string, key: string, chain: string[] = []): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkCertificateId(certificateId);
+
+    return await this.certApi.updateProjectsCertificates({
+      projectId,
+      certificateId,
+      certificatePatch: {
+        certificate,
+        key,
+        chain,
+      } as CertificatePatch,
     });
   }
 }

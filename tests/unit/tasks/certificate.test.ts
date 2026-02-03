@@ -200,4 +200,37 @@ describe('CertificateTask', () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe('update', () => {
+    it('should have update method defined', () => {
+      expect(certificateTask.update).toBeDefined();
+      expect(typeof certificateTask.update).toBe('function');
+    });
+
+    it('should update a certificate', async () => {
+      const mockResponse = { status: 'ok' };
+      mockCertApi.updateProjectsCertificates = jest.fn().mockResolvedValue(mockResponse);
+
+      const cert = '-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----';
+      const key = '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----';
+      const chain = ['-----BEGIN CERTIFICATE-----\nchain\n-----END CERTIFICATE-----'];
+
+      const result = await certificateTask.update('project-123', 'cert-456', cert, key, chain);
+      expect(result).toBe(mockResponse);
+      expect(mockCertApi.updateProjectsCertificates).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        certificateId: 'cert-456',
+        certificatePatch: { certificate: cert, key: key, chain: chain },
+      });
+    });
+
+    it('should handle update errors', async () => {
+      mockCertApi.updateProjectsCertificates = jest.fn().mockRejectedValue(new Error('Update failed'));
+      const cert = 'cert';
+      const key = 'key';
+      await expect(certificateTask.update('project-123', 'cert-456', cert, key)).rejects.toThrow('Update failed');
+    });
+  });
+
+  
 });
