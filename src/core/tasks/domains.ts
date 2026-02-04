@@ -21,6 +21,9 @@ export class DomainsTask extends TaskBase {
   async add(
     projectId: string,
     domain: string,
+    attributes: { [key: string]: string } = {},
+    isDefault: boolean = false,
+    replacementFor: string = '',
     environmentId: string = '',
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
@@ -34,6 +37,9 @@ export class DomainsTask extends TaskBase {
         environmentId,
         domainCreateInput: {
           name: domain,
+          attributes: attributes,
+          isDefault: isDefault,
+          replacementFor: replacementFor,
         },
       });
     } else {
@@ -41,6 +47,9 @@ export class DomainsTask extends TaskBase {
         projectId,
         domainCreateInput: {
           name: domain,
+          attributes: attributes,
+          isDefault: isDefault,
+          replacementFor: replacementFor,
         },
       });
     }
@@ -101,7 +110,35 @@ export class DomainsTask extends TaskBase {
     }
   }
 
-  async update(projectId: string, arg1: string): Promise<never> {
-    throw new Error('Method not implemented.');
+  async update(
+    projectId: string, 
+    domainId: string,
+    attributes: { [key: string]: string } = {},
+    isDefault: boolean = false,
+    environmentId: string = '',
+  ): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+    DomainsTask.checkDomainId(domainId);
+
+    if (environmentId) {
+      return await this.domApi.updateProjectsEnvironmentsDomains({
+        projectId,
+        environmentId,
+        domainId,
+        domainPatch: {
+          attributes: attributes,
+          isDefault: isDefault,
+        },
+      });
+    } else {
+      return await this.domApi.updateProjectsDomains({
+        projectId,
+        domainId,
+        domainPatch: {
+          attributes: attributes,
+          isDefault: isDefault,
+        },
+      });
+    }
   }
 }

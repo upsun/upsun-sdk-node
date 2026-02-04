@@ -63,6 +63,7 @@ export class ActivitiesTask extends TaskBase {
       throw new Error('Project ID and Activity ID are required');
     }
 
-    throw new Error('Not implemented, prefere use get() (containes log)');
+    //TODO clarify this message as the activity.logs contains "Log for this activity is available in the streaming logs endpoint"
+    throw new Error('Not implemented, prefere use get() (containes log)'); 
   }
 }
