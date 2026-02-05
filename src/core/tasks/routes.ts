@@ -13,6 +13,10 @@ export class RoutesTask extends TaskBase {
   }
 
   async get(projectId: string, env_name: string, routeId: string): Promise<Route> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(env_name);
+    this.checkRouteId(routeId);
+
     return await this.rteApi.getProjectsEnvironmentsRoutes({
       projectId,
       environmentId: env_name,
@@ -21,7 +25,16 @@ export class RoutesTask extends TaskBase {
   }
 
   async list(projectId: string, env_name: string): Promise<RouteCollection> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(env_name);
+    
     return await this.rteApi.listProjectsEnvironmentsRoutes({ projectId, environmentId: env_name });
+  }
+
+  private checkRouteId(routeId: string) {
+    if (!routeId) {
+      throw new Error('Route ID is required');
+    }
   }
 
   // async web(projectId: string) {

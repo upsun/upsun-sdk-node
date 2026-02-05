@@ -148,11 +148,11 @@ export class VariablesTask extends TaskBase {
     });
   }
 
-  async deleteEnvironmentVariable(projectId: string, environmentId: string, variableId: string): Promise<void> {
+  async deleteEnvironmentVariable(projectId: string, environmentId: string, variableId: string): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
     this.checkVariableId(variableId);
-    await this.envVarApi.deleteProjectsEnvironmentsVariables({
+    return await this.envVarApi.deleteProjectsEnvironmentsVariables({
       projectId: projectId,
       environmentId: environmentId,
       variableId: variableId,
