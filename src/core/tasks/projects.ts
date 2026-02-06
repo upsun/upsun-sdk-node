@@ -2,6 +2,7 @@ import { UpsunClient } from '../../upsun.js';
 import { ProjectApi, SubscriptionsApi } from '../../api/index.js';
 import {
   AcceptedResponse,
+  CanCreateNewOrgSubscription200Response,
   ListOrgSubscriptions200Response,
   Project,
   Subscription,
@@ -45,6 +46,10 @@ export class ProjectsTask extends TaskBase {
     });
   }
 
+  async canCreate(organizationId: string): Promise<CanCreateNewOrgSubscription200Response> {
+    return await this.subApi.canCreateNewOrgSubscription({ organizationId });
+  }
+
   async delete(projectId: string): Promise<void> {
     TaskBase.checkProjectId(projectId);
     
@@ -75,6 +80,8 @@ export class ProjectsTask extends TaskBase {
     return await this.prjApi.getProjects({ projectId });
   }
 
+  //TODO missing from PHP SDK
+  //TODO change to return list of projects instead of subscriptions
   async list(organizationId: string): Promise<ListOrgSubscriptions200Response> {
     TaskBase.checkOrganizationId(organizationId);
 

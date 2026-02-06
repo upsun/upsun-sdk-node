@@ -1,21 +1,21 @@
 import { EnvironmentBackupsApi } from '../../api/index.js';
-import { AcceptedResponse, Backup, EnvironmentBackupInput } from '../../model/index.js';
+import { AcceptedResponse, Backup, EnvironmentBackupInput, Resources6 } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class BackupsTask extends TaskBase {
-  private bckApi: EnvironmentBackupsApi;
-
-  constructor(protected readonly client: UpsunClient) {
+  
+  constructor(
+    protected readonly client: UpsunClient,
+    private bckApi: EnvironmentBackupsApi,
+  ) {
     super(client);
-
-    this.bckApi = new EnvironmentBackupsApi(this.client.apiConfig);
   }
 
   async create(
     projectId: string,
     environmentId: string,
-    safe: boolean = true,
+    isSafe: boolean = true,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -23,7 +23,7 @@ export class BackupsTask extends TaskBase {
     return await this.bckApi.backupEnvironment({
       projectId,
       environmentId,
-      environmentBackupInput: { safe } as EnvironmentBackupInput,
+      environmentBackupInput: { safe: isSafe },
     });
   }
 
@@ -62,6 +62,11 @@ export class BackupsTask extends TaskBase {
     projectId: string,
     environmentId: string,
     backupId: string,
+    restoreCode: boolean = true,
+    restoreResources: boolean = true,
+    environmentName?: string,
+    branchFrom?: string,
+    init?: string,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -72,11 +77,11 @@ export class BackupsTask extends TaskBase {
       environmentId,
       backupId,
       environmentRestoreInput: {
-        environmentName: environmentId,
-        branchFrom: null,
-        restoreCode: true,
-        restoreResources: true,
-        resources: null,
+        restoreCode,
+        restoreResources,
+        environmentName: environmentName || null,
+        branchFrom: branchFrom || null,
+        resources: {init: init} as Resources6,
       },
     });
   }

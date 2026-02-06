@@ -4,21 +4,23 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class CertificatesTask extends TaskBase {
-  private certApi: CertManagementApi;
-
-  constructor(protected readonly client: UpsunClient) {
+  
+  constructor(
+    protected readonly client: UpsunClient,
+    private certApi: CertManagementApi,
+  ) {
     super(client);
-
-    this.certApi = new CertManagementApi(this.client.apiConfig);
   }
 
   async add(
     projectId: string,
     certificate: string,
     key: string,
-    chain: string[] = [],
+    chain?: string[],
+    isInvalid?: boolean,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
+    
     if (!certificate || !key) {
       throw new Error('Certificate and key are required');
     }
@@ -29,6 +31,7 @@ export class CertificatesTask extends TaskBase {
         certificate,
         key,
         chain,
+        isInvalid,
       },
     });
   }
@@ -61,7 +64,7 @@ export class CertificatesTask extends TaskBase {
     });
   }
 
-  async update(projectId: string, certificateId: string, chain: string[] = [], isInvalid: boolean = false): Promise<AcceptedResponse> {
+  async update(projectId: string, certificateId: string, chain?: string[], isInvalid?: boolean): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkCertificateId(certificateId);
 

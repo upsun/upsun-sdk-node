@@ -15,7 +15,9 @@ import {
   EnvironmentMergeInput,
   EnvironmentPatchTypeEnum,
   EnvironmentType,
+  EnvironmentTypeEnum,
   EnvironmentVariable,
+  Resources,
   Resources2,
   Resources2InitEnum,
   Resources3,
@@ -28,33 +30,30 @@ import {
 import { TaskBase } from './task_base.js';
 
 export class EnvironmentsTask extends TaskBase {
-  private envApi: EnvironmentApi;
-  private envTypeApi: EnvironmentTypeApi;
-  private deployApi: DeploymentApi;
-  private autoscalingApi: AutoscalingApi;
-
-  constructor(protected readonly client: UpsunClient) {
+  
+  constructor(
+    protected readonly client: UpsunClient,
+    private envApi: EnvironmentApi,
+    private envTypeApi: EnvironmentTypeApi,
+    private deployApi: DeploymentApi,
+    private autoscalingApi: AutoscalingApi,
+  ) {
     super(client);
-
-    this.envApi = new EnvironmentApi(this.client.apiConfig);
-    this.envTypeApi = new EnvironmentTypeApi(this.client.apiConfig);
-    this.deployApi = new DeploymentApi(this.client.apiConfig);
-    this.autoscalingApi = new AutoscalingApi(this.client.apiConfig);
   }
 
   async activate(
     projectId: string, 
     environmentId: string, 
-    init: string = Resources2InitEnum.DEFAULT
+    init?: string
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
     return await this.envApi.activateEnvironment({
       projectId,
-      environmentId: environmentId,
+      environmentId,
       environmentActivateInput: {
-        resources: { init: init } as Resources2,
+        resources: { init },
       } as EnvironmentActivateInput,
     });
   }
@@ -65,8 +64,8 @@ export class EnvironmentsTask extends TaskBase {
     title: string,
     name: string, 
     cloneParent: boolean = true,
-    type: string = EnvironmentBranchInputTypeEnum.DEVELOPMENT,
-    init: string = Resources3InitEnum.DEFAULT,
+    type: EnvironmentTypeEnum = EnvironmentTypeEnum.DEVELOPMENT,
+    init?: Resources3InitEnum,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -74,6 +73,7 @@ export class EnvironmentsTask extends TaskBase {
     if (!title) {
       throw new Error('Title must be a non-empty string');
     }
+
     if (!name) {
       throw new Error('Name must be a non-empty string');
     }
@@ -86,7 +86,7 @@ export class EnvironmentsTask extends TaskBase {
         name: name,
         cloneParent: cloneParent,
         type: type,
-        resources: { init: init } as Resources3
+        resources: { init }
        } as EnvironmentBranchInput });
   }
 
@@ -94,23 +94,25 @@ export class EnvironmentsTask extends TaskBase {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
     
-    return await this.envApi.deactivateEnvironment({ projectId, environmentId: environmentId });
+    return await this.envApi.deactivateEnvironment({ projectId, environmentId });
   }
 
   async delete(projectId: string, environmentId: string): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
-    return await this.envApi.deleteEnvironment({ projectId, environmentId: environmentId });
+    return await this.envApi.deleteEnvironment({ projectId, environmentId });
   }
+
+  //TODO httpAccess
 
   async get(projectId: string, environmentId: string): Promise<Environment> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
     return await this.envApi.getEnvironment({ 
-      projectId: projectId, 
-      environmentId: environmentId
+      projectId, 
+      environmentId
     });  
   }
 
@@ -120,22 +122,22 @@ export class EnvironmentsTask extends TaskBase {
     TaskBase.checkEnvironmentId(environmentId);
 
     return await this.envApi.getEnvironment({ 
-      projectId: projectId, 
-      environmentId: environmentId
+      projectId, 
+      environmentId
     });
   }
 
   /**
    * files: Array of [filePath, fileMode, fileContents] where mode is either null, "config" or "secret"
    */
-  async initialize(
+  async init(
     projectId: string, 
     environmentId: string,
     profile: string,
     repository: string,
     files: [string, number, string][],
-    config: string | null = null,
-    init: string = Resources4InitEnum.DEFAULT
+    config?: string,
+    init: Resources4InitEnum = Resources4InitEnum.DEFAULT
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -152,23 +154,23 @@ export class EnvironmentsTask extends TaskBase {
     }
 
     return await this.envApi.initializeEnvironment({ 
-      projectId: projectId,
-      environmentId: environmentId,
+      projectId,
+      environmentId,
       environmentInitializeInput: {
-        profile: profile,
-        repository: repository,
-        config: config,
+        profile,
+        repository,
+        config: config || null,
         resources: { init: init } as Resources4,
-        files: files.map(([filePath, fileMode, fileContents]) => ({
-          path: filePath,
-          contents: fileContents,
-          mode: fileMode,
+        files: files.map(([path, mode, contents]) => ({
+          path,
+          contents,
+          mode,
         })),
       },
     });
   }
 
-  async list(projectId: string): Promise<EnvironmentCollection> {
+  async list(projectId: string): Promise<Array<Environment>> {
     TaskBase.checkProjectId(projectId);
     
     return await this.envApi.listProjectsEnvironments({ projectId: projectId });
@@ -176,52 +178,72 @@ export class EnvironmentsTask extends TaskBase {
 
   //TODO implement logs streaming?
   async logs(projectId: string, environmentId: string, app_name: string): Promise<never> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
     throw new Error('Not implemented');
   }
 
   async merge(projectId: string, environmentId: string, init: string = Resources3InitEnum.DEFAULT): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
     return await this.envApi.mergeEnvironment({
       projectId: projectId,
       environmentId: environmentId,
       environmentMergeInput: {
-        resources: { init: init } as Resources3,
+        resources: { init: init },
       } as EnvironmentMergeInput,
     });
   }
 
   async pause(projectId: string, environmentId: string): Promise<AcceptedResponse> {
-    return await this.envApi.pauseEnvironment({ projectId: projectId, environmentId: environmentId });
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.envApi.pauseEnvironment({ projectId, environmentId });
+  }
+
+  async redeploy(projectId: string, environmentId: string): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.envApi.redeployEnvironment({ projectId, environmentId });
   }
 
   //TODO implement relationships
   async relationships(projectId: string, environmentId: string): Promise<never> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
     throw new Error('Not implemented');
   }
 
-  async redeploy(projectId: string, environmentId: string): Promise<AcceptedResponse> {
-    return await this.envApi.redeployEnvironment({ projectId: projectId, environmentId: environmentId });
-  }
-
   async resume(projectId: string, environmentId: string): Promise<AcceptedResponse> {
-    return await this.envApi.resumeEnvironment({ projectId: projectId, environmentId: environmentId });
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.envApi.resumeEnvironment({ projectId, environmentId });
   }
 
   async synchronize(
     projectId: string, 
     environmentId: string,
     synchronizeCode: boolean = true,
-    rebase: boolean = false,
+    rebase: boolean = true,
     synchronizeData: boolean = true,
     synchronizeResources: boolean = true,
   ): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
     return await this.envApi.synchronizeEnvironment({ 
-      projectId: projectId, 
+      projectId: projectId,
       environmentId: environmentId,
       environmentSynchronizeInput: {
-        synchronizeCode: synchronizeCode,
-        rebase: rebase,
-        synchronizeData: synchronizeData,
-        synchronizeResources: synchronizeResources,
+        synchronizeCode,
+        rebase,
+        synchronizeData,
+        synchronizeResources,
       },
     });
   }
@@ -229,48 +251,50 @@ export class EnvironmentsTask extends TaskBase {
   async update(
       projectId: string,
       environmentId: string,
-      parent: string | undefined,
-      name: string | undefined,
-      title: string | undefined,
-      attributes: { [key: string]: string; } | undefined,
-      type: string = EnvironmentPatchTypeEnum.DEVELOPMENT,
-      cloneParentOnCreate: boolean | undefined,
-      httpAccess: { 
+      parent?: string,
+      name?: string,
+      title?: EnvironmentPatchTypeEnum,
+      attributes?: { [key: string]: string; },
+      type?: string,
+      cloneParentOnCreate?: boolean,
+      httpAccess?: { 
         isEnabled?: boolean, 
-        addresses?: { address: string, permission: string }[], 
-        basicAuth?: { username: string, password: string } 
-      } | undefined,
-      enableSmtp: boolean | undefined,
-      restrictRobots: boolean | undefined,
+        addresses?: { address: string, permission: AddressGrantsInnerPermissionEnum }[], 
+        basicAuth?: { login: string, password: string } 
+      },
+      enableSmtp?: boolean,
+      restrictRobots?: boolean,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
     return await this.envApi.updateEnvironment({
-        projectId: projectId,
-        environmentId: environmentId,
+        projectId,
+        environmentId,
         environmentPatch: {
-          name: name,
-          title: title,
-            parent: parent,
-            attributes: attributes,
-            type: EnvironmentPatchTypeEnum[type as keyof typeof EnvironmentPatchTypeEnum],
-            cloneParentOnCreate: cloneParentOnCreate,
-            httpAccess: {
-              isEnabled: httpAccess && httpAccess.isEnabled !== undefined ? httpAccess.isEnabled : undefined,
-              addresses: httpAccess && httpAccess.addresses
-                ? httpAccess.addresses.map(addr => ({
-                    address: addr.address,
-                    permission: AddressGrantsInnerPermissionEnum[addr.permission as keyof typeof AddressGrantsInnerPermissionEnum],
-                  }))
-                : undefined,
-                basicAuth: httpAccess && httpAccess.basicAuth !== undefined ? httpAccess.basicAuth : undefined,
-            },
-            enableSmtp: enableSmtp,
-            restrictRobots: restrictRobots
+          name,
+          title,
+          parent,
+          attributes,
+          type: type ? EnvironmentPatchTypeEnum[type as keyof typeof EnvironmentPatchTypeEnum] : undefined,
+          cloneParentOnCreate,
+          httpAccess: {
+            isEnabled: httpAccess && httpAccess.isEnabled !== undefined ? httpAccess.isEnabled : undefined,
+            addresses: httpAccess && httpAccess.addresses
+              ? httpAccess.addresses.map(addr => ({
+                  address: addr.address,
+                  permission: AddressGrantsInnerPermissionEnum[addr.permission as keyof typeof AddressGrantsInnerPermissionEnum],
+                }))
+              : undefined,
+              basicAuth: httpAccess && httpAccess.basicAuth !== undefined ? httpAccess.basicAuth : undefined,
+          },
+          enableSmtp,
+          restrictRobots
         }
     });
   }
+
+  
 
   //TODO add activities.activityCancel --> function activityCancel ? 
   //TODO add activities.getActivity --> function getActivities? --> PHP deprecated to rename it to activityGet ? 

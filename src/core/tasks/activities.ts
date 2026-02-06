@@ -4,66 +4,64 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class ActivitiesTask extends TaskBase {
-  private prjApi: ProjectActivityApi;
-  private envApi: EnvironmentActivityApi;
 
-  constructor(protected readonly client: UpsunClient) {
+  constructor(
+    protected readonly client: UpsunClient,
+    private prjApi: ProjectActivityApi,
+    private envApi: EnvironmentActivityApi,
+  ) {
     super(client);
-
-    this.prjApi = new ProjectActivityApi(this.client.apiConfig);
-    this.envApi = new EnvironmentActivityApi(this.client.apiConfig);
   }
 
-  async cancel(
-    projectId: string,
-    activityId: string,
-    environmentId: string = '',
-  ): Promise<AcceptedResponse> {
+  async cancel( projectId: string, activityId: string, environmentId?: string ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkActivityId(activityId);
 
-    if (environmentId) {
+    if (!environmentId) {
+      return await this.prjApi.actionProjectsActivitiesCancel({ projectId, activityId });
+    } else {
+      TaskBase.checkEnvironmentId(environmentId);
       return await this.envApi.actionProjectsEnvironmentsActivitiesCancel({
         projectId,
         environmentId,
         activityId,
       });
-    } else {
-      return await this.prjApi.actionProjectsActivitiesCancel({ projectId, activityId });
     }
   }
 
-  async get(projectId: string, activityId: string, environmentId: string = ''): Promise<Activity> {
+  async get(projectId: string, activityId: string, environmentId?: string): Promise<Activity> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkActivityId(activityId);
 
-    if (environmentId) {
+    if (!environmentId) {
+      return await this.prjApi.getProjectsActivities({ projectId, activityId });
+    } else {
+      TaskBase.checkEnvironmentId(environmentId);
       return await this.envApi.getProjectsEnvironmentsActivities({
         projectId,
         environmentId,
         activityId,
       });
-    } else {
-      return await this.prjApi.getProjectsActivities({ projectId, activityId });
     }
   }
 
-  async list(projectId: string, environmentId: string = ''): Promise<Activity[]> {
+  async list(projectId: string, environmentId?: string): Promise<Activity[]> {
     TaskBase.checkProjectId(projectId);
 
-    if (environmentId) {
-      return await this.envApi.listProjectsEnvironmentsActivities({ projectId, environmentId });
-    } else {
+    if (!environmentId) {
       return await this.prjApi.listProjectsActivities({ projectId });
+    } else {
+      TaskBase.checkEnvironmentId(environmentId);
+      return await this.envApi.listProjectsEnvironmentsActivities({ projectId, environmentId });
     }
   }
 
   async log(projectId: string, activityId: string): Promise<void> {
-    if (!projectId || !activityId) {
-      throw new Error('Project ID and Activity ID are required');
-    }
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkActivityId(activityId);
 
     //TODO clarify this message as the activity.logs contains "Log for this activity is available in the streaming logs endpoint"
-    throw new Error('Not implemented, prefere use get() (containes log)'); 
+    // https://linear.app/platformsh/issue/GIT-826/document-git-activity-log-endpoint-in-api-specs
+    throw new Error('Not implemented, prefere use get() (contains log)'); 
   }
 }

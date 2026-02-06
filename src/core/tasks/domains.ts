@@ -4,15 +4,15 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class DomainsTask extends TaskBase {
-  private domApi: DomainManagementApi;
-
-  constructor(protected readonly client: UpsunClient) {
+  
+  constructor(
+    protected readonly client: UpsunClient,
+    private domApi: DomainManagementApi,
+  ) {
     super(client);
-
-    this.domApi = new DomainManagementApi(this.client.apiConfig);
   }
 
-  static checkDomainId(domainId: string): void {
+  private static checkDomainId(domainId: string): void {
     if (!domainId) {
       throw new Error('Domain ID is required');
     }
@@ -21,36 +21,35 @@ export class DomainsTask extends TaskBase {
   async add(
     projectId: string,
     domain: string,
-    attributes: { [key: string]: string } = {},
-    isDefault: boolean = false,
-    replacementFor: string = '',
-    environmentId: string = '',
+    attributes?: { [key: string]: string },
+    isDefault?: boolean,
+    replacementFor?: string,
+    environmentId?: string,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
+
     if (!domain) {
       throw new Error('Domain must be a non-empty string');
     }
 
-    if (environmentId) {
+    const domainCreateInput = {
+      name: domain,
+      attributes,
+      isDefault,
+      replacementFor,
+    };
+
+    if (!environmentId) {
+      return await this.domApi.createProjectsDomains({
+        projectId,
+        domainCreateInput,
+      });
+    } else {
+      TaskBase.checkEnvironmentId(environmentId);
       return await this.domApi.createProjectsEnvironmentsDomains({
         projectId,
         environmentId,
-        domainCreateInput: {
-          name: domain,
-          attributes: attributes,
-          isDefault: isDefault,
-          replacementFor: replacementFor,
-        },
-      });
-    } else {
-      return await this.domApi.createProjectsDomains({
-        projectId,
-        domainCreateInput: {
-          name: domain,
-          attributes: attributes,
-          isDefault: isDefault,
-          replacementFor: replacementFor,
-        },
+        domainCreateInput,
       });
     }
   }
@@ -58,54 +57,57 @@ export class DomainsTask extends TaskBase {
   async delete(
     projectId: string,
     domainId: string,
-    environmentId: string = '',
+    environmentId?: string,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     DomainsTask.checkDomainId(domainId);
 
-    if (environmentId) {
+    if (!environmentId) {
+      return await this.domApi.deleteProjectsDomains({
+        projectId,
+        domainId,
+      });
+    } else {
+      TaskBase.checkEnvironmentId(environmentId);
       return await this.domApi.deleteProjectsEnvironmentsDomains({
         projectId,
         environmentId,
         domainId,
       });
-    } else {
-      return await this.domApi.deleteProjectsDomains({
-        projectId,
-        domainId,
-      });
     }
   }
 
-  async get(projectId: string, domainId: string, environmentId: string = ''): Promise<Domain> {
+  async get(projectId: string, domainId: string, environmentId?: string): Promise<Domain> {
     TaskBase.checkProjectId(projectId);
     DomainsTask.checkDomainId(domainId);
 
-    if (environmentId) {
+    if (!environmentId) {
+      return await this.domApi.getProjectsDomains({
+        projectId,
+        domainId,
+      });
+    } else {
+      TaskBase.checkEnvironmentId(environmentId);
       return await this.domApi.getProjectsEnvironmentsDomains({
         projectId,
         environmentId,
         domainId,
       });
-    } else {
-      return await this.domApi.getProjectsDomains({
-        projectId,
-        domainId,
-      });
     }
   }
 
-  async list(projectId: string, environmentId: string = ''): Promise<DomainCollection> {
+  async list(projectId: string, environmentId?: string): Promise<DomainCollection> {
     TaskBase.checkProjectId(projectId);
 
-    if (environmentId) {
+    if (!environmentId) {
+      return await this.domApi.listProjectsDomains({
+        projectId,
+      });
+    } else {
+      TaskBase.checkEnvironmentId(environmentId);
       return await this.domApi.listProjectsEnvironmentsDomains({
         projectId,
         environmentId,
-      });
-    } else {
-      return await this.domApi.listProjectsDomains({
-        projectId,
       });
     }
   }
@@ -113,31 +115,31 @@ export class DomainsTask extends TaskBase {
   async update(
     projectId: string, 
     domainId: string,
-    attributes: { [key: string]: string } = {},
-    isDefault: boolean = false,
-    environmentId: string = '',
+    attributes?: { [key: string]: string },
+    isDefault?: boolean,
+    environmentId?: string,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     DomainsTask.checkDomainId(domainId);
 
-    if (environmentId) {
+    const domainPatch = {
+      attributes,
+      isDefault,
+    };
+
+    if (!environmentId) {
+      return await this.domApi.updateProjectsDomains({
+        projectId,
+        domainId,
+        domainPatch,
+      });
+    } else {
+      TaskBase.checkEnvironmentId(environmentId);
       return await this.domApi.updateProjectsEnvironmentsDomains({
         projectId,
         environmentId,
         domainId,
-        domainPatch: {
-          attributes: attributes,
-          isDefault: isDefault,
-        },
-      });
-    } else {
-      return await this.domApi.updateProjectsDomains({
-        projectId,
-        domainId,
-        domainPatch: {
-          attributes: attributes,
-          isDefault: isDefault,
-        },
+        domainPatch,
       });
     }
   }
