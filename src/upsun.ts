@@ -157,7 +157,7 @@ export class UpsunClient {
     type RetryableInit = RequestInit & { __upsunRetry?: boolean };
 
     return {
-      post: async ({ fetch, url, init, response }) => {
+      post: async ({ fetch, url, init, response }): Promise<Response> => {
         if (response.status !== 401) {
           return response;
         }
@@ -172,7 +172,6 @@ export class UpsunClient {
         if (!this.auth) {
           return response;
         }
-        console.log('[UpsunClient] refreshing authentication after 401 response');
         await this.auth.exchangeCodeForToken();
         const token = await this.getToken();
         retryInit.headers = {

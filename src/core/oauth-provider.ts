@@ -82,7 +82,6 @@ export class OAuth2Client {
       client_id: this.clientId,
     });
 
-    console.log('[OAuth2Client] using refresh_token to refresh access token');
     const response = await fetch(this.tokenEndpoint, {
       method: 'POST',
       headers: {
@@ -114,7 +113,6 @@ export class OAuth2Client {
           this.accessToken = null;
         }
       }
-      console.log('[OAuth2Client] exchanging API token for new access token');
       await this.exchangeCodeForToken();
     }
   }
