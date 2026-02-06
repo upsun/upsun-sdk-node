@@ -31,7 +31,7 @@ export class RoutesTask extends TaskBase {
     return await this.rteApi.listProjectsEnvironmentsRoutes({ projectId, environmentId: env_name });
   }
 
-  private checkRouteId(routeId: string) {
+  private checkRouteId(routeId: string): void {
     if (!routeId) {
       throw new Error('Route ID is required');
     }

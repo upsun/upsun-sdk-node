@@ -1,8 +1,252 @@
+import { ListTeamMembersSortEnum, ListUserTeamsSortEnum, TeamsApi } from '../../api/TeamsApi.js';
+import { DateTimeFilter, ListProjectTeamAccess200Response, ListTeamMembers200Response, ListTeams200Response, ListTeamsSortEnum, StringFilter, Team, TeamAccessApi, TeamMember, TeamProjectAccess } from '../../index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class TeamsTask extends TaskBase {
+  private teamsApi: TeamsApi;
+  private teamAccessApi: TeamAccessApi;
+  
   constructor(protected readonly client: UpsunClient) {
     super(client);
+
+    this.teamsApi = new TeamsApi(this.client.apiConfig);
+    this.teamAccessApi = new TeamAccessApi(this.client.apiConfig);
+  }
+
+  async create(organizationId: string, label: string, projectPermissions?: string[]): Promise<void> {
+    TaskBase.checkOrganizationId(organizationId);
+    
+    if (!label) {
+      throw new Error('Team name is required');
+    }
+
+    await this.teamsApi.createTeam({
+      createTeamRequest: {
+        organizationId: organizationId,
+        label: label,
+        projectPermissions: projectPermissions,
+      },
+    });
+  }
+
+  async createMember(teamId: string, userId: string): Promise<TeamMember> {
+    TaskBase.checkTeamId(teamId);
+    TaskBase.checkUserId(userId);
+
+    return await this.teamsApi.createTeamMember({
+      teamId: teamId,
+      createTeamMemberRequest: {
+        userId: userId,
+      },
+    });
+  }
+
+  async delete(teamId: string): Promise<void> {
+    TaskBase.checkTeamId(teamId);
+
+    await this.teamsApi.deleteTeam({ teamId });
+  }
+
+  async deleteMember(teamId: string, userId: string): Promise<void> {
+    TaskBase.checkTeamId(teamId);
+    TaskBase.checkUserId(userId);
+
+    await this.teamsApi.deleteTeamMember({
+      teamId: teamId,
+      userId: userId,
+    });
+  }
+
+  async get(teamId: string): Promise<Team> {
+    TaskBase.checkTeamId(teamId);
+
+    return await this.teamsApi.getTeam({ teamId });
+  }
+
+  async getMember(teamId: string, userId: string): Promise<TeamMember> {
+    TaskBase.checkTeamId(teamId);
+    TaskBase.checkUserId(userId);
+
+    return await this.teamsApi.getTeamMember({
+      teamId: teamId,
+      userId: userId,
+    });
+  }
+
+  async list(
+    filterOrganizationId?: StringFilter,
+    filterId?: StringFilter,
+    filterUpdatedAt?: DateTimeFilter,
+    pageSize?: number,
+    pageBefore?: string,
+    pageAfter?: string,
+    sort?: string,
+  ): Promise<ListTeams200Response> {
+    
+    return await this.teamsApi.listTeams({ 
+      filterOrganizationId: filterOrganizationId,
+      filterId: filterId,
+      filterUpdatedAt: filterUpdatedAt,
+      pageSize,
+      pageBefore,
+      pageAfter,
+      sort: sort as ListUserTeamsSortEnum | undefined
+     });
+  }
+
+  async listMembers(
+    teamId: string,
+    pageBefore?: string,
+    pageAfter?: string,
+    sort?: string,
+  ): Promise<ListTeamMembers200Response> {
+    TaskBase.checkTeamId(teamId);
+
+    return await this.teamsApi.listTeamMembers({ 
+      teamId: teamId,
+      pageBefore,
+      pageAfter,
+      sort: sort as ListTeamMembersSortEnum | undefined
+     });
+  }
+
+  async listUserTeams(
+    userId: string,
+    filterOrganizationId?: StringFilter,
+    filterUpdatedAt?: DateTimeFilter,
+    pageSize?: number,
+    pageBefore?: string,
+    pageAfter?: string,
+    sort?: string,
+  ): Promise<ListTeams200Response> {
+    TaskBase.checkUserId(userId);
+
+    return await this.teamsApi.listUserTeams({ 
+      userId: userId,
+      filterOrganizationId: filterOrganizationId,
+      filterUpdatedAt: filterUpdatedAt,
+      pageSize,
+      pageBefore,
+      pageAfter,
+      sort: sort as ListUserTeamsSortEnum | undefined
+     });
+  }
+
+  async update(teamId: string, label?: string, projectPermissions?: string[]): Promise<void> {
+    TaskBase.checkTeamId(teamId);
+    
+    if (!label && !projectPermissions) {
+      throw new Error('At least one of label or projectPermissions is required to update the team');
+    }
+
+    await this.teamsApi.updateTeam({
+      teamId: teamId,
+      updateTeamRequest: {
+        label: label,
+        projectPermissions: projectPermissions,
+      },
+    });
+  }
+
+  async getProjectTeamAccess(teamId: string, projectId: string): Promise<TeamProjectAccess> {
+    TaskBase.checkTeamId(teamId);
+    TaskBase.checkProjectId(projectId);
+
+    return await this.teamAccessApi.getTeamProjectAccess({
+      teamId: teamId,
+      projectId: projectId,
+    });
+  }
+
+  async getTeamProjectAccess(teamId: string, projectId: string): Promise<TeamProjectAccess> {
+    TaskBase.checkTeamId(teamId);
+    TaskBase.checkProjectId(projectId);
+
+    return await this.teamAccessApi.getTeamProjectAccess({
+      teamId: teamId,
+      projectId: projectId,
+    });
+  }
+
+  async grantProjectTeamAccess(projectId: string, teamIds: string[]): Promise<void> {
+    TaskBase.checkProjectId(projectId);
+    if(!teamIds || teamIds.length === 0) {
+      throw new Error('At least one team ID is required to grant access');
+    }
+
+    await this.teamAccessApi.grantProjectTeamAccess({
+      projectId: projectId,
+      grantProjectTeamAccessRequestInner: teamIds.map(id => ({ teamId: id })),
+    });
+  }
+
+  async grantTeamProjectAccess(teamId: string, projectIds: string[]): Promise<void> {
+    TaskBase.checkTeamId(teamId);
+    if(!projectIds || projectIds.length === 0) {
+      throw new Error('At least one project ID is required to grant access');
+    }
+
+    await this.teamAccessApi.grantTeamProjectAccess({
+      teamId: teamId,
+      grantTeamProjectAccessRequestInner: projectIds.map(id => ({ projectId: id })),
+    });
+  }
+    
+  async listProjectTeamAccess(
+    projectId: string,
+    pageSize?: number,
+    pageBefore?: string,
+    pageAfter?: string,
+    sort?: string,
+  ): Promise<ListProjectTeamAccess200Response> {
+    TaskBase.checkProjectId(projectId);
+
+    return await this.teamAccessApi.listProjectTeamAccess({
+      projectId: projectId,
+      pageSize,
+      pageBefore,
+      pageAfter,
+      sort: sort
+     });
+  }
+
+  async listTeamProjectAccess(
+    teamId: string,
+    pageSize?: number,
+    pageBefore?: string,
+    pageAfter?: string,
+    sort?: string,
+  ): Promise<ListProjectTeamAccess200Response> {
+    TaskBase.checkTeamId(teamId);
+
+    return await this.teamAccessApi.listTeamProjectAccess({
+      teamId: teamId,
+      pageSize,
+      pageBefore,
+      pageAfter,
+      sort: sort
+     });
+  }
+  
+  //TODO PHP SDK removeProjectTeamAccess
+  async revokeProjectTeamAccess(projectId: string, teamId: string): Promise<void> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkTeamId(teamId);
+
+    await this.teamAccessApi.removeProjectTeamAccess({
+      projectId: projectId,
+      teamId: teamId,
+    });
+  }
+
+  async revokeTeamProjectAccess(teamId: string, projectId: string): Promise<void> {
+    TaskBase.checkTeamId(teamId);
+    TaskBase.checkProjectId(projectId);
+
+    await this.teamAccessApi.removeTeamProjectAccess({
+      teamId: teamId,
+      projectId: projectId,
+    });
   }
 }

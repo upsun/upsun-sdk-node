@@ -3,6 +3,12 @@ import { UpsunClient } from '../../upsun.js';
 export abstract class TaskBase {
   constructor(protected readonly client: UpsunClient) {}
 
+  static checkUserId(userId: string): void {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+  }
+
   static checkProjectId(projectId: string): void {
     if (!projectId) {
       throw new Error('Project ID is required');
@@ -48,6 +54,12 @@ export abstract class TaskBase {
   static checkSubscriptionId(subscriptionId: string): void {
     if (!subscriptionId) {
       throw new Error('Subscription ID is required');
+    }
+  }
+
+  static checkTeamId(teamId: string): void {
+    if (!teamId) {
+      throw new Error('Team ID is required');
     }
   }
 
