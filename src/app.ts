@@ -56,7 +56,7 @@ console.log('--- Delete Project ---');
 }).catch((error) => {
   console.error('Error deleting project:', error);
 }); */
-let prjCreatedObject = null;
+//let prjCreatedObject = null;
 
 if (FULL_TEST) {
   try {
@@ -166,10 +166,12 @@ if (FULL_TEST) {
         console.log(routes);
       }
     }
+
+    await upsun.environments.activate(projectTestId, 'main');
   } catch (error) {
     console.error(error);
   } finally {
-    if(FULL_TEST && prjCreatedObject){
+    if(FULL_TEST){
       console.log('--- Cleanup: Delete Project ---');
       try {
         // await upsun.projects.delete(prjCreatedObject?.id || '');
