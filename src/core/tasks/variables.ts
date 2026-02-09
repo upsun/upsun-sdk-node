@@ -5,14 +5,13 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class VariablesTask extends TaskBase {
-  private projVarApi: ProjectVariablesApi;
-  private envVarApi: EnvironmentVariablesApi;
-
-  constructor(protected readonly client: UpsunClient) {
+  
+  constructor(
+    protected readonly client: UpsunClient,
+    private projVarApi: ProjectVariablesApi,
+    private envVarApi: EnvironmentVariablesApi,
+  ) {
     super(client);
-
-    this.projVarApi = new ProjectVariablesApi(this.client.apiConfig);
-    this.envVarApi = new EnvironmentVariablesApi(this.client.apiConfig);
   }
 
   async createProjectVariable(

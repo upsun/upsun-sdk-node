@@ -18,13 +18,12 @@ interface ResourceApiPlaceholder {
 type DeploymentResourceGroup = 'webapps' | 'services' | 'workers';
 
 export class ResourcesTask extends TaskBase {
-  private deploymentApi: DeploymentApi;
-  // private resApi: ResourceApiPlaceholder | null = null; // = new ResourceApi(this.client.apiConfig);
 
-  constructor(protected readonly client: UpsunClient) {
+  constructor(
+    protected readonly client: UpsunClient,
+    private deploymentApi: DeploymentApi,
+  ) {
     super(client);
-
-    this.deploymentApi = new DeploymentApi(this.client.apiConfig);
   }
 
   async get(

@@ -4,12 +4,12 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class RoutesTask extends TaskBase {
-  private rteApi: RoutingApi;
-
-  constructor(protected readonly client: UpsunClient) {
+  
+  constructor(
+    protected readonly client: UpsunClient,
+    private rteApi: RoutingApi,
+  ) {
     super(client);
-
-    this.rteApi = new RoutingApi(this.client.apiConfig);
   }
 
   async get(projectId: string, env_name: string, routeId: string): Promise<Route> {

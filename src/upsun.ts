@@ -27,6 +27,7 @@ import {
   VariablesTask,
   WorkersTask,
 } from './core/index.js';
+import { AddOnsApi, AutoscalingApi, CertManagementApi, DeploymentApi, DomainManagementApi, EnvironmentActivityApi, EnvironmentApi, EnvironmentBackupsApi, EnvironmentTypeApi, EnvironmentVariablesApi, InvoicesApi, MfaApi, OrdersApi, OrganizationMembersApi, OrganizationProjectsApi, OrganizationsApi, ProfilesApi, ProjectActivityApi, ProjectApi, ProjectVariablesApi, RecordsApi, RoutingApi, RuntimeOperationsApi, SubscriptionsApi, TeamAccessApi, TeamsApi, UsersApi, VouchersApi } from './index.js';
 
 /**
  * Configuration interface for the Upsun API client.
@@ -130,27 +131,86 @@ export class UpsunClient {
     this.apiConfig = new Configuration(param);
 
     // Initialize the commands tasks.
-    this.activities = new ActivitiesTask(this);
-    this.applications = new ApplicationsTask(this);
-    this.backups = new BackupsTask(this);
-    this.certificates = new CertificatesTask(this);
-    this.domains = new DomainsTask(this);
-    this.environments = new EnvironmentsTask(this);
+    this.activities = new ActivitiesTask(
+      this,
+      new ProjectActivityApi(this.apiConfig),
+      new EnvironmentActivityApi(this.apiConfig),
+    );
+    this.applications = new ApplicationsTask(
+      this,
+      new DeploymentApi(this.apiConfig),
+    );
+    this.backups = new BackupsTask(
+      this,
+      new EnvironmentBackupsApi(this.apiConfig),
+    );
+    this.certificates = new CertificatesTask(
+      this,
+      new CertManagementApi(this.apiConfig),
+    );
+    this.domains = new DomainsTask(
+      this,
+      new DomainManagementApi(this.apiConfig),
+    );
+    this.environments = new EnvironmentsTask(
+      this,
+      new EnvironmentApi(this.apiConfig),
+      new EnvironmentTypeApi(this.apiConfig),
+      new DeploymentApi(this.apiConfig),
+      new AutoscalingApi(this.apiConfig),
+    );
     this.metrics = new MetricsTask(this);
     this.mounts = new MountsTask(this);
-    this.operations = new OperationsTask(this);
-    this.organizations = new OrganizationsTask(this);
-    this.projects = new ProjectsTask(this);
-    this.routes = new RoutesTask(this);
+    this.operations = new OperationsTask(
+      this,
+      new RuntimeOperationsApi(this.apiConfig),
+    );
+    this.organizations = new OrganizationsTask(
+      this,
+      new OrganizationsApi(this.apiConfig),
+      new OrganizationProjectsApi(this.apiConfig),
+      new OrganizationMembersApi(this.apiConfig),
+      new SubscriptionsApi(this.apiConfig),
+      new InvoicesApi(this.apiConfig),
+      new MfaApi(this.apiConfig),
+      new OrdersApi(this.apiConfig),
+      new ProfilesApi(this.apiConfig),
+      new RecordsApi(this.apiConfig),
+      new VouchersApi(this.apiConfig),
+      new AddOnsApi(this.apiConfig),
+    );
+    this.projects = new ProjectsTask(
+      this,
+      new ProjectApi(this.apiConfig),
+      new SubscriptionsApi(this.apiConfig),
+    );
+    this.routes = new RoutesTask(
+      this,
+      new RoutingApi(this.apiConfig),
+    );
     this.services = new ServicesTask(this);
     this.sourceOperations = new SourceOperationsTask(this);
     this.ssh = new SshTask(this);
-    this.teams = new TeamsTask(this);
-    this.users = new UsersTask(this);
-    this.variables = new VariablesTask(this);
+    this.teams = new TeamsTask(
+      this,
+      new TeamsApi(this.apiConfig),
+      new TeamAccessApi(this.apiConfig),
+    );
+    this.users = new UsersTask(
+      this,
+      new UsersApi(this.apiConfig),
+    );
+    this.variables = new VariablesTask(
+      this,
+      new ProjectVariablesApi(this.apiConfig),
+      new EnvironmentVariablesApi(this.apiConfig),
+    );
     this.workers = new WorkersTask(this);
 
-    this.resources = new ResourcesTask(this);
+    this.resources = new ResourcesTask(
+      this,
+      new DeploymentApi(this.apiConfig),
+    );
   }
 
   private createAuthRetryMiddleware(): Middleware {

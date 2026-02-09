@@ -3,12 +3,12 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class OperationsTask extends TaskBase {
-  private runApi: RuntimeOperationsApi;
-
-  constructor(protected readonly client: UpsunClient) {
+  
+  constructor(
+    protected readonly client: UpsunClient,
+    private runApi: RuntimeOperationsApi,
+  ) {
     super(client);
-
-    this.runApi = new RuntimeOperationsApi(this.client.apiConfig);
   }
 
   async run(
@@ -21,7 +21,12 @@ export class OperationsTask extends TaskBase {
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
-  
+    TaskBase.checkDeploymentId(deploymentId);
+
+    if (!service) {
+      throw new Error('Service must be a non-empty string');
+    }
+    
     if (!operation) {
       throw new Error('Operation must be a non-empty string');
     }

@@ -10,14 +10,13 @@ import {
 import { TaskBase } from './task_base.js';
 
 export class ProjectsTask extends TaskBase {
-  private prjApi: ProjectApi;
-  private subApi: SubscriptionsApi;
-
-  constructor(protected readonly client: UpsunClient) {
+  
+  constructor(
+    protected readonly client: UpsunClient,
+    private prjApi: ProjectApi,
+    private subApi: SubscriptionsApi,
+  ) {
     super(client);
-
-    this.prjApi = new ProjectApi(this.client.apiConfig);
-    this.subApi = new SubscriptionsApi(this.client.apiConfig);
   }
 
   async clearBuildCache(projectId: string): Promise<AcceptedResponse> {

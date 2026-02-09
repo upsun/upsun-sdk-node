@@ -4,12 +4,12 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class UsersTask extends TaskBase {
-  private usrApi: UsersApi;
-
-  constructor(protected readonly client: UpsunClient) {
+  
+  constructor(
+    protected readonly client: UpsunClient,
+    private usrApi: UsersApi,
+  ) {
     super(client);
-
-    this.usrApi = new UsersApi(this.client.apiConfig);
   }
 
   async me(): Promise<UserModel> {

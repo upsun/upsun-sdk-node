@@ -4,14 +4,13 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class TeamsTask extends TaskBase {
-  private teamsApi: TeamsApi;
-  private teamAccessApi: TeamAccessApi;
   
-  constructor(protected readonly client: UpsunClient) {
+  constructor(
+    protected readonly client: UpsunClient,
+    private teamsApi: TeamsApi,
+    private teamAccessApi: TeamAccessApi,
+  ) {
     super(client);
-
-    this.teamsApi = new TeamsApi(this.client.apiConfig);
-    this.teamAccessApi = new TeamAccessApi(this.client.apiConfig);
   }
 
   async create(organizationId: string, label: string, projectPermissions?: string[]): Promise<void> {

@@ -63,6 +63,12 @@ export abstract class TaskBase {
     }
   }
 
+  static checkDeploymentId(deploymentId: string): void {
+    if (!deploymentId) {
+      throw new Error('Deployment ID is required');
+    }
+  }
+
   // works for URIs like /subscriptions/{subscriptionId} to extract subscriptionId
   // as the subscriptionId is not returned directly in the project object (emty field)
   // e.g. /subscriptions/abc123

@@ -4,7 +4,6 @@ import {
   EstimateNewOrgSubscriptionFormatEnum,
   InvoicesApi,
   ListOrgsRequest,
-  ListUserOrgsRequest,
   MfaApi,
   OrdersApi,
   OrganizationMembersApi,
@@ -35,32 +34,22 @@ export interface ListUserOrgsRequest {
 }
 
 export class OrganizationsTask extends TaskBase {
-  private orgApi: OrganizationsApi;
-  private orgProjApi: OrganizationProjectsApi;
-  private membersApi: OrganizationMembersApi;
-  private subApi: SubscriptionsApi;
-  private invApi: InvoicesApi;
-  private mfaApi: MfaApi;
-  private ordApi: OrdersApi;
-  private profApi: ProfilesApi;
-  private recApi: RecordsApi;
-  private vouchApi: VouchersApi;
-  private addOnsApi: AddOnsApi;
-
-  constructor(protected readonly client: UpsunClient) {
+  
+  constructor(
+    protected readonly client: UpsunClient,
+    private orgApi: OrganizationsApi,
+    private orgProjApi: OrganizationProjectsApi,
+    private membersApi: OrganizationMembersApi,
+    private subApi: SubscriptionsApi,
+    private invApi: InvoicesApi,
+    private mfaApi: MfaApi,
+    private ordApi: OrdersApi,
+    private profApi: ProfilesApi,
+    private recApi: RecordsApi,
+    private vouchApi: VouchersApi,
+    private addOnsApi: AddOnsApi,
+  ) {
     super(client);
-
-    this.orgApi = new OrganizationsApi(this.client.apiConfig);
-    this.orgProjApi = new OrganizationProjectsApi(this.client.apiConfig);
-    this.membersApi = new OrganizationMembersApi(this.client.apiConfig);
-    this.subApi = new SubscriptionsApi(this.client.apiConfig);
-    this.invApi = new InvoicesApi(this.client.apiConfig);
-    this.mfaApi = new MfaApi(this.client.apiConfig);
-    this.ordApi = new OrdersApi(this.client.apiConfig);
-    this.profApi = new ProfilesApi(this.client.apiConfig);
-    this.recApi = new RecordsApi(this.client.apiConfig);
-    this.vouchApi = new VouchersApi(this.client.apiConfig);
-    this.addOnsApi = new AddOnsApi(this.client.apiConfig);
   }
 
   async create(
@@ -74,7 +63,7 @@ export class OrganizationsTask extends TaskBase {
       createOrgRequest: { 
         label: label, 
         type: type, 
-        owownerId: ownerId, 
+        ownerId: ownerId, 
         name: name, 
         country: country
       },
