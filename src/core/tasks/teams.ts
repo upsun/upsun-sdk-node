@@ -1,5 +1,5 @@
-import { ListTeamMembersSortEnum, ListUserTeamsSortEnum, TeamsApi } from '../../api/TeamsApi.js';
-import { DateTimeFilter, ListProjectTeamAccess200Response, ListTeamMembers200Response, ListTeams200Response, ListTeamsSortEnum, StringFilter, Team, TeamAccessApi, TeamMember, TeamProjectAccess } from '../../index.js';
+import { ListTeamMembersRequest, ListTeamMembersSortEnum, ListTeamsRequest, ListUserTeamsRequest, ListUserTeamsSortEnum, TeamsApi } from '../../api/TeamsApi.js';
+import { DateTimeFilter, ListProjectTeamAccess200Response, ListProjectTeamAccessRequest, ListTeamMembers200Response, ListTeamProjectAccessRequest, ListTeams200Response, ListTeamsSortEnum, StringFilter, Team, TeamAccessApi, TeamMember, TeamProjectAccess } from '../../index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
@@ -74,62 +74,26 @@ export class TeamsTask extends TaskBase {
   }
 
   async list(
-    filterOrganizationId?: StringFilter,
-    filterId?: StringFilter,
-    filterUpdatedAt?: DateTimeFilter,
-    pageSize?: number,
-    pageBefore?: string,
-    pageAfter?: string,
-    sort?: string,
+    params: ListTeamsRequest
   ): Promise<ListTeams200Response> {
     
-    return await this.teamsApi.listTeams({ 
-      filterOrganizationId: filterOrganizationId,
-      filterId: filterId,
-      filterUpdatedAt: filterUpdatedAt,
-      pageSize,
-      pageBefore,
-      pageAfter,
-      sort: sort as ListUserTeamsSortEnum | undefined
-     });
+    return await this.teamsApi.listTeams(params);
   }
 
   async listMembers(
-    teamId: string,
-    pageBefore?: string,
-    pageAfter?: string,
-    sort?: string,
+    params: ListTeamMembersRequest
   ): Promise<ListTeamMembers200Response> {
-    TaskBase.checkTeamId(teamId);
+    TaskBase.checkTeamId(params.teamId);
 
-    return await this.teamsApi.listTeamMembers({ 
-      teamId: teamId,
-      pageBefore,
-      pageAfter,
-      sort: sort as ListTeamMembersSortEnum | undefined
-     });
+    return await this.teamsApi.listTeamMembers(params);
   }
 
   async listUserTeams(
-    userId: string,
-    filterOrganizationId?: StringFilter,
-    filterUpdatedAt?: DateTimeFilter,
-    pageSize?: number,
-    pageBefore?: string,
-    pageAfter?: string,
-    sort?: string,
+    params: ListUserTeamsRequest
   ): Promise<ListTeams200Response> {
-    TaskBase.checkUserId(userId);
+    TaskBase.checkUserId(params.userId);
 
-    return await this.teamsApi.listUserTeams({ 
-      userId: userId,
-      filterOrganizationId: filterOrganizationId,
-      filterUpdatedAt: filterUpdatedAt,
-      pageSize,
-      pageBefore,
-      pageAfter,
-      sort: sort as ListUserTeamsSortEnum | undefined
-     });
+    return await this.teamsApi.listUserTeams(params);
   }
 
   async update(teamId: string, label?: string, projectPermissions?: string[]): Promise<void> {
@@ -192,43 +156,18 @@ export class TeamsTask extends TaskBase {
     });
   }
     
-  async listProjectTeamAccess(
-    projectId: string,
-    pageSize?: number,
-    pageBefore?: string,
-    pageAfter?: string,
-    sort?: string,
-  ): Promise<ListProjectTeamAccess200Response> {
-    TaskBase.checkProjectId(projectId);
+  async listProjectTeamAccess(params: ListProjectTeamAccessRequest): Promise<ListProjectTeamAccess200Response> {
+    TaskBase.checkProjectId(params.projectId);
 
-    return await this.teamAccessApi.listProjectTeamAccess({
-      projectId: projectId,
-      pageSize,
-      pageBefore,
-      pageAfter,
-      sort: sort
-     });
+    return await this.teamAccessApi.listProjectTeamAccess(params);
   }
 
-  async listTeamProjectAccess(
-    teamId: string,
-    pageSize?: number,
-    pageBefore?: string,
-    pageAfter?: string,
-    sort?: string,
-  ): Promise<ListProjectTeamAccess200Response> {
-    TaskBase.checkTeamId(teamId);
+  async listTeamProjectAccess(params: ListTeamProjectAccessRequest): Promise<ListProjectTeamAccess200Response> {
+    TaskBase.checkTeamId(params.teamId);
 
-    return await this.teamAccessApi.listTeamProjectAccess({
-      teamId: teamId,
-      pageSize,
-      pageBefore,
-      pageAfter,
-      sort: sort
-     });
+    return await this.teamAccessApi.listTeamProjectAccess(params);
   }
   
-  //TODO PHP SDK removeProjectTeamAccess
   async revokeProjectTeamAccess(projectId: string, teamId: string): Promise<void> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkTeamId(teamId);

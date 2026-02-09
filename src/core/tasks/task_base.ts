@@ -69,6 +69,23 @@ export abstract class TaskBase {
     }
   }
 
+  static checkInvoiceId(invoiceId: string): void {
+    if (!invoiceId) {
+      throw new Error('Invoice ID is required');
+    }
+  }
+
+  static checkOrderId(orderId: string): void {
+    if (!orderId) {
+      throw new Error('Order ID is required');
+    }
+  }
+
+  static checkVoucherCode(code: string): void {
+    if (!code) {
+      throw new Error('Voucher code is required');
+    }
+  }
   // works for URIs like /subscriptions/{subscriptionId} to extract subscriptionId
   // as the subscriptionId is not returned directly in the project object (emty field)
   // e.g. /subscriptions/abc123

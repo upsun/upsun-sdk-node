@@ -1,13 +1,27 @@
 import { UpsunClient } from '../../upsun.js';
-import { ProjectApi, SubscriptionsApi } from '../../api/index.js';
+import { ListOrgSubscriptionsFilterStatusEnum, ProjectApi, SubscriptionsApi } from '../../api/index.js';
 import {
   AcceptedResponse,
   CanCreateNewOrgSubscription200Response,
-  ListOrgSubscriptions200Response,
+  DateTimeFilter,
   Project,
+  StringFilter,
   Subscription,
 } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
+
+export interface FilterListOrgProjects {
+  filterStatus?: ListOrgSubscriptionsFilterStatusEnum;
+  filterId?: StringFilter;
+  filterProjectId?: StringFilter;
+  filterProjectTitle?: StringFilter;
+  filterRegion?: StringFilter;
+  filterUpdatedAt?: DateTimeFilter;
+  pageSize?: number;
+  pageBefore?: string;
+  pageAfter?: string;
+  sort?: string;
+}
 
 export class ProjectsTask extends TaskBase {
   
@@ -20,18 +34,22 @@ export class ProjectsTask extends TaskBase {
   }
 
   async clearBuildCache(projectId: string): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+
     return await this.prjApi.actionProjectsClearBuildCache({ projectId });
   }
 
   async create(
     organizationId: string,
     projectRegion: string,
-    projectTitle: string,
     plan: string = 'upsun/flexible',
-    defaultBranch: string = 'main',
-    environmentCount: number = 2,
-    storage: number = 5,
+    projectTitle?: string,
+    defaultBranch?: string,
+    environmentCount?: number,
+    storage?: number,
   ): Promise<Subscription> {
+    TaskBase.checkOrganizationId(organizationId);
+    
     return await this.subApi.createOrgSubscription({
       organizationId,
       createOrgSubscriptionRequest: {
@@ -81,9 +99,15 @@ export class ProjectsTask extends TaskBase {
 
   //TODO missing from PHP SDK
   //TODO change to return list of projects instead of subscriptions
-  async list(organizationId: string): Promise<ListOrgSubscriptions200Response> {
+  //TODO do we return ListOrgSubscriptions200Response or Project[]
+  async list(
+    organizationId: string,
+    filters?: FilterListOrgProjects,
+  ): Promise<Project[]> {
     TaskBase.checkOrganizationId(organizationId);
 
-    return await this.subApi.listOrgSubscriptions({ organizationId });
+    const subscriptions = await this.subApi.listOrgSubscriptions({ organizationId, ...filters });
+    return Promise.all((subscriptions.items ?? []).map(subscription => this.client.projects.get(subscription.id!)));
+
   }
 }
