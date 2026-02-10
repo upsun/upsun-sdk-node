@@ -6,86 +6,60 @@ import {
   InvoicesApi,
   ListOrgInvoicesFilterStatusEnum,
   ListOrgInvoicesFilterTypeEnum,
-  ListOrgOrdersFilterStatusEnum,
-  ListOrgOrdersModeEnum,
-  ListOrgPlanRecordsFilterPlanEnum,
-  ListOrgPlanRecordsFilterStatusEnum,
+  ListOrgMembersRequest,
+  ListOrgOrdersRequest,
+  ListOrgPlanRecordsRequest,
   ListOrgsRequest,
-  ListOrgUsageRecordsFilterUsageGroupEnum,
+  ListOrgUsageRecordsRequest,
   ListTeamsRequest,
-  ListUserTeamsSortEnum,
+  ListUserOrgsRequest,
   MfaApi,
   OrdersApi,
   OrganizationMembersApi,
-  OrganizationProjectsApi,
   OrganizationsApi,
   ProfilesApi,
   RecordsApi,
   SubscriptionsApi,
   VouchersApi,
 } from '../../api/index.js';
-import { Address, CanCreateNewOrgSubscription200Response, CreateAuthorizationCredentials200Response, CreateOrgMemberRequest, EstimationObject, Invoice, ListOrgInvoices200Response, ListOrgMembers200Response, ListOrgOrders200Response, ListOrgPlanRecords200Response, ListOrgs200Response, ListOrgSubscriptions200Response, ListTeams200Response, ListUserOrgs200Response, Order, Organization, OrganizationAddonsObject, OrganizationMember, OrganizationMfaEnforcement, Profile, Project, Subscription, SubscriptionCurrentUsageObject, UpdateOrgAddonsRequest, UpdateOrgProfileRequest, UpdateOrgRequest } from '../../model/index.js';
+import { 
+  Address, 
+  CanCreateNewOrgSubscription200Response, 
+  CreateAuthorizationCredentials200Response, 
+  CreateOrgMemberRequest, 
+  EstimationObject, 
+  Invoice, 
+  ListOrgInvoices200Response, 
+  ListOrgMembers200Response, 
+  ListOrgOrders200Response, 
+  ListOrgPlanRecords200Response, 
+  ListOrgs200Response,
+  ListOrgSubscriptions200Response, 
+  ListTeams200Response, 
+  ListUserOrgs200Response, 
+  Order, 
+  Organization, 
+  OrganizationAddonsObject, 
+  OrganizationMember, 
+  OrganizationMfaEnforcement, 
+  Profile, 
+  Project, 
+  Subscription, 
+  SubscriptionCurrentUsageObject, 
+  UpdateOrgAddonsRequest, 
+  UpdateOrgProfileRequest, 
+  UpdateOrgRequest } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
-import { StringFilter } from '../../model/StringFilter.js';
-import { ArrayFilter } from '../../model/ArrayFilter.js';
-import { DateTimeFilter } from '../../model/DateTimeFilter.js';
-import { FilterListOrgProjects } from './projects.js';
+import { FilterListOrgProjects, ProjectCreateRequest } from './projects.js';
+import { FilterListUserTeams } from './teams.js';
 
-export interface FilterListUserOrgs {
-  filterId?: StringFilter;
-  filterType?: StringFilter;
-  filterVendor?: StringFilter;
-  filterStatus?: StringFilter;
-  filterUpdatedAt?: DateTimeFilter;
-  pageSize?: number;
-  pageBefore?: string;
-  pageAfter?: string;
-  sort?: string;
-}
-
-export interface FilterListOrgMembers {
-  filterPermissions?: ArrayFilter;
-  pageSize?: number;
-  pageBefore?: string;
-  pageAfter?: string;
-  sort?: string;
-}
-
-export interface FilterListUserTeams {
-  filterOrganizationId?: StringFilter;
-  filterUpdatedAt?: DateTimeFilter;
-  pageSize?: number;
-  pageBefore?: string;
-  pageAfter?: string;
-  sort?: ListUserTeamsSortEnum;
-}
-
-export interface FilterListOrgOrders {
-  filterStatus?: ListOrgOrdersFilterStatusEnum;
-  filterTotal?: number;
-  page?: number;
-  mode?: ListOrgOrdersModeEnum;
-}
-
-export interface FilterListOrgPlanRecords {
-  filterSubscriptionId?: string;
-  filterPlan?: ListOrgPlanRecordsFilterPlanEnum;
-  filterStatus?: ListOrgPlanRecordsFilterStatusEnum;
-  filterStart?: Date;
-  filterEnd?: Date;
-  filterStartedAt?: Date;
-  filterEndedAt?: Date;
-  page?: number;
-}
-
-export interface FilterListOrgUsageRecords {
-  filterSubscriptionId?: string;
-  filterUsageGroup?: ListOrgUsageRecordsFilterUsageGroupEnum;
-  filterStart?: Date;
-  filterStartedAt?: Date;
-  page?: number;
-}
+// Type creation for request parameters that omit required fields from the original input types
+export type FilterListUser = Omit<ListUserOrgsRequest, 'userId'>;
+export type FilterListMembers = Omit<ListOrgMembersRequest, 'organizationId'>;
+export type FilterListOrders = Omit<ListOrgOrdersRequest, 'organizationId'>;
+export type FilterListPlanRecords = Omit<ListOrgPlanRecordsRequest, 'organizationId'>;
+export type FilterListUsageRecords = Omit<ListOrgUsageRecordsRequest, 'organizationId'>;
 
 export class OrganizationsTask extends TaskBase {
   
@@ -199,7 +173,7 @@ export class OrganizationsTask extends TaskBase {
     });
   }
 
-  async listMembers(organizationId: string, filters?: FilterListOrgMembers): Promise<ListOrgMembers200Response> {
+  async listMembers(organizationId: string, filters?: FilterListMembers): Promise<ListOrgMembers200Response> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.membersApi.listOrgMembers({ organizationId, ...filters });
@@ -207,7 +181,7 @@ export class OrganizationsTask extends TaskBase {
 
   async listUserOrgs(
     userId: string,
-    filters?: FilterListUserOrgs
+    filters?: FilterListUser
   ): Promise<ListUserOrgs200Response> {
     TaskBase.checkUserId(userId);
 
@@ -217,7 +191,7 @@ export class OrganizationsTask extends TaskBase {
   }
 
   async listCurrentUserOrgs(
-    filters?: FilterListUserOrgs
+    filters?: FilterListUser
   ): Promise<ListUserOrgs200Response> {
     return await this.listUserOrgs(
       (await this.client.users.me()).id,
@@ -259,7 +233,7 @@ export class OrganizationsTask extends TaskBase {
   ): Promise<ListTeams200Response> {
     TaskBase.checkUserId(userId);
     
-    return await this.client.teams.listUserTeams({ userId, ...filters });
+    return await this.client.teams.listUserTeams(userId, filters);
   }
 
   async getProject( organizationId: string, projectId: string ): Promise<Project> {
@@ -287,23 +261,11 @@ export class OrganizationsTask extends TaskBase {
   async createProject(
     organizationId: string,
     projectRegion: string,
-    projectTitle: string,
-    plan: string = 'upsun/flexible',
-    defaultBranch: string = 'main',
-    environmentCount: number = 2,
-    storage: number = 5,
+    params?: ProjectCreateRequest
   ): Promise<Subscription> {
     TaskBase.checkOrganizationId(organizationId);
 
-    return await this.client.projects.create(
-      organizationId,
-      projectRegion,
-      projectTitle,
-      plan,
-      defaultBranch,
-      environmentCount,
-      storage
-    );
+    return await this.client.projects.create(organizationId, projectRegion, params);
   }
 
   async deleteProject(projectId: string): Promise<void> {
@@ -474,7 +436,7 @@ export class OrganizationsTask extends TaskBase {
 
   async listOrders(
     organizationId: string, 
-    filters: FilterListOrgOrders,
+    filters: FilterListOrders,
   ): Promise<ListOrgOrders200Response> {
     TaskBase.checkOrganizationId(organizationId);
 
@@ -519,7 +481,7 @@ export class OrganizationsTask extends TaskBase {
 
   async listRecords(
     organizationId: string,
-    filters: FilterListOrgPlanRecords,
+    filters: FilterListPlanRecords,
   ): Promise<ListOrgPlanRecords200Response> {
     TaskBase.checkOrganizationId(organizationId);
 
@@ -528,7 +490,7 @@ export class OrganizationsTask extends TaskBase {
 
   async listUsageRecords(
     organizationId: string,
-    filters: FilterListOrgUsageRecords,
+    filters: FilterListUsageRecords,
   ): Promise<ListOrgPlanRecords200Response> {
     TaskBase.checkOrganizationId(organizationId);
 

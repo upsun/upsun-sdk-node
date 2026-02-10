@@ -1,5 +1,5 @@
 import { DomainManagementApi } from '../../api/index.js';
-import { AcceptedResponse, Domain, DomainCollection } from '../../model/index.js';
+import { AcceptedResponse, Domain, DomainCollection, DomainPatch } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
@@ -10,12 +10,6 @@ export class DomainsTask extends TaskBase {
     private domApi: DomainManagementApi,
   ) {
     super(client);
-  }
-
-  private static checkDomainId(domainId: string): void {
-    if (!domainId) {
-      throw new Error('Domain ID is required');
-    }
   }
 
   async add(
@@ -60,7 +54,7 @@ export class DomainsTask extends TaskBase {
     environmentId?: string,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
-    DomainsTask.checkDomainId(domainId);
+    TaskBase.checkDomainId(domainId);
 
     if (!environmentId) {
       return await this.domApi.deleteProjectsDomains({
@@ -79,7 +73,7 @@ export class DomainsTask extends TaskBase {
 
   async get(projectId: string, domainId: string, environmentId?: string): Promise<Domain> {
     TaskBase.checkProjectId(projectId);
-    DomainsTask.checkDomainId(domainId);
+    TaskBase.checkDomainId(domainId);
 
     if (!environmentId) {
       return await this.domApi.getProjectsDomains({
@@ -115,23 +109,17 @@ export class DomainsTask extends TaskBase {
   async update(
     projectId: string, 
     domainId: string,
-    attributes?: { [key: string]: string },
-    isDefault?: boolean,
+    params?: DomainPatch,
     environmentId?: string,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
-    DomainsTask.checkDomainId(domainId);
-
-    const domainPatch = {
-      attributes,
-      isDefault,
-    };
+    TaskBase.checkDomainId(domainId);
 
     if (!environmentId) {
       return await this.domApi.updateProjectsDomains({
         projectId,
         domainId,
-        domainPatch,
+        domainPatch: params || {},
       });
     } else {
       TaskBase.checkEnvironmentId(environmentId);
@@ -139,7 +127,7 @@ export class DomainsTask extends TaskBase {
         projectId,
         environmentId,
         domainId,
-        domainPatch,
+        domainPatch: params || {},
       });
     }
   }

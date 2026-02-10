@@ -1,7 +1,16 @@
 import { CertManagementApi, UpdateProjectsProvisionersRequest } from '../../api/index.js';
-import { AcceptedResponse, Certificate, CertificateCollection, CertificatePatch } from '../../model/index.js';
+import {
+  AcceptedResponse,
+  Certificate,
+  CertificateCollection,
+  CertificateCreateInput,
+  CertificatePatch
+} from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
+
+// Type creation for request parameters that omit required fields from the original input types
+export type CertificateCreateParams = Omit<CertificateCreateInput, 'certificate' | 'key'>;
 
 export class CertificatesTask extends TaskBase {
   
@@ -16,8 +25,7 @@ export class CertificatesTask extends TaskBase {
     projectId: string,
     certificate: string,
     key: string,
-    chain?: string[],
-    isInvalid?: boolean,
+    params?: CertificateCreateParams
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     
@@ -27,12 +35,7 @@ export class CertificatesTask extends TaskBase {
 
     return await this.certApi.createProjectsCertificates({
       projectId,
-      certificateCreateInput: {
-        certificate,
-        key,
-        chain,
-        isInvalid,
-      },
+      certificateCreateInput: {certificate, key, ...params},
     });
   }
 
@@ -64,17 +67,18 @@ export class CertificatesTask extends TaskBase {
     });
   }
 
-  async update(projectId: string, certificateId: string, chain?: string[], isInvalid?: boolean): Promise<AcceptedResponse> {
+  async update(
+    projectId: string, 
+    certificateId: string, 
+    params?: CertificatePatch
+  ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkCertificateId(certificateId);
 
     return await this.certApi.updateProjectsCertificates({
       projectId,
       certificateId,
-      certificatePatch: {
-        chain,
-        isInvalid
-      } as CertificatePatch,
+      certificatePatch: params || {},
     });
   }
 }

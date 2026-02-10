@@ -86,6 +86,61 @@ export abstract class TaskBase {
       throw new Error('Voucher code is required');
     }
   }
+
+  static checkProjectRegion(region: string): void {
+    if (!region) {
+      throw new Error('Project region is required');
+    }
+  }
+
+  static checkVariableId(variableId: string): void {
+    if (!variableId) {
+      throw new Error('Variable ID is required');
+    }
+  }
+
+  static checkRepositoryBlobId(repositoryBlobId: string): void {
+    if (!repositoryBlobId) {
+      throw new Error('Repository Blob ID is required');
+    }
+  }
+
+  static checkRepositoryCommitId(repositoryCommitId: string): void {
+    if (!repositoryCommitId) {
+      throw new Error('Repository Commit ID is required');
+    }
+  }
+
+  static checkRepositoryRefId(repositoryRefId: string): void {
+    if (!repositoryRefId) {
+      throw new Error('Repository Ref ID is required');
+    }
+  }
+
+  static checkRepositoryTreeId(repositoryTreeId: string): void {
+    if (!repositoryTreeId) {
+      throw new Error('Repository Tree ID is required');
+    }
+  }
+
+ static checkIntegrationId(integrationId: string): void {
+    if (!integrationId) {
+      throw new Error('Integration ID is required');
+    }
+  }
+
+  static checkDomainId(domainId: string): void {
+    if (!domainId) {
+      throw new Error('Domain ID is required');
+    }
+  }
+
+  static checkApiTokenId(tokenId: string): void {
+    if (!tokenId) {
+      throw new Error('API Token ID is required');
+    }
+  }
+
   // works for URIs like /subscriptions/{subscriptionId} to extract subscriptionId
   // as the subscriptionId is not returned directly in the project object (emty field)
   // e.g. /subscriptions/abc123

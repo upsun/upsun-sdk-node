@@ -1,5 +1,5 @@
 import { DeploymentApi } from '../../api/index.js';
-import { Deployment, WebApplicationsValue } from '../../model/index.js';
+import { WebApplicationsValue } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 

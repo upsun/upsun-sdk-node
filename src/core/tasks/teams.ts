@@ -1,7 +1,12 @@
 import { ListTeamMembersRequest, ListTeamMembersSortEnum, ListTeamsRequest, ListUserTeamsRequest, ListUserTeamsSortEnum, TeamsApi } from '../../api/TeamsApi.js';
-import { DateTimeFilter, ListProjectTeamAccess200Response, ListProjectTeamAccessRequest, ListTeamMembers200Response, ListTeamProjectAccessRequest, ListTeams200Response, ListTeamsSortEnum, StringFilter, Team, TeamAccessApi, TeamMember, TeamProjectAccess } from '../../index.js';
+import { DateTimeFilter, GrantProjectTeamAccessRequestInner, GrantTeamProjectAccessRequestInner, ListProjectTeamAccess200Response, ListProjectTeamAccessRequest, ListTeamMembers200Response, ListTeamProjectAccessRequest, ListTeams200Response, ListTeamsSortEnum, StringFilter, Team, TeamAccessApi, TeamMember, TeamProjectAccess, UpdateTeamRequest } from '../../index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
+
+export type FilterListTeamProjectAccess = Omit<ListTeamProjectAccessRequest, 'teamId'>;
+export type FilterListProjectTeamAccess = Omit<ListProjectTeamAccessRequest, 'projectId'>;
+export type FilterListUserTeams = Omit<ListUserTeamsRequest, 'userId'>;
+export type FilterListTeamMembers = Omit<ListTeamMembersRequest, 'teamId'>;
 
 export class TeamsTask extends TaskBase {
   
@@ -73,42 +78,39 @@ export class TeamsTask extends TaskBase {
     });
   }
 
-  async list(
-    params: ListTeamsRequest
-  ): Promise<ListTeams200Response> {
+  async list(filters: ListTeamsRequest): Promise<ListTeams200Response> {
     
-    return await this.teamsApi.listTeams(params);
+    return await this.teamsApi.listTeams(filters);
   }
 
   async listMembers(
-    params: ListTeamMembersRequest
+    teamId: string,
+    filters: FilterListTeamMembers
   ): Promise<ListTeamMembers200Response> {
-    TaskBase.checkTeamId(params.teamId);
+    TaskBase.checkTeamId(teamId);
 
-    return await this.teamsApi.listTeamMembers(params);
+    return await this.teamsApi.listTeamMembers({ teamId, ...filters });
   }
 
   async listUserTeams(
-    params: ListUserTeamsRequest
+    userId: string,
+    filters?: FilterListUserTeams
   ): Promise<ListTeams200Response> {
-    TaskBase.checkUserId(params.userId);
+    TaskBase.checkUserId(userId);
 
-    return await this.teamsApi.listUserTeams(params);
+    return await this.teamsApi.listUserTeams({ userId, ...filters });
   }
 
-  async update(teamId: string, label?: string, projectPermissions?: string[]): Promise<void> {
+  async update(teamId: string, params?: UpdateTeamRequest): Promise<void> {
     TaskBase.checkTeamId(teamId);
     
-    if (!label && !projectPermissions) {
+    if (!params?.label && !params?.projectPermissions) {
       throw new Error('At least one of label or projectPermissions is required to update the team');
     }
 
     await this.teamsApi.updateTeam({
       teamId: teamId,
-      updateTeamRequest: {
-        label: label,
-        projectPermissions: projectPermissions,
-      },
+      updateTeamRequest: params,
     });
   }
 
@@ -132,40 +134,48 @@ export class TeamsTask extends TaskBase {
     });
   }
 
-  async grantProjectTeamAccess(projectId: string, teamIds: string[]): Promise<void> {
+  async grantProjectTeamAccess(projectId: string, access: Array<GrantProjectTeamAccessRequestInner>): Promise<void> {
     TaskBase.checkProjectId(projectId);
-    if(!teamIds || teamIds.length === 0) {
+
+    if(!access || access.length === 0) {
       throw new Error('At least one team ID is required to grant access');
     }
 
     await this.teamAccessApi.grantProjectTeamAccess({
       projectId: projectId,
-      grantProjectTeamAccessRequestInner: teamIds.map(id => ({ teamId: id })),
+      grantProjectTeamAccessRequestInner: access,
     });
   }
 
-  async grantTeamProjectAccess(teamId: string, projectIds: string[]): Promise<void> {
+  async grantTeamProjectAccess(teamId: string, access: Array<GrantTeamProjectAccessRequestInner>): Promise<void> {
     TaskBase.checkTeamId(teamId);
-    if(!projectIds || projectIds.length === 0) {
+    
+    if(!access || access.length === 0) {
       throw new Error('At least one project ID is required to grant access');
     }
 
     await this.teamAccessApi.grantTeamProjectAccess({
       teamId: teamId,
-      grantTeamProjectAccessRequestInner: projectIds.map(id => ({ projectId: id })),
+      grantTeamProjectAccessRequestInner: access,
     });
   }
     
-  async listProjectTeamAccess(params: ListProjectTeamAccessRequest): Promise<ListProjectTeamAccess200Response> {
-    TaskBase.checkProjectId(params.projectId);
+  async listProjectTeamAccess(
+    projectId: string, 
+    filters: FilterListProjectTeamAccess
+  ): Promise<ListProjectTeamAccess200Response> {
+    TaskBase.checkProjectId(projectId);
 
-    return await this.teamAccessApi.listProjectTeamAccess(params);
+    return await this.teamAccessApi.listProjectTeamAccess({ projectId, ...filters });
   }
 
-  async listTeamProjectAccess(params: ListTeamProjectAccessRequest): Promise<ListProjectTeamAccess200Response> {
-    TaskBase.checkTeamId(params.teamId);
+  async listTeamProjectAccess(
+    teamId: string, 
+    filters: FilterListTeamProjectAccess
+  ): Promise<ListProjectTeamAccess200Response> {
+    TaskBase.checkTeamId(teamId);
 
-    return await this.teamAccessApi.listTeamProjectAccess(params);
+    return await this.teamAccessApi.listTeamProjectAccess({ teamId, ...filters });
   }
   
   async revokeProjectTeamAccess(projectId: string, teamId: string): Promise<void> {

@@ -1,8 +1,12 @@
 import { ProjectVariablesApi } from '../../api/ProjectVariablesApi.js';
-import { AcceptedResponse, EnvironmentVariablesApi, ProjectVariable } from '../../index.js';
+import { AcceptedResponse, EnvironmentVariableCreateInput, EnvironmentVariablesApi, ProjectVariable, ProjectVariableCreateInput, ProjectVariablePatch } from '../../index.js';
 import { EnvironmentVariable } from '../../model/EnvironmentVariable.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
+
+// Type creation for request parameters that omit required fields from the original input types
+export type ProjectVariableCreateParams = Omit<ProjectVariableCreateInput, 'name' | 'value'>;
+export type EnvironmentVariableCreateParams = Omit<EnvironmentVariableCreateInput, 'name' | 'value'>;
 
 export class VariablesTask extends TaskBase {
   
@@ -18,12 +22,7 @@ export class VariablesTask extends TaskBase {
     projectId: string, 
     name: string,
     value: string,
-    attributes?: Record<string, string>,
-    isJson?: boolean,
-    isSensitive?: boolean,
-    visibleBuild?: boolean,
-    visibleRuntime?: boolean,
-    applicationScope?: string[]
+    params?: ProjectVariableCreateParams
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
 
@@ -36,16 +35,7 @@ export class VariablesTask extends TaskBase {
 
     return await this.projVarApi.createProjectsVariables({
       projectId,
-      projectVariableCreateInput: {
-        name: name, 
-        value: value, 
-        attributes: attributes, 
-        isJson: isJson, 
-        isSensitive: isSensitive, 
-        visibleBuild: visibleBuild, 
-        visibleRuntime: visibleRuntime, 
-        applicationScope: applicationScope 
-      },
+      projectVariableCreateInput: {name, value, ...params},
     });
   }
 
@@ -80,14 +70,7 @@ export class VariablesTask extends TaskBase {
   async updateProjectVariable(
     projectId: string, 
     variableId: string, 
-    name?: string,
-    value?: string,
-    attributes?: Record<string, string>,
-    isJson?: boolean,
-    isSensitive?: boolean,
-    visibleBuild?: boolean,
-    visibleRuntime?: boolean,
-    applicationScope?: string[]
+    params?: ProjectVariablePatch
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     this.checkVariableId(variableId);
@@ -95,16 +78,7 @@ export class VariablesTask extends TaskBase {
     return await this.projVarApi.updateProjectsVariables({
       projectId: projectId,
       projectVariableId: variableId,
-      projectVariablePatch: {
-        name: name,
-        value: value,
-        attributes: attributes,
-        isJson: isJson,
-        isSensitive: isSensitive,
-        visibleBuild: visibleBuild,
-        visibleRuntime: visibleRuntime,
-        applicationScope: applicationScope
-      },
+      projectVariablePatch: params || {},
     });
   }
 
@@ -113,12 +87,7 @@ export class VariablesTask extends TaskBase {
     environmentId: string, 
     name: string,
     value: string,
-    attributes?: Record<string, string>,
-    isJson?: boolean,
-    isSensitive?: boolean,
-    visibleBuild?: boolean,
-    visibleRuntime?: boolean,
-    applicationScope?: string[]
+    params?: EnvironmentVariableCreateParams,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -130,20 +99,10 @@ export class VariablesTask extends TaskBase {
       throw new Error('Variable value is required');
     }
 
-
     return await this.envVarApi.createProjectsEnvironmentsVariables({
       projectId: projectId,
       environmentId: environmentId,
-      environmentVariableCreateInput: {
-        name: name, 
-        value: value, 
-        attributes: attributes, 
-        isJson: isJson, 
-        isSensitive: isSensitive, 
-        visibleBuild: visibleBuild, 
-        visibleRuntime: visibleRuntime, 
-        applicationScope: applicationScope 
-      },
+      environmentVariableCreateInput: {name, value, ...params},
     });
   }
 
@@ -184,12 +143,7 @@ export class VariablesTask extends TaskBase {
     variableId: string, 
     name: string,
     value: string,
-    attributes?: Record<string, string>,
-    isJson?: boolean,
-    isSensitive?: boolean,
-    visibleBuild?: boolean,
-    visibleRuntime?: boolean,
-    applicationScope?: string[]
+    params?: EnvironmentVariableCreateParams,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -199,16 +153,7 @@ export class VariablesTask extends TaskBase {
       projectId,
       environmentId,
       variableId,
-      environmentVariablePatch: {
-        name,
-        value,
-        attributes,
-        isJson,
-        isSensitive,
-        visibleBuild,
-        visibleRuntime,
-        applicationScope
-      },
+      environmentVariablePatch: {name, value, ...params},
     });
   }
 

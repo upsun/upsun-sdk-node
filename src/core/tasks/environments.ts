@@ -2,14 +2,14 @@ import { UpsunClient } from '../../upsun.js';
 import { AutoscalingApi, DeploymentApi, EnvironmentApi, EnvironmentTypeApi } from '../../api/index.js';
 import {
   AcceptedResponse,
-  AddressGrantsInnerPermissionEnum,
   Deployment,
   Domain,
+  DomainPatch,
   Environment,
   EnvironmentActivateInput,
   EnvironmentBranchInput,
   EnvironmentMergeInput,
-  EnvironmentPatchTypeEnum,
+  EnvironmentPatch,
   EnvironmentType,
   EnvironmentTypeEnum,
   EnvironmentVariable,
@@ -20,6 +20,7 @@ import {
   RouteCollection,
 } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
+import { EnvironmentVariableCreateParams } from '../index.js';
 
 export class EnvironmentsTask extends TaskBase {
   
@@ -175,7 +176,11 @@ export class EnvironmentsTask extends TaskBase {
     throw new Error('Not implemented');
   }
 
-  async merge(projectId: string, environmentId: string, init: string = Resources3InitEnum.DEFAULT): Promise<AcceptedResponse> {
+  async merge(
+    projectId: string, 
+    environmentId: string, 
+    init: string = Resources3InitEnum.DEFAULT
+  ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
@@ -243,19 +248,7 @@ export class EnvironmentsTask extends TaskBase {
   async update(
       projectId: string,
       environmentId: string,
-      parent?: string,
-      name?: string,
-      title?: EnvironmentPatchTypeEnum,
-      attributes?: { [key: string]: string; },
-      type?: string,
-      cloneParentOnCreate?: boolean,
-      httpAccess?: { 
-        isEnabled?: boolean, 
-        addresses?: { address: string, permission: AddressGrantsInnerPermissionEnum }[], 
-        basicAuth?: { login: string, password: string } 
-      },
-      enableSmtp?: boolean,
-      restrictRobots?: boolean,
+      params?: EnvironmentPatch
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -263,26 +256,7 @@ export class EnvironmentsTask extends TaskBase {
     return await this.envApi.updateEnvironment({
         projectId,
         environmentId,
-        environmentPatch: {
-          name,
-          title,
-          parent,
-          attributes,
-          type: type ? EnvironmentPatchTypeEnum[type as keyof typeof EnvironmentPatchTypeEnum] : undefined,
-          cloneParentOnCreate,
-          httpAccess: {
-            isEnabled: httpAccess && httpAccess.isEnabled !== undefined ? httpAccess.isEnabled : undefined,
-            addresses: httpAccess && httpAccess.addresses
-              ? httpAccess.addresses.map(addr => ({
-                  address: addr.address,
-                  permission: AddressGrantsInnerPermissionEnum[addr.permission as keyof typeof AddressGrantsInnerPermissionEnum],
-                }))
-              : undefined,
-              basicAuth: httpAccess && httpAccess.basicAuth !== undefined ? httpAccess.basicAuth : undefined,
-          },
-          enableSmtp,
-          restrictRobots
-        }
+        environmentPatch: params || {},
     });
   }
 
@@ -310,12 +284,7 @@ export class EnvironmentsTask extends TaskBase {
     environmentId: string, 
     name: string,
     value: string,
-    attributes?: Record<string, string>,
-    isJson?: boolean,
-    isSensitive?: boolean,
-    visibleBuild?: boolean,
-    visibleRuntime?: boolean,
-    applicationScope?: string[]
+    params?: EnvironmentVariableCreateParams,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -325,12 +294,7 @@ export class EnvironmentsTask extends TaskBase {
       environmentId,
       name,
       value,
-      attributes,
-      isJson,
-      isSensitive,
-      visibleBuild,
-      visibleRuntime,
-      applicationScope,
+      params
     );
   }
 
@@ -361,12 +325,7 @@ export class EnvironmentsTask extends TaskBase {
     variableId: string,
     name: string,
     value: string,
-    attributes?: Record<string, string>,
-    isJson?: boolean,
-    isSensitive?: boolean,
-    visibleBuild?: boolean,
-    visibleRuntime?: boolean,
-    applicationScope?: string[]
+    params?: EnvironmentVariableCreateParams,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -377,12 +336,7 @@ export class EnvironmentsTask extends TaskBase {
       variableId,
       name,
       value,
-      attributes,
-      isJson,
-      isSensitive,
-      visibleBuild,
-      visibleRuntime,
-      applicationScope,
+      params
     );
   }
 
@@ -450,8 +404,7 @@ export class EnvironmentsTask extends TaskBase {
     projectId: string, 
     environmentId: string, 
     domainId: string,
-    attributes?: Record<string, string>,
-    isDefault?: boolean,
+    params?: DomainPatch
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -459,8 +412,7 @@ export class EnvironmentsTask extends TaskBase {
     return await this.client.domains.update(
       projectId,
       domainId,
-      attributes,
-      isDefault,
+      params,
       environmentId,
     );
   }

@@ -5,10 +5,7 @@ import { TaskBase } from './task_base.js';
 
 export class BackupsTask extends TaskBase {
   
-  constructor(
-    protected readonly client: UpsunClient,
-    private bckApi: EnvironmentBackupsApi,
-  ) {
+  constructor(protected readonly client: UpsunClient, private bckApi: EnvironmentBackupsApi) {
     super(client);
   }
 
