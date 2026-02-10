@@ -34,6 +34,7 @@ import {
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
+// Type creation for request parameters that omit required fields from the original input types
 export type FilterListProjectUserAccess = Omit<ListProjectUserAccessRequest, 'projectId'>;
 export type FilterListUserProjectAccess = Omit<ListProjectUserAccessRequest, 'userId'>;
 export type FilterListUserExtendedAccess = Omit<ListUserExtendedAccessRequest, 'userId'>;
@@ -43,7 +44,7 @@ export class UsersTask extends TaskBase {
   constructor(
     protected readonly client: UpsunClient,
     private readonly usersApi: UsersApi,
-    private readonly userProfilesApi: UserProfilesApi,
+    private readonly userProfilesApi: UserProfilesApi, 
     private readonly userAccessApi: UserAccessApi,
     private readonly apiTokensApi: ApiTokensApi,
     private readonly connectionsApi: ConnectionsApi,
@@ -266,11 +267,11 @@ export class UsersTask extends TaskBase {
   }
 
   /**
-   * Removes a user's access to a project. This method revokes the user's permissions for the specified project, 
+   * Revokes a user's access to a project. This method revokes the user's permissions for the specified project, 
    * effectively preventing them from accessing or collaborating on the project. Note that this does not delete the user
    * from the system, but simply removes their access to the specified project.
    */
-  async removeProjectUserAccess(projectId: string, userId: string): Promise<void> {
+  async revokeProjectUserAccess(projectId: string, userId: string): Promise<void> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkUserId(userId);
 
@@ -278,11 +279,11 @@ export class UsersTask extends TaskBase {
   }
 
   /**
-   * Removes a user's access to a project. This method revokes the user's permissions for the specified project, 
+   * Revokes a user's access to a project. This method revokes the user's permissions for the specified project, 
    * effectively preventing them from accessing or collaborating on the project. Note that this does not delete the user
    * from the system, but simply removes their access to the specified project.
    */
-  async removeUserProjectAccess(userId: string, projectId: string): Promise<void> {
+  async revokeUserProjectAccess(userId: string, projectId: string): Promise<void> {
     TaskBase.checkUserId(userId);
     TaskBase.checkProjectId(projectId);
 

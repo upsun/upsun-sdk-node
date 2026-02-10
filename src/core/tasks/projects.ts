@@ -1,10 +1,20 @@
 import { UpsunClient } from '../../upsun.js';
-import { DeploymentTargetApi, ListOrgSubscriptionsFilterStatusEnum, ListOrgSubscriptionsRequest, ListProjectTeamAccessRequest, ListTeamProjectAccessRequest, ProjectApi, ProjectSettingsApi, RepositoryApi, SubscriptionsApi, SystemInformationApi, ThirdPartyIntegrationsApi } from '../../api/index.js';
+import { 
+  DeploymentTargetApi,
+  ListOrgSubscriptionsRequest, 
+  ListProjectTeamAccessRequest, 
+  ListTeamProjectAccessRequest, 
+  ProjectApi, 
+  ProjectSettingsApi, 
+  RepositoryApi, 
+  SubscriptionsApi, 
+  SystemInformationApi, 
+  ThirdPartyIntegrationsApi
+} from '../../api/index.js';
 import {
   AcceptedResponse,
   Activity,
   CanCreateNewOrgSubscription200Response,
-  DateTimeFilter,
   DedicatedDeploymentTargetCreateInputTypeEnum,
   DeploymentTarget,
   DeploymentTargetCollection,
@@ -14,7 +24,6 @@ import {
   ProjectPatch,
   ProjectSettings,
   ProjectVariable,
-  StringFilter,
   Subscription,
   Blob,
   Commit,
@@ -25,17 +34,21 @@ import {
   IntegrationCollection,
   Integration,
   Domain,
-  CertificateCreateInput,
   Certificate,
   TeamProjectAccess,
   GrantProjectTeamAccessRequestInner,
   GrantTeamProjectAccessRequestInner,
   ListProjectTeamAccess200Response,
   CreateOrgSubscriptionRequest,
-  DomainPatch
+  DomainPatch,
+  UserProjectAccess,
+  GrantProjectUserAccessRequestInner,
+  ListProjectUserAccess200Response,
+  Environment
 } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
 import { CertificateCreateParams } from './certificates.js';
+import { FilterListProjectUserAccess } from '../index.js';
 
 // Type creation for request parameters that omit required fields from the original input types
 export type IntegrationCreateInputWithoutType = Omit<IntegrationCreateInput, 'type'>;
@@ -53,17 +66,22 @@ export class ProjectsTask extends TaskBase {
     private repositoryApi: RepositoryApi,
     private systemInfoApi: SystemInformationApi,
     private thirdPartyIntegrationsApi: ThirdPartyIntegrationsApi,
-    private subscriptionsApi: SubscriptionsApi,
   ) {
     super(client);
   }
 
+  /**
+   * Clears the build cache for a project.
+   */
   async clearBuildCache(projectId: string): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
 
     return await this.prjApi.actionProjectsClearBuildCache({ projectId });
   }
 
+  /**
+   * Creates a new project subscription under the specified organization with the given parameters.
+   */
   async create(
     organizationId: string,
     projectRegion: string,
@@ -527,13 +545,72 @@ export class ProjectsTask extends TaskBase {
     return await this.client.teams.listTeamProjectAccess(teamId, params);
   }
   
+  async revokeProjectTeamAccess(projectId: string, teamId: string): Promise<void> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkTeamId(teamId);
 
+    return await this.client.teams.revokeProjectTeamAccess(projectId, teamId);
+  }
 
+  async revokeTeamProjectAccess(teamId: string, projectId: string): Promise<void> {
+    TaskBase.checkTeamId(teamId);
+    TaskBase.checkProjectId(projectId);
 
+    return await this.client.teams.revokeTeamProjectAccess(teamId, projectId);
+  }
 
+  async getProjectUserAccess(projectId: string, userId: string): Promise<UserProjectAccess> {
+    TaskBase.checkUserId(userId);
+    TaskBase.checkProjectId(projectId);
 
+    return await this.client.users.getProjectUserAccess(projectId, userId);
+  }
 
+  async grantProjectUserAccess(projectId: string, access: Array<GrantProjectUserAccessRequestInner>): Promise<void> {
+    TaskBase.checkProjectId(projectId);
+    
+    return await this.client.users.grantProjectUserAccess(projectId, access);
+  }
 
+  async revokeProjectUserAccess(projectId: string, userId: string): Promise<void> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkUserId(userId);
 
+    return await this.client.users.revokeProjectUserAccess(projectId, userId);
+  }
 
+  async updateProjectUserAccess(
+    projectId: string, 
+    userId: string, 
+    access: GrantProjectUserAccessRequestInner
+  ): Promise<void> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkUserId(userId);
+
+    return await this.client.users.updateProjectUserAccess(projectId, userId, access);
+  }
+
+  async listProjectUserAccess(
+    projectId: string, 
+    filters?: FilterListProjectUserAccess
+  ): Promise<ListProjectUserAccess200Response> {
+    TaskBase.checkProjectId(projectId);
+
+    return await this.client.users.listProjectUserAccess(projectId, filters);
+  }
+
+  async listUserProjectAccess(
+    userId: string, 
+    filters?: FilterListProjectUserAccess
+  ): Promise<ListProjectUserAccess200Response> {
+    TaskBase.checkUserId(userId);
+
+    return await this.client.users.listUserProjectAccess(userId, filters);
+  }
+
+  async listEnvironments(projectId: string): Promise<Environment[]> {
+    TaskBase.checkProjectId(projectId);
+
+    return await this.client.environments.list(projectId);
+  }
 }
