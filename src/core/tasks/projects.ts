@@ -44,11 +44,13 @@ import {
   UserProjectAccess,
   GrantProjectUserAccessRequestInner,
   ListProjectUserAccess200Response,
-  Environment
+  Environment,
+  ProjectInvitation
 } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
 import { CertificateCreateParams } from './certificates.js';
 import { FilterListProjectUserAccess } from '../index.js';
+import { CreateProjectInvite } from './invitations.js';
 
 // Type creation for request parameters that omit required fields from the original input types
 export type IntegrationCreateInputWithoutType = Omit<IntegrationCreateInput, 'type'>;
@@ -164,26 +166,30 @@ export class ProjectsTask extends TaskBase {
     return await this.prjApi.getProjectsCapabilities({ projectId });
   }
 
-  //TODO add cancelInvites method to cancel pending invites for a project
-  // async cancelInvite(projectId: string, inviteId: string): Promise<void> {
-  //   TaskBase.checkProjectId(projectId);
-  //   TaskBase.checkInviteId(inviteId);
-  //   await this.client.invites.cancelProjectInvite({ projectId, inviteId });
-  // }
+  
+  async cancelInvite(projectId: string, inviteId: string): Promise<void> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkInviteId(inviteId);
 
-  //TODO add createInvite method to invite users to a project with specific roles
-  // async createInvite(projectId: string, email: string, role: string): Promise<Invite> {
-  //   TaskBase.checkProjectId(projectId);
-  //   TaskBase.checkEmail(email);
-  //   TaskBase.checkRole(role);
-  //   return await this.client.invites.createProjectInvite({ projectId, email, role });
-  // }
+    await this.client.invitations.cancelProjectInvite(projectId, inviteId);
+  }
 
-  //TODO add listInvites method to list pending invites for a project
-  // async listInvites(projectId: string): Promise<Invite[]> {
-  //   TaskBase.checkProjectId(projectId);
-  //   return await this.client.invites.listProjectInvites({ projectId });
-  // }
+  async createInvite(   
+    projectId: string, 
+    email: string,
+    params: CreateProjectInvite,
+  ): Promise<ProjectInvitation> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEmail(email);
+    
+    return await this.client.invitations.createProjectInvite( projectId, email, params);
+  }
+
+  async listInvites(projectId: string): Promise<ProjectInvitation[]> {
+    TaskBase.checkProjectId(projectId);
+    
+    return await this.client.invitations.listProjectInvites(projectId);
+  }
 
   async getSettings(projectId: string): Promise<ProjectSettings> {
     TaskBase.checkProjectId(projectId);

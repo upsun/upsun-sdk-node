@@ -141,6 +141,21 @@ export abstract class TaskBase {
     }
   }
 
+  static checkEmail(email: string): void {
+    if (!email) {
+      throw new Error('Email is required');
+    }
+
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new Error('Invalid email format');
+    }
+  }
+
+  static checkInviteId(inviteId: string): void {
+    if (!inviteId) {
+      throw new Error('Invite ID is required');
+    }
+  }
   // works for URIs like /subscriptions/{subscriptionId} to extract subscriptionId
   // as the subscriptionId is not returned directly in the project object (emty field)
   // e.g. /subscriptions/abc123

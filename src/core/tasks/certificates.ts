@@ -1,4 +1,4 @@
-import { CertManagementApi, UpdateProjectsProvisionersRequest } from '../../api/index.js';
+import { CertManagementApi } from '../../api/index.js';
 import {
   AcceptedResponse,
   Certificate,
@@ -21,6 +21,11 @@ export class CertificatesTask extends TaskBase {
     super(client);
   }
 
+  /**
+   * Add a certificate to a project. The API will return a 202 Accepted response if the certificate creation request has 
+   * been accepted and is being processed. However, the client should check the certificate's details to confirm whether 
+   * the creation was successful or not.
+   */
   async add(
     projectId: string,
     certificate: string,
@@ -39,34 +44,41 @@ export class CertificatesTask extends TaskBase {
     });
   }
 
+  /**
+   * Delete a certificate from a project. The API will return a 202 Accepted response if the deletion request has been
+   * accepted and is being processed. However, the client should check the certificate's details to confirm whether the 
+   * deletion was successful or not.
+   */
   async delete(projectId: string, certificateId: string): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkCertificateId(certificateId);
 
-    return await this.certApi.deleteProjectsCertificates({
-      projectId,
-      certificateId,
-    });
+    return await this.certApi.deleteProjectsCertificates({ projectId, certificateId });
   }
 
+  /**
+   * Get the details of a certificate for a project.
+   */
   async get(projectId: string, certificateId: string): Promise<Certificate> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkCertificateId(certificateId);
 
-    return await this.certApi.getProjectsCertificates({
-      projectId,
-      certificateId,
-    });
+    return await this.certApi.getProjectsCertificates({ projectId, certificateId });
   }
 
+  /**
+   * List the certificates for a project.
+   */
   async list(projectId: string): Promise<CertificateCollection> {
     TaskBase.checkProjectId(projectId);
 
-    return await this.certApi.listProjectsCertificates({
-      projectId,
-    });
+    return await this.certApi.listProjectsCertificates({ projectId });
   }
 
+  /**
+   * Update a certificate for a project. The API will return a 202 Accepted response if the update request has been 
+   * accepted and is being processed.
+   */
   async update(
     projectId: string, 
     certificateId: string, 
@@ -75,10 +87,6 @@ export class CertificatesTask extends TaskBase {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkCertificateId(certificateId);
 
-    return await this.certApi.updateProjectsCertificates({
-      projectId,
-      certificateId,
-      certificatePatch: params || {},
-    });
+    return await this.certApi.updateProjectsCertificates({projectId,certificateId,certificatePatch: params || {}});
   }
 }

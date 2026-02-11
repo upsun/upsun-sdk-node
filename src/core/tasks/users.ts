@@ -139,6 +139,8 @@ export class UsersTask extends TaskBase {
    * Retrieves a user's information by their email address.
    */
   async getByEmailAddress(email: string): Promise<UserModel> {
+    TaskBase.checkEmail(email);
+
     return await this.usersApi.getUserByEmailAddress({ email });
   }
 
@@ -156,12 +158,15 @@ export class UsersTask extends TaskBase {
    * If no new email address is provided, the user's email will be reset to an empty string, effectively removing the 
    * email address from their account.
    */
-  async resetEmailAddress(userId: string, emailAddress?: string): Promise<void> {
+  async resetEmailAddress(userId: string, email?: string): Promise<void> {
     TaskBase.checkUserId(userId);
+    if(email) {
+      TaskBase.checkEmail(email);
+    }
 
     await this.usersApi.resetEmailAddress({
       userId,
-      resetEmailAddressRequest: {emailAddress: emailAddress || ''},
+      resetEmailAddressRequest: {emailAddress: email || ''},
     });
   }
 

@@ -13,6 +13,11 @@ export class ActivitiesTask extends TaskBase {
     super(client);
   }
 
+  /**
+   * Cancel an activity for a project or environment. The API will return a 202 Accepted response if the cancellation 
+   * request has been accepted, but the client should check the activity's details to confirm whether the cancellation 
+   * was successful or not.
+   */
   async cancel( projectId: string, activityId: string, environmentId?: string ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkActivityId(activityId);
@@ -21,14 +26,13 @@ export class ActivitiesTask extends TaskBase {
       return await this.prjApi.actionProjectsActivitiesCancel({ projectId, activityId });
     } else {
       TaskBase.checkEnvironmentId(environmentId);
-      return await this.envApi.actionProjectsEnvironmentsActivitiesCancel({
-        projectId,
-        environmentId,
-        activityId,
-      });
+      return await this.envApi.actionProjectsEnvironmentsActivitiesCancel({ projectId, environmentId, activityId });
     }
   }
 
+  /**
+   * Get the details of an activity for a project or environment.
+   */
   async get(projectId: string, activityId: string, environmentId?: string): Promise<Activity> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkActivityId(activityId);
@@ -37,14 +41,13 @@ export class ActivitiesTask extends TaskBase {
       return await this.prjApi.getProjectsActivities({ projectId, activityId });
     } else {
       TaskBase.checkEnvironmentId(environmentId);
-      return await this.envApi.getProjectsEnvironmentsActivities({
-        projectId,
-        environmentId,
-        activityId,
-      });
+      return await this.envApi.getProjectsEnvironmentsActivities({ projectId, environmentId, activityId });
     }
   }
 
+  /**
+   * List the activities for a project or environment.
+   */
   async list(projectId: string, environmentId?: string): Promise<Activity[]> {
     TaskBase.checkProjectId(projectId);
 
@@ -56,12 +59,16 @@ export class ActivitiesTask extends TaskBase {
     }
   }
 
+  /**
+   * Get the log output for an activity. 
+   * @todo clarify this message as the activity.logs contains "Log for this activity is available in the streaming 
+   * logs endpoint" 
+   * @see https://linear.app/platformsh/issue/GIT-826/document-git-activity-log-endpoint-in-api-specs
+   */
   async log(projectId: string, activityId: string): Promise<void> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkActivityId(activityId);
 
-    //TODO clarify this message as the activity.logs contains "Log for this activity is available in the streaming logs endpoint"
-    // https://linear.app/platformsh/issue/GIT-826/document-git-activity-log-endpoint-in-api-specs
     throw new Error('Not implemented, prefere use get() (contains log)'); 
   }
 }
