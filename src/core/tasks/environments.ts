@@ -355,7 +355,7 @@ export class EnvironmentsTask extends TaskBase {
   async relationships(
     projectId: string,
     environmentId: string,
-    appId: string
+    appId: string,
   ): Promise<{ [key: string]: ServiceRelationshipsValue }> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);

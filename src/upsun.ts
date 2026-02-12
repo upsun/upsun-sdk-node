@@ -221,7 +221,7 @@ export class UpsunClient {
     const userProfilesApi = new UserProfilesApi(this.apiConfig);
     const usersApi = new UsersApi(this.apiConfig);
     const vouchersApi = new VouchersApi(this.apiConfig);
-    
+
     // Initialize the commands tasks.
     this.activities = new ActivitiesTask(
       this,
@@ -269,16 +269,12 @@ export class UpsunClient {
       repositoryApi,
       systemInformationApi,
     );
-    this.resources = new ResourcesTask(this, deploymentApi, autoscalingApi);    
+    this.resources = new ResourcesTask(this, deploymentApi, autoscalingApi);
     this.routes = new RoutesTask(this, routingApi);
     this.services = new ServicesTask(this);
     this.sourceOperations = new SourceOperationsTask(this, sourceOperationsApi);
     this.ssh = new SshTask(this, sshKeysApi);
-    this.teams = new TeamsTask(
-      this,
-      teamsApi,
-      teamAccessApi,
-    );
+    this.teams = new TeamsTask(this, teamsApi, teamAccessApi);
     this.users = new UsersTask(
       this,
       usersApi,
@@ -290,11 +286,7 @@ export class UpsunClient {
       mfaApi,
       phoneNumberApi,
     );
-    this.variables = new VariablesTask(
-      this,
-      projectVariablesApi,
-      environmentVariablesApi,
-    );
+    this.variables = new VariablesTask(this, projectVariablesApi, environmentVariablesApi);
     this.workers = new WorkersTask(this);
   }
 

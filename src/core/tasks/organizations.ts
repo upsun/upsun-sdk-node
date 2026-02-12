@@ -534,7 +534,7 @@ export class OrganizationsTask extends TaskBase {
 
   /**
    * Disable MFA enforcement for an organization. This will allow members of the organization to log in without being
-   * required to use multi-factor authentication (MFA). This should be used with caution, as it can reduce the security 
+   * required to use multi-factor authentication (MFA). This should be used with caution, as it can reduce the security
    * of the organization.
    * @param organizationId - The ID of the organization to disable MFA enforcement for.
    * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
@@ -558,10 +558,10 @@ export class OrganizationsTask extends TaskBase {
   }
 
   /**
-   * Get the current MFA enforcement status for an organization. This will return information about whether MFA 
+   * Get the current MFA enforcement status for an organization. This will return information about whether MFA
    * enforcement is enabled or disabled.
    * @param organizationId - The ID of the organization to get the MFA enforcement status for.
-   * @return An object containing the current MFA enforcement status for the organization, indicating whether MFA 
+   * @return An object containing the current MFA enforcement status for the organization, indicating whether MFA
    * enforcement is enabled or disabled.
    * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
    */
@@ -575,9 +575,9 @@ export class OrganizationsTask extends TaskBase {
    * Send MFA reminders to specified users within an organization. This can be used to prompt users to set up or use MFA
    * if MFA enforcement is enabled for the organization and some users have not yet set up MFA or are not using it.
    * @param organizationId - The ID of the organization to send MFA reminders for.
-   * @param userIds - A list of user IDs to send MFA reminders to. These should be users who are members of the 
+   * @param userIds - A list of user IDs to send MFA reminders to. These should be users who are members of the
    * organization and are expected to use MFA based on the organization's MFA enforcement settings.
-   * @throws An error if the organization ID is invalid, if the user IDs are invalid, or if there is an issue with the 
+   * @throws An error if the organization ID is invalid, if the user IDs are invalid, or if there is an issue with the
    * API request.
    */
   async sendMfaReminders(organizationId: string, userIds: string[]): Promise<void> {
@@ -592,7 +592,7 @@ export class OrganizationsTask extends TaskBase {
   }
 
   /**
-   * Get the details of an invoice by its ID for a specific organization. This will return information about the 
+   * Get the details of an invoice by its ID for a specific organization. This will return information about the
    * invoice, including the invoice amount, status, billing period, and any associated order or subscription details.
    * @param invoiceId - The ID of the invoice to retrieve.
    * @param organizationId - The ID of the organization that the invoice belongs to.
@@ -607,7 +607,7 @@ export class OrganizationsTask extends TaskBase {
   }
 
   /**
-   * List the invoices for a specific organization, with optional filtering by status, type, or associated order ID. 
+   * List the invoices for a specific organization, with optional filtering by status, type, or associated order ID.
    * This will return a paginated list of invoices matching the specified criteria.
    * @param organizationId - The ID of the organization to list invoices for.
    * @param filterStatus - (Optional) Filter invoices by their status, such as "paid", "unpaid", "overdue", etc.
@@ -615,9 +615,9 @@ export class OrganizationsTask extends TaskBase {
    * @param filterOrderId - (Optional) Filter invoices by the associated order ID, to get invoices related to a specific
    * order.
    * @param page - (Optional) The page number to retrieve for paginated results (default is 1).
-   * @return A paginated list of invoices for the specified organization that match the provided filters. 
+   * @return A paginated list of invoices for the specified organization that match the provided filters.
    * If no filters are provided, all invoices for the organization will be returned.
-   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the 
+   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the
    * API request.
    */
   async listInvoices(
@@ -660,7 +660,7 @@ export class OrganizationsTask extends TaskBase {
   }
 
   /**
-   * Create authorization credentials for a specific order within an organization. This will return credentials that 
+   * Create authorization credentials for a specific order within an organization. This will return credentials that
    * can be used to authorize actions related to the order.
    * @param organizationId - The ID of the organization that the order belongs to.
    * @param orderId - The ID of the order to create authorization credentials for.
@@ -711,9 +711,9 @@ export class OrganizationsTask extends TaskBase {
    * @param filterSubscriptionId - (Optional) Filter orders by the associated subscription ID, to get orders related to a
    * specific subscription.
    * @param page - (Optional) The page number to retrieve for paginated results (default is 1).
-   * @return A paginated list of orders for the specified organization that match the provided filters. If no filters 
+   * @return A paginated list of orders for the specified organization that match the provided filters. If no filters
    * are provided, all orders for the organization will be returned.
-   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the 
+   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the
    * API request.
    */
   async listOrders(
@@ -752,13 +752,13 @@ export class OrganizationsTask extends TaskBase {
   }
 
   /**
-   * Update the address details for a specific organization. This will modify the organization's address information 
+   * Update the address details for a specific organization. This will modify the organization's address information
    * based on the provided address object.
    * @param organizationId - The ID of the organization to update the address for.
-   * @param address - The new address details to update for the organization, including fields such as street, city, 
+   * @param address - The new address details to update for the organization, including fields such as street, city,
    * state, postal code, and country.
    * @return The updated address details for the organization after the update is applied.
-   * @throws An error if the organization ID is invalid, if the address details are invalid, or if there is an issue 
+   * @throws An error if the organization ID is invalid, if the address details are invalid, or if there is an issue
    * with the API request.
    */
   async updateAddress(organizationId: string, address: Address): Promise<Address> {
@@ -768,10 +768,10 @@ export class OrganizationsTask extends TaskBase {
   }
 
   /**
-   * Update the profile details for a specific organization. This will modify the organization's profile information 
+   * Update the profile details for a specific organization. This will modify the organization's profile information
    * based on the provided profile object.
    * @param organizationId - The ID of the organization to update the profile for.
-   * @param profile - The new profile details to update for the organization, including fields such as name, 
+   * @param profile - The new profile details to update for the organization, including fields such as name,
    * description, contact information, and other relevant details.
    * @return The updated profile details for the organization after the update is applied.
    * @throws An error if the organization ID is invalid, if the profile details are invalid, or if there is an issue
@@ -787,14 +787,14 @@ export class OrganizationsTask extends TaskBase {
   }
 
   /**
-   * List the plan records for a specific organization, with optional filtering by date range, record type, or 
+   * List the plan records for a specific organization, with optional filtering by date range, record type, or
    * associated subscription ID. This will return a paginated list of plan records matching the specified criteria.
    * @param organizationId - The ID of the organization to list plan records for.
-   * @param filters - Optional filters to apply to the list of plan records, such as filtering by date range, record 
+   * @param filters - Optional filters to apply to the list of plan records, such as filtering by date range, record
    * type, or associated subscription ID.
-   * @return A paginated list of plan records for the specified organization that match the provided filters. If no 
+   * @return A paginated list of plan records for the specified organization that match the provided filters. If no
    * filters are provided, all plan records for the organization will be returned.
-   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the 
+   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the
    * API request.
    */
   async listRecords(
@@ -807,14 +807,14 @@ export class OrganizationsTask extends TaskBase {
   }
 
   /**
-   * List the usage records for a specific organization, with optional filtering by date range, usage type, or 
+   * List the usage records for a specific organization, with optional filtering by date range, usage type, or
    * associated subscription ID. This will return a paginated list of usage records matching the specified criteria.
    * @param organizationId - The ID of the organization to list usage records for.
-   * @param filters - Optional filters to apply to the list of usage records, such as filtering by date range, usage 
+   * @param filters - Optional filters to apply to the list of usage records, such as filtering by date range, usage
    * type, or associated subscription ID.
    * @return A paginated list of usage records for the specified organization that match the provided filters. If no
    * filters are provided, all usage records for the organization will be returned.
-   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the 
+   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the
    * API request.
    */
   async listUsageRecords(
@@ -827,13 +827,13 @@ export class OrganizationsTask extends TaskBase {
   }
 
   /**
-   * Apply a voucher code to an organization. This will attempt to apply the specified voucher code to the 
-   * organization's account, which may result in discounts, credits, or other benefits being applied to the 
+   * Apply a voucher code to an organization. This will attempt to apply the specified voucher code to the
+   * organization's account, which may result in discounts, credits, or other benefits being applied to the
    * organization's subscription.
    * @param organizationId - The ID of the organization to apply the voucher to.
-   * @param code - The voucher code to apply to the organization. This should be a valid voucher code that is eligible 
+   * @param code - The voucher code to apply to the organization. This should be a valid voucher code that is eligible
    * for use.
-   * @throws An error if the organization ID is invalid, if the voucher code is invalid or ineligible, or if there is 
+   * @throws An error if the organization ID is invalid, if the voucher code is invalid or ineligible, or if there is
    * an issue with the API request.
    */
   async applyVoucher(organizationId: string, code: string): Promise<void> {
@@ -851,7 +851,7 @@ export class OrganizationsTask extends TaskBase {
    * applied to the organization's account, along with details about each voucher such as the code, discount amount,
    * expiration date, and any associated benefits or restrictions.
    * @param organizationId - The ID of the organization to list vouchers for.
-   * @return A list of vouchers that have been applied to the specified organization, including details about each 
+   * @return A list of vouchers that have been applied to the specified organization, including details about each
    * voucher.
    * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
    */
@@ -878,12 +878,12 @@ export class OrganizationsTask extends TaskBase {
 
   /**
    * Update the add-ons for a specific organization. This will modify the organization's enabled add-ons based on the
-   * provided add-ons object, which may include enabling new add-ons or disabling existing ones. The response will 
+   * provided add-ons object, which may include enabling new add-ons or disabling existing ones. The response will
    * return the updated list of add-ons that are currently enabled for the organization after the update is applied.
    * @param organizationId - The ID of the organization to update add-ons for.
    * @param addons - The add-ons details to update for the organization, including which add-ons to enable or disable.
    * @return The updated list of add-ons that are currently enabled for the organization after the update is applied.
-   * @throws An error if the organization ID is invalid, if the add-ons details are invalid, or if there is an issue 
+   * @throws An error if the organization ID is invalid, if the add-ons details are invalid, or if there is an issue
    * with the API request.
    */
   async updateAddons(

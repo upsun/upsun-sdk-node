@@ -165,10 +165,9 @@ export abstract class TaskBase {
 
   static checkSshKeyId(keyId: number): void {
     if (!keyId || keyId <= 0) {
-    throw new Error('Key ID must be a positive integer');
+      throw new Error('Key ID must be a positive integer');
     }
   }
-
 
   // works for URIs like /subscriptions/{subscriptionId} to extract subscriptionId
   // as the subscriptionId is not returned directly in the project object (emty field)

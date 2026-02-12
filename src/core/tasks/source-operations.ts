@@ -14,15 +14,18 @@ export class SourceOperationsTask extends TaskBase {
   }
 
   /**
-   * List source operations for an environment. This method retrieves a list of all source operations that are 
+   * List source operations for an environment. This method retrieves a list of all source operations that are
    * associated with the specified project and environment.
    * @param projectId - The ID of the project to list source operations for.
    * @param environmentId - The ID of the environment to list source operations for.
-   * @return A list of source operations that are associated with the specified project and environment, including 
+   * @return A list of source operations that are associated with the specified project and environment, including
    * details such as the operation type, status, and other relevant details for each source operation.
    * @throws An error if the project ID or environment ID is invalid, or if there is an issue with the API request.
    */
-  async list(projectId: string, environmentId: string): Promise<EnvironmentSourceOperationCollection> {
+  async list(
+    projectId: string,
+    environmentId: string,
+  ): Promise<EnvironmentSourceOperationCollection> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
@@ -43,7 +46,7 @@ export class SourceOperationsTask extends TaskBase {
    * @return An AcceptedResponse indicating that the source operation request has been accepted. The client should check
    * the status of the source operation through the operation details to confirm whether it was executed successfully or
    * if there were any issues.
-   * @throws An error if the project ID or environment ID is invalid, if the required parameters for the source 
+   * @throws An error if the project ID or environment ID is invalid, if the required parameters for the source
    * operation are missing or incorrect, or if there is an issue with the API request.
    */
   async run(

@@ -3,15 +3,13 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class WorkersTask extends TaskBase {
-  constructor(
-    protected readonly client: UpsunClient,
-  ) {
+  constructor(protected readonly client: UpsunClient) {
     super(client);
   }
 
   /**
-   * List the configuration of workers for an environment. This method retrieves the current deployment for the 
-   * environment and returns the `workers` property from the deployment details, which contains the configuration of 
+   * List the configuration of workers for an environment. This method retrieves the current deployment for the
+   * environment and returns the `workers` property from the deployment details, which contains the configuration of
    * all workers for the environment. The returned object is a mapping of worker names to their respective configuration
    * details.
    * @param projectId - The ID of the project.

@@ -24,7 +24,6 @@ import {
   ListProfiles200Response,
   ListProjectUserAccess200Response,
   ListUserExtendedAccess200Response,
-  OrganizationMfaEnforcement,
   Profile,
   UpdateProfileRequest,
   UpdateProjectUserAccessRequest,
@@ -65,14 +64,14 @@ export class UsersTask extends TaskBase {
 
   /**
    * Note that user creation is not supported through the API, and this method will throw an error if called.
-   * Use `upsun.invitations.createOrgInvite()` to invite users to your organization instead, 
-   * or `upsun.invitations.createProjectInvite()` to invite users to specific projects. 
+   * Use `upsun.invitations.createOrgInvite()` to invite users to your organization instead,
+   * or `upsun.invitations.createProjectInvite()` to invite users to specific projects.
    * Inviting users to your organization or projects will send them an email invitation,
    * which will allow them to create their own accounts and join your organization with the appropriate permissions.
    */
-  async create() {
+  async create(): Promise<never> {
     throw new Error(
-      'User creation is not supported through the API, invite users to your organization or project instead.'
+      'User creation is not supported through the API, invite users to your organization or project instead.',
     );
   }
 
@@ -80,7 +79,7 @@ export class UsersTask extends TaskBase {
    * Adds users to a project with specified permissions.
    * This method allows you to grant access to a project for one or more users, specifying their access levels
    * and permissions within the project.
-   * @param projectId - The ID of the project to grant access to. This should be a valid project ID that exists within 
+   * @param projectId - The ID of the project to grant access to. This should be a valid project ID that exists within
    * the system.
    * @param userPermissions - An array of user permission details specifying the user IDs and access levels to grant for
    * the project. Each item in the array should include a user ID and the access level to grant for that user.
@@ -96,7 +95,7 @@ export class UsersTask extends TaskBase {
     if (!userPermissions || userPermissions.length === 0) {
       throw new Error('At least one user permission is required to add a user to a project');
     }
-    
+
     return await this.userAccessApi.grantProjectUserAccess({
       projectId,
       grantProjectUserAccessRequestInner: userPermissions,
@@ -106,11 +105,11 @@ export class UsersTask extends TaskBase {
   /**
    * Removes a user's access to a project.
    * Note that this does not delete the user from the system, but simply revokes their access to the specified project.
-   * @param userId - The ID of the user to remove from the project. This should be a valid user ID that exists within 
+   * @param userId - The ID of the user to remove from the project. This should be a valid user ID that exists within
    * the system.
-   * @param projectId - The ID of the project to remove the user from. This should be a valid project ID that exists 
+   * @param projectId - The ID of the project to remove the user from. This should be a valid project ID that exists
    * within the system.
-   * @throws An error if the user ID or project ID is invalid, or if there is an issue with the API request to remove 
+   * @throws An error if the user ID or project ID is invalid, or if there is an issue with the API request to remove
    * the user's access.
    */
   async removeFromProject(userId: string, projectId: string): Promise<void> {
@@ -122,27 +121,27 @@ export class UsersTask extends TaskBase {
 
   /**
    * Retrieves information about a specific user by their ID.
-   * @param userId - The ID of the user to retrieve information for. This should be a valid user ID that exists within 
+   * @param userId - The ID of the user to retrieve information for. This should be a valid user ID that exists within
    * the system.
-   * @return The details of the user with the specified ID, including their username, email address, full name, and 
+   * @return The details of the user with the specified ID, including their username, email address, full name, and
    * other relevant information.
    * @throws An error if the user ID is invalid or if there is an issue with the API request to retrieve the user's
    * information.
    */
   async get(userId: string): Promise<UserModel> {
     TaskBase.checkUserId(userId);
-    
+
     return await this.usersApi.getUser({ userId });
   }
 
   /**
    * Lists all users who have access to a specific project, along with their access levels and permissions.
    * This method is useful for project administrators to manage and review user access to their projects.
-   * @param projectId - The ID of the project to list user access for. This should be a valid project ID that exists 
+   * @param projectId - The ID of the project to list user access for. This should be a valid project ID that exists
    * within the system.
-   * @return A list of users who have access to the specified project, along with their access levels and permissions. 
+   * @return A list of users who have access to the specified project, along with their access levels and permissions.
    * Each entry in the list provides details about a user's access to the project.
-   * @throws An error if the project ID is invalid or if there is an issue with the API request to list user access for 
+   * @throws An error if the project ID is invalid or if there is an issue with the API request to list user access for
    * the project.
    */
   async listProjectUserAccesses(projectId: string): Promise<ListProjectUserAccess200Response> {
@@ -154,9 +153,9 @@ export class UsersTask extends TaskBase {
   /**
    * Updates a user's information, such as their username, first name, last name, picture, company, website, or country.
    * @param userId - The ID of the user to update. This should be a valid user ID that exists within the system.
-   * @param params - The parameters to update for the user, which may include their username, first name, last name, 
+   * @param params - The parameters to update for the user, which may include their username, first name, last name,
    * picture, company, website, or country.
-   * @return Nothing if the update is successful. If the user with the specified ID is not found, or if there is an 
+   * @return Nothing if the update is successful. If the user with the specified ID is not found, or if there is an
    * issue with the API request to update the user's information.
    * @throws An error if the user ID is invalid, if the parameters are invalid, or if there is an issue with the API
    * request to update the user's information.
@@ -172,8 +171,8 @@ export class UsersTask extends TaskBase {
 
   /**
    * Retrieves the verification status of the currently authenticated user.
-   * @returns The verification status of the currently authenticated user, which may include information about whether 
-   * the user has completed any required verification steps, such as email verification or multi-factor authentication 
+   * @returns The verification status of the currently authenticated user, which may include information about whether
+   * the user has completed any required verification steps, such as email verification or multi-factor authentication
    * setup, and whether there are any pending verification actions that the user needs to complete.
    * @throws An error if there is an issue with the API request to retrieve the user's verification status.
    */
@@ -184,7 +183,7 @@ export class UsersTask extends TaskBase {
   /**
    * Retrieves the full verification status of the currently authenticated user, including detailed information about
    * the verification process, pending actions, and any relevant metadata.
-   * @returns The full verification status of the currently authenticated user, which may include detailed information 
+   * @returns The full verification status of the currently authenticated user, which may include detailed information
    * about the verification process, pending actions, and any relevant metadata.
    * @throws An error if there is an issue with the API request to retrieve the user's full verification status.
    */
@@ -222,7 +221,7 @@ export class UsersTask extends TaskBase {
    * address on file.
    * If no new email address is provided, the user's email will be reset to an empty string, effectively removing the
    * email address from their account.
-   * @param userId - The ID of the user to reset the email address for. This should be a valid user ID that exists 
+   * @param userId - The ID of the user to reset the email address for. This should be a valid user ID that exists
    * within the system.
    * @param email - (Optional) The new email address to associate with the user's account. If not provided, the user's
    * email will be reset to an empty string, effectively removing the email address from their account.
@@ -252,7 +251,7 @@ export class UsersTask extends TaskBase {
    * system.
    * @return Nothing if the password reset process is successfully initiated. If the user with the specified ID is not
    * found, or if there is an issue with the API request to initiate the password reset process.
-   * @throws An error if the user ID is invalid or if there is an issue with the API request to initiate the password 
+   * @throws An error if the user ID is invalid or if there is an issue with the API request to initiate the password
    * reset process.
    */
   async resetPassword(userId: string): Promise<void> {
@@ -265,14 +264,14 @@ export class UsersTask extends TaskBase {
    * Retrieves a project's access level and permissions for a specific user. This method is useful for checking what
    * level of access a user has to a project, which can help with managing permissions and ensuring that users have the
    * appropriate access to perform their tasks within the project.
-   * @param projectId - The ID of the project to check access for. This should be a valid project ID that exists within 
+   * @param projectId - The ID of the project to check access for. This should be a valid project ID that exists within
    * the system.
-   * @param userId - The ID of the user to check access for. This should be a valid user ID that exists within the 
+   * @param userId - The ID of the user to check access for. This should be a valid user ID that exists within the
    * system.
    * @return The access level and permissions that the specified user has for the specified project. This may include
-   * details about the user's role within the project, specific permissions granted, and any restrictions on their 
+   * details about the user's role within the project, specific permissions granted, and any restrictions on their
    * access.
-   * @throws An error if the project ID or user ID is invalid, or if there is an issue with the API request to retrieve 
+   * @throws An error if the project ID or user ID is invalid, or if there is an issue with the API request to retrieve
    * the user's access information for the project.
    */
   async getUserProjectAccessByProject(
@@ -341,7 +340,7 @@ export class UsersTask extends TaskBase {
    * Grants a user access to a project with specified permissions. This method allows you to add a user to a project and
    * define their access levels and permissions within that project. By granting a user access to a project, you enable
    * them to collaborate and contribute to the project according to the permissions you have set.
-   * @param userId - The ID of the user to grant access to. This should be a valid user ID that exists within the 
+   * @param userId - The ID of the user to grant access to. This should be a valid user ID that exists within the
    * system.
    * @param access - An array of access details specifying the project IDs and access levels to grant for the user. Each
    * item in the array should include a project ID and the access level to grant for that project.
@@ -366,10 +365,10 @@ export class UsersTask extends TaskBase {
 
   /**
    * Lists all users who have access to a specific project, along with their access levels and permissions.
-   * @param projectId - The ID of the project to list user access for. 
-   * @param filters - Optional filters to apply to the list of user access, such as filtering by user ID or access 
+   * @param projectId - The ID of the project to list user access for.
+   * @param filters - Optional filters to apply to the list of user access, such as filtering by user ID or access
    * level.
-   * @return A list of users who have access to the specified project, along with their access levels and permissions. 
+   * @return A list of users who have access to the specified project, along with their access levels and permissions.
    * Each entry in the list provides details about a user's access to the project.
    * @throws An error if the project ID is invalid or if there is an issue with the API request to list user access for
    * the project.
@@ -389,11 +388,11 @@ export class UsersTask extends TaskBase {
   /**
    * Retrieves a list of all projects that a user has access to, along with their access levels and permissions for each
    * project.
-   * @param userId - The ID of the user to list project access for. This should be a valid user ID that exists within 
+   * @param userId - The ID of the user to list project access for. This should be a valid user ID that exists within
    * the system.
    * @param filters - Optional filters to apply to the list of project access, such as filtering by project ID or access
    * level.
-   * @return A list of all projects that the specified user has access to, along with their access levels and 
+   * @return A list of all projects that the specified user has access to, along with their access levels and
    * permissions for each project.
    * @throws An error if the user ID is invalid or if there is an issue with the API request to list the user's project
    * access information.
@@ -415,11 +414,11 @@ export class UsersTask extends TaskBase {
    * project. This method provides an extended view of the user's access, which may include additional details about the
    * projects and the user's permissions within those projects, making it easier to manage and review user access across
    * multiple projects.
-   * @param userId - The ID of the user to list extended project access for. This should be a valid user ID that exists 
+   * @param userId - The ID of the user to list extended project access for. This should be a valid user ID that exists
    * within the system.
-   * @param filters - Optional filters to apply to the list of extended project access, such as filtering by project ID 
+   * @param filters - Optional filters to apply to the list of extended project access, such as filtering by project ID
    * or access level.
-   * @return A list of all projects that the specified user has access to, along with their access levels and 
+   * @return A list of all projects that the specified user has access to, along with their access levels and
    * permissions for each project.
    * @throws An error if the user ID is invalid or if there is an issue with the API request to list the user's extended
    * project access information.
@@ -437,11 +436,11 @@ export class UsersTask extends TaskBase {
    * Revokes a user's access to a project. This method revokes the user's permissions for the specified project,
    * effectively preventing them from accessing or collaborating on the project. Note that this does not delete the user
    * from the system, but simply removes their access to the specified project.
-   * @param projectId - The ID of the project to revoke access from. This should be a valid project ID that exists 
+   * @param projectId - The ID of the project to revoke access from. This should be a valid project ID that exists
    * within the system.
    * @param userId - The ID of the user to revoke access for. This should be a valid user ID that exists within the
    * system.
-   * @throws An error if the project ID or user ID is invalid, or if there is an issue with the API request to revoke 
+   * @throws An error if the project ID or user ID is invalid, or if there is an issue with the API request to revoke
    * the user's project access.
    */
   async revokeUserProjectAccessByProject(projectId: string, userId: string): Promise<void> {
@@ -457,9 +456,9 @@ export class UsersTask extends TaskBase {
    * from the system, but simply removes their access to the specified project.
    * @param userId - The ID of the user to revoke access for. This should be a valid user ID that exists within the
    * system.
-   * @param projectId - The ID of the project to revoke access from. This should be a valid project ID that exists 
+   * @param projectId - The ID of the project to revoke access from. This should be a valid project ID that exists
    * within the system.
-   * @throws An error if the user ID or project ID is invalid, or if there is an issue with the API request to revoke 
+   * @throws An error if the user ID or project ID is invalid, or if there is an issue with the API request to revoke
    * the user's project access.
    */
   async revokeUserProjectAccessByUser(userId: string, projectId: string): Promise<void> {
@@ -480,7 +479,7 @@ export class UsersTask extends TaskBase {
    * system.
    * @param access - The updated access details specifying the access levels and permissions to set for the user. This
    * should include the new access level to grant for the user within the specified project.
-   * @throws An error if the project ID or user ID is invalid, if the access level is invalid, or if there is an issue 
+   * @throws An error if the project ID or user ID is invalid, if the access level is invalid, or if there is an issue
    * with the API request to update the user's project access.
    */
   async updateUserProjectAccessByProject(
@@ -538,9 +537,9 @@ export class UsersTask extends TaskBase {
   /**
    * Deletes a user's profile picture. This method removes the profile picture associated with the user's account,
    * which may be useful for privacy reasons or if the user wants to update their profile picture.
-   * @param uuid - The UUID of the user whose profile picture is to be deleted. This should be a valid user UUID that 
+   * @param uuid - The UUID of the user whose profile picture is to be deleted. This should be a valid user UUID that
    * exists within the system.
-   * @throws An error if the user UUID is invalid or if there is an issue with the API request to delete the user's 
+   * @throws An error if the user UUID is invalid or if there is an issue with the API request to delete the user's
    * profile picture.
    */
   async deleteProfilePicture(uuid: string): Promise<void> {
@@ -554,9 +553,9 @@ export class UsersTask extends TaskBase {
    * profile, which may include fields such as street address, city, state, postal code, and country.
    * @param userId - The ID of the user to retrieve address information for. This should be a valid user ID that exists
    * within the system.
-   * @return The address information associated with the specified user's profile, which may include fields such as 
+   * @return The address information associated with the specified user's profile, which may include fields such as
    * street address, city, state, postal code, and country.
-   * @throws An error if the user ID is invalid or if there is an issue with the API request to retrieve the user's 
+   * @throws An error if the user ID is invalid or if there is an issue with the API request to retrieve the user's
    * address.
    */
   async getAddress(userId: string): Promise<GetAddress200Response> {
@@ -567,11 +566,11 @@ export class UsersTask extends TaskBase {
 
   /**
    * Retrieves a user's profile information. This method can be used to get the details of a user's profile.
-   * @param userId - The ID of the user to retrieve profile information for. This should be a valid user ID that exists 
+   * @param userId - The ID of the user to retrieve profile information for. This should be a valid user ID that exists
    * within the system.
-   * @return The profile information associated with the specified user, which may include details such as their 
+   * @return The profile information associated with the specified user, which may include details such as their
    * username, full name, email address, profile picture URL, company, website, country, and other relevant information.
-   * @throws An error if the user ID is invalid or if there is an issue with the API request to retrieve the user's 
+   * @throws An error if the user ID is invalid or if there is an issue with the API request to retrieve the user's
    * profile.
    */
   async getProfile(userId: string): Promise<Profile> {
@@ -582,7 +581,7 @@ export class UsersTask extends TaskBase {
 
   /**
    * Lists all user profiles. This method retrieves a list of all user profiles in the system.
-   * @return A list of all user profiles, which may include details such as usernames, full names, email addresses, 
+   * @return A list of all user profiles, which may include details such as usernames, full names, email addresses,
    * profile pictures, companies, websites, countries, and other relevant information.
    * @throws An error if there is an issue with the API request to list user profiles.
    */
@@ -594,7 +593,7 @@ export class UsersTask extends TaskBase {
    * Updates a user's address information. This method allows you to modify the address details associated with a user's
    * profile, which may include fields such as street address, city, state, postal code, and country. By updating a user's
    * address information, you can ensure that their profile is accurate and up-to-date.
-   * @param userId - The ID of the user to update address information for. This should be a valid user ID that exists 
+   * @param userId - The ID of the user to update address information for. This should be a valid user ID that exists
    * within the system.
    * @param address - The updated address information to set for the user's profile, which may include fields such as
    * street address, city, state, postal code, and country.
@@ -612,11 +611,11 @@ export class UsersTask extends TaskBase {
 
   /**
    * Updates a user's profile information. This method allows you to modify the details of a user's profile.
-   * @param userId - The ID of the user to update profile information for. This should be a valid user ID that exists 
+   * @param userId - The ID of the user to update profile information for. This should be a valid user ID that exists
    * within the system.
    * @param profile - The updated profile information to set for the user, which may include details such as their
    * username, full name, email address, profile picture URL, company, website, country, and other relevant information.
-   * @throws An error if the user ID is invalid, if the profile information is invalid, or if there is an issue with the 
+   * @throws An error if the user ID is invalid, if the profile information is invalid, or if there is an issue with the
    * API request.
    */
   async updateProfile(userId: string, profile?: UpdateProfileRequest): Promise<void> {
@@ -631,7 +630,7 @@ export class UsersTask extends TaskBase {
   /**
    * Creates a new API token for a user. This method allows you to generate an API token that can be used for
    * authentication.
-   * @param userId - The ID of the user to create an API token for. This should be a valid user ID that exists within 
+   * @param userId - The ID of the user to create an API token for. This should be a valid user ID that exists within
    * the system.
    * @param name - The name to associate with the API token. This should be a descriptive name that helps identify the
    * purpose of the token, such as "My APIToken" or "Token for CI/CD". Providing a name for the API token can help with
@@ -655,11 +654,11 @@ export class UsersTask extends TaskBase {
   /**
    * Deletes an API token for a user. This method allows you to revoke an API token, which can be useful for security
    * reasons or if the token is no longer needed.
-   * @param userId - The ID of the user to delete the API token for. This should be a valid user ID that exists within 
+   * @param userId - The ID of the user to delete the API token for. This should be a valid user ID that exists within
    * the system.
-   * @param tokenId - The ID of the API token to delete. This should be a valid API token ID that exists for the 
+   * @param tokenId - The ID of the API token to delete. This should be a valid API token ID that exists for the
    * specified user.
-   * @throws An error if the user ID or token ID is invalid, or if there is an issue with the API request to delete the 
+   * @throws An error if the user ID or token ID is invalid, or if there is an issue with the API request to delete the
    * API token.
    */
   async deleteApiToken(userId: string, tokenId: string): Promise<void> {
@@ -678,9 +677,9 @@ export class UsersTask extends TaskBase {
    * the system.
    * @param tokenId - The ID of the API token to retrieve. This should be a valid API token ID that exists for the
    * specified user.
-   * @return The details of the specified API token, which may include information such as the token's name, creation 
+   * @return The details of the specified API token, which may include information such as the token's name, creation
    * date, and other relevant metadata.
-   * @throws An error if the user ID or token ID is invalid, or if there is an issue with the API request to retrieve 
+   * @throws An error if the user ID or token ID is invalid, or if there is an issue with the API request to retrieve
    * the API token.
    */
   async getApiToken(userId: string, tokenId: string): Promise<ApiToken> {
@@ -696,11 +695,11 @@ export class UsersTask extends TaskBase {
   /**
    * Lists all API tokens for a user. This method retrieves a list of all API tokens associated with a user's account,
    * which can be useful for managing and reviewing the tokens that have been created.
-   * @param userId - The ID of the user to list API tokens for. This should be a valid user ID that exists within the 
+   * @param userId - The ID of the user to list API tokens for. This should be a valid user ID that exists within the
    * system.
-   * @return A list of all API tokens associated with the specified user's account, which may include details such as 
+   * @return A list of all API tokens associated with the specified user's account, which may include details such as
    * the token's name, creation date, and other relevant metadata.
-   * @throws An error if the user ID is invalid or if there is an issue with the API request to list the user's API 
+   * @throws An error if the user ID is invalid or if there is an issue with the API request to list the user's API
    * tokens.
    */
   async listApiTokens(userId: string): Promise<ApiToken[]> {
@@ -715,7 +714,7 @@ export class UsersTask extends TaskBase {
    * the user wants to disconnect their account from that provider.
    * @param provider - The name of the login provider to delete the connection for. This should be a valid provider name
    * that exists within the system, such as "google", "github", etc.
-   * @param userId - The ID of the user to delete the login connection for. This should be a valid user ID that exists 
+   * @param userId - The ID of the user to delete the login connection for. This should be a valid user ID that exists
    * within the system.
    * @throws An error if the provider name or user ID is invalid, or if there is an issue with the API request to delete
    * the login connection.
@@ -737,13 +736,13 @@ export class UsersTask extends TaskBase {
    * Retrieves a user's login connection for a specific provider. This method allows you to get the details of a user's
    * authentication connection for a particular login provider (e.g., Google, GitHub, etc.), which can be useful for
    * managing and reviewing the connected accounts for a user.
-   * @param provider - The name of the login provider to retrieve the connection for. This should be a valid provider 
+   * @param provider - The name of the login provider to retrieve the connection for. This should be a valid provider
    * name that exists within the system, such as "google", "github", etc.
    * @param userId - The ID of the user to retrieve the login connection for. This should be a valid user ID that exists
    * within the system.
-   * @return The details of the user's login connection for the specified provider, which may include information such 
+   * @return The details of the user's login connection for the specified provider, which may include information such
    * as the provider name, connection status, and other relevant metadata.
-   * @throws An error if the provider name or user ID is invalid, or if there is an issue with the API request to 
+   * @throws An error if the provider name or user ID is invalid, or if there is an issue with the API request to
    * retrieve the login connection.
    */
   async getLoginConnection(provider: string, userId: string): Promise<Connection> {
@@ -764,19 +763,19 @@ export class UsersTask extends TaskBase {
    * complete the TOTP enrollment process for a user, ensuring that they have successfully set up their TOTP
    * authentication method. By confirming the TOTP enrollment, the user can then use TOTP for
    * two-factor authentication when logging in.
-   * @param userId - The ID of the user to confirm TOTP enrollment for. This should be a valid user ID that exists 
+   * @param userId - The ID of the user to confirm TOTP enrollment for. This should be a valid user ID that exists
    * within the system.
    * @param secret - The TOTP secret that was generated during the TOTP enrollment process. This should be a valid TOTP
    * secret that was provided to the user when they initiated the TOTP enrollment.
    * @param passCode - The TOTP pass code generated by the user's TOTP authenticator app using the provided secret. This
-   * should be a valid TOTP pass code that corresponds to the TOTP secret and is generated within the allowed time 
+   * should be a valid TOTP pass code that corresponds to the TOTP secret and is generated within the allowed time
    * window.
    * @return The result of the TOTP enrollment confirmation, which may include information about the success of the
    * confirmation and any relevant metadata. If the TOTP enrollment is successfully confirmed, the user will be able to
    * use TOTP for two-factor authentication when logging in. If the confirmation fails, an error will be thrown with
    * details about the failure reason, such as an invalid secret, incorrect pass code, or other issues with the TOTP
    * enrollment confirmation process.
-   * @throws An error if the user ID is invalid, if the TOTP secret or pass code is invalid, or if there is an issue 
+   * @throws An error if the user ID is invalid, if the TOTP secret or pass code is invalid, or if there is an issue
    * with the API request to confirm the TOTP enrollment.
    */
   async confirmTotpEnrollment(
@@ -808,8 +807,8 @@ export class UsersTask extends TaskBase {
    * enrollment.
    * @param userId - The ID of the user to retrieve TOTP enrollment information for. This should be a valid user ID that
    * exists within the system.
-   * @return The TOTP enrollment information associated with the specified user, which may include details such as the 
-   * TOTP enrollment status, the TOTP secret (if applicable), and any relevant metadata about the user's TOTP 
+   * @return The TOTP enrollment information associated with the specified user, which may include details such as the
+   * TOTP enrollment status, the TOTP secret (if applicable), and any relevant metadata about the user's TOTP
    * enrollment.
    * @throws An error if the user ID is invalid or if there is an issue with the API request to retrieve the user's TOTP
    * enrollment information.
@@ -822,7 +821,7 @@ export class UsersTask extends TaskBase {
 
   /**
    * Withdraws a user's TOTP enrollment. This method allows you to revoke a user's TOTP enrollment.
-   * @param userId - The ID of the user to withdraw TOTP enrollment for. This should be a valid user ID that exists 
+   * @param userId - The ID of the user to withdraw TOTP enrollment for. This should be a valid user ID that exists
    * within the system.
    * @throws An error if the user ID is invalid or if there is an issue with the API request to withdraw the user's TOTP
    * enrollment.
@@ -850,14 +849,14 @@ export class UsersTask extends TaskBase {
 
   /**
    * Confirms a user's phone number by verifying the provided SID and confirmation code.
-   * @param sid - The SID of the phone number verification request. This should be a valid SID that was generated when 
+   * @param sid - The SID of the phone number verification request. This should be a valid SID that was generated when
    * the verification request was initiated.
-   * @param userId - The ID of the user to confirm the phone number for. This should be a valid user ID that exists 
+   * @param userId - The ID of the user to confirm the phone number for. This should be a valid user ID that exists
    * within the system.
    * @param code - The confirmation code sent to the user's phone number. This should be a valid confirmation code that
-   * was sent to the user's phone number as part of the verification process. The user should provide this code to 
+   * was sent to the user's phone number as part of the verification process. The user should provide this code to
    * confirm the phone number.
-   * @throws An error if the SID, user ID, or confirmation code is invalid, or if there is an issue with the API request 
+   * @throws An error if the SID, user ID, or confirmation code is invalid, or if there is an issue with the API request
    * to confirm the phone number.
    */
   async confirmPhoneNumber(sid: string, userId: string, code: string): Promise<void> {
@@ -881,13 +880,13 @@ export class UsersTask extends TaskBase {
   /**
    * Sends a verification code to a user's phone number via the specified channel (e.g., SMS, voice call)
    * for phone number verification.
-   * @param userId - The ID of the user to verify the phone number for. This should be a valid user ID that exists 
+   * @param userId - The ID of the user to verify the phone number for. This should be a valid user ID that exists
    * within the system.
-   * @param channel - The channel through which to send the verification code. This should be a valid channel option, 
+   * @param channel - The channel through which to send the verification code. This should be a valid channel option,
    * such as SMS or voice call.
    * @param phoneNumber - The phone number to send the verification code to. This should be a valid phone number in the
    * format expected by the system, which may include country code and other relevant formatting requirements.
-   * @throws An error if the user ID, channel, or phone number is invalid, or if there is an issue with the API request 
+   * @throws An error if the user ID, channel, or phone number is invalid, or if there is an issue with the API request
    * to send the verification code for phone number verification.
    */
   async verifyPhoneNumber(

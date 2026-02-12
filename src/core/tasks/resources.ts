@@ -26,19 +26,19 @@ export class ResourcesTask extends TaskBase {
   }
 
   /**
-   * Get the resource configuration for a specific application in the current deployment of an environment. 
+   * Get the resource configuration for a specific application in the current deployment of an environment.
    * This method retrieves the resource configuration for a specific application (webapp, service, or worker) in the
    * current deployment of an environment.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to get the resource configuration for.
    * @param type - The type of application to get the resource configuration for. This should be one of 'webapps',
    * 'services', or 'workers' depending on the type of application you want to retrieve the resources for.
-   * @param app - The name of the application to get the resource configuration for. This should be the name of a 
+   * @param app - The name of the application to get the resource configuration for. This should be the name of a
    * specific application within the specified type.
    * @return The resource configuration for the specified application in the current deployment of the environment. This
-   * includes details such as the profile size, disk space, and instance count for the application. If the application 
+   * includes details such as the profile size, disk space, and instance count for the application. If the application
    * is not found, an empty object is returned.
-   * @throws An error if the project ID, environment ID, type, or app name is invalid, or if there is an issue with the 
+   * @throws An error if the project ID, environment ID, type, or app name is invalid, or if there is an issue with the
    * API request.
    */
   async get(
@@ -109,7 +109,10 @@ export class ResourcesTask extends TaskBase {
    * @return The autoscaler settings for the specified environment.
    * @throws An error if the project ID or environment ID is invalid, or if there is an issue with the API request.
    */
-  async getAutoscalerSettings(projectId: string, environmentId: string): Promise<AutoscalerSettings> {
+  async getAutoscalerSettings(
+    projectId: string,
+    environmentId: string,
+  ): Promise<AutoscalerSettings> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
@@ -135,7 +138,7 @@ export class ResourcesTask extends TaskBase {
   async updateAutoscalerSettings(
     projectId: string,
     environmentId: string,
-    params: AutoscalerSettings
+    params: AutoscalerSettings,
   ): Promise<AutoscalerSettings> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
