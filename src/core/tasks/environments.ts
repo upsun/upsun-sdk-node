@@ -26,6 +26,7 @@ import {
   Resources6InitEnum,
   Route,
   RouteCollection,
+  ServiceRelationshipsValue,
 } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
 import { EnvironmentVariableCreateParams } from '../index.js';
@@ -254,7 +255,7 @@ export class EnvironmentsTask extends TaskBase {
         profile,
         repository,
         config: config || null,
-        resources: { init: init },
+        resources: { init },
         files,
       },
     });
@@ -343,7 +344,7 @@ export class EnvironmentsTask extends TaskBase {
   }
 
   /**
-   * Get the relationships of an environment, which include the linked applications, databases, and other resources.
+   * Get the relationships of an environment, which include the linked applications or services.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to get relationships for.
    * @param appId - The ID of the application to get relationships for. This is used to filter the relationships to only
@@ -351,13 +352,17 @@ export class EnvironmentsTask extends TaskBase {
    * @return The relationships of the environment for the specified application.
    * @throws An error if the project ID or environment ID is invalid, or if there is an issue with the API request.
    */
-  async relationships(projectId: string, environmentId: string, appId: string): Promise<never> {
+  async relationships(
+    projectId: string,
+    environmentId: string,
+    appId: string
+  ): Promise<{ [key: string]: ServiceRelationshipsValue }> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
-    const appConfig = this.client.applications.configGet(projectId, environmentId, appId);
+    const appConfig = await this.client.applications.configGet(projectId, environmentId, appId);
 
-    throw new Error('Not implemented');
+    return appConfig.relationships;
   }
 
   /**
