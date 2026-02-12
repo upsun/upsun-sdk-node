@@ -1,6 +1,5 @@
 import {
   AddOnsApi,
-  CreateOrgOperationRequest,
   EstimateNewOrgSubscriptionFormatEnum,
   GetOrgOrderModeEnum,
   InvoicesApi,
@@ -27,12 +26,14 @@ import {
   CanCreateNewOrgSubscription200Response, 
   CreateAuthorizationCredentials200Response, 
   CreateOrgMemberRequest, 
+  CreateOrgRequestTypeEnum, 
   EstimationObject, 
   Invoice, 
   ListOrgInvoices200Response, 
   ListOrgMembers200Response, 
   ListOrgOrders200Response, 
   ListOrgPlanRecords200Response, 
+  ListOrgProjects200Response, 
   ListOrgs200Response,
   ListOrgSubscriptions200Response, 
   ListTeams200Response, 
@@ -42,6 +43,7 @@ import {
   OrganizationAddonsObject, 
   OrganizationMember, 
   OrganizationMfaEnforcement, 
+  Permissions, 
   Profile, 
   Project, 
   Subscription, 
@@ -51,15 +53,9 @@ import {
   UpdateOrgRequest } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
-import { FilterListOrgProjects, ProjectCreateRequest } from './projects.js';
+import { } from './projects.js';
 import { FilterListUserTeams } from './teams.js';
-
-// Type creation for request parameters that omit required fields from the original input types
-export type FilterListUser = Omit<ListUserOrgsRequest, 'userId'>;
-export type FilterListMembers = Omit<ListOrgMembersRequest, 'organizationId'>;
-export type FilterListOrders = Omit<ListOrgOrdersRequest, 'organizationId'>;
-export type FilterListPlanRecords = Omit<ListOrgPlanRecordsRequest, 'organizationId'>;
-export type FilterListUsageRecords = Omit<ListOrgUsageRecordsRequest, 'organizationId'>;
+import { FilterListMembers, FilterListOrders, FilterListOrgProjects, FilterListOrgs, FilterListPlanRecords, FilterListUsageRecords, FilterListUser, ProjectCreateRequest } from '../model.js';
 
 export class OrganizationsTask extends TaskBase {
   
@@ -79,13 +75,33 @@ export class OrganizationsTask extends TaskBase {
     super(client);
   }
 
+  /**
+   * Create a new organization with the specified label and optional parameters such as type, owner ID, name, 
+   * and country.
+   * @param label - The label for the new organization (required).
+   * @param type - The type of the organization (optional). This can be used to specify different types of 
+   * organizations, such as "business", "personal", etc., depending on the API's supported organization types.
+   * @param ownerId - The ID of the user who will be the owner of the organization (optional). If not provided, the 
+   * organization will be owned by the user making the API request.
+   * @param name - The name of the organization (optional). This can be a more descriptive name for the organization, 
+   * in addition to the label.
+   * @param country - The country associated with the organization (optional). This can be used for localization or 
+   * billing purposes, depending on the API's requirements.
+   * @return The details of the created organization.
+   * @throws An error if the label is missing or invalid, if any of the optional parameters are invalid, or if there is
+   * an issue with the API request.
+   */
   async create(
     label: string,
-    type?: string,
+    type?: CreateOrgRequestTypeEnum,
     ownerId?: string,
     name?: string,
     country?: string,
   ): Promise<Organization> {
+    if(!label) {
+      throw new Error('Label is required');
+    }
+    
     return await this.orgApi.createOrg({
       createOrgRequest: { 
         label: label, 
@@ -94,111 +110,176 @@ export class OrganizationsTask extends TaskBase {
         name: name, 
         country: country
       },
-    } as CreateOrgOperationRequest);
+    });
   }
 
+  /**
+   * Delete an organization by its ID. This will permanently delete the organization and all associated resources, so 
+   * it should be used with caution.
+   * @param organizationId - The ID of the organization to delete.
+   */
   async delete(organizationId: string): Promise<void> {
+    TaskBase.checkOrganizationId(organizationId);
+
     return await this.orgApi.deleteOrg({ organizationId });
   }
 
-  //TODO Shortcut for get or update, depending on the presence of parameters to update
-  // may disappear in the future in favor of explicit get and update calls, but it can be convenient for now to avoid an additional call when we want to update an org
+  /**
+   * Get the details of an organization by its ID, or update the organization if update parameters are provided. 
+   * @param organizationId - The ID of the organization to get or update.
+   * @param updateOrgRequest - (Optional) The parameters to update the organization with. If provided, the organization
+   * will be updated with these parameters and the updated organization details will be returned. If not provided, the
+   * current organization details will be returned without making any changes.
+   * @return The details of the organization, either the current details if no update parameters are provided, or the
+   * updated details if update parameters are provided and the update is successful.
+   */
   async info(
     organizationId: string,
     updateOrgRequest?: UpdateOrgRequest
   ): Promise<Organization> {
+    TaskBase.checkOrganizationId(organizationId);
+
     if (updateOrgRequest && (updateOrgRequest.country || updateOrgRequest.label || updateOrgRequest.name || updateOrgRequest.securityContact)) {
-      return await this.update(
-        organizationId, 
-        updateOrgRequest
-      );
+      return await this.update(organizationId, updateOrgRequest);
     } else {
       return await this.get(organizationId);
     }
   }
 
+  /**
+   * Get the details of an organization by its ID.
+   * @param organizationId - The ID of the organization to retrieve.
+   * @return The details of the specified organization.
+   */
   async get(organizationId: string): Promise<Organization> {
+    TaskBase.checkOrganizationId(organizationId);
+
     return await this.orgApi.getOrg({ organizationId });
   }
 
+  /**
+   * Update an organization with the specified parameters. Only the parameters provided in the updateOrgRequest will be
+   * updated for the organization. For example, if only the label is provided in the updateOrgRequest, then only the 
+   * label of the organization will be updated, and all other properties of the organization will remain unchanged.
+   * @param organizationId - The ID of the organization to update.
+   * @param updateOrgRequest - The parameters to update the organization with. Only the provided parameters will be 
+   * updated.
+   * @returns The details of the updated organization.
+   */
   async update(
     organizationId: string, 
     updateOrgRequest: UpdateOrgRequest
   ): Promise<Organization> {
+    TaskBase.checkOrganizationId(organizationId);
+
     return await this.orgApi.updateOrg({
       organizationId,
       updateOrgRequest
     });
   }
 
-  async list( filters?: ListOrgsRequest): Promise<ListOrgs200Response> {
+  /**
+   * List organizations with optional filtering. The filters can be used to narrow down the list of organizations based 
+   * on specific criteria.
+   * @param filters - Optional filters to apply to the list of organizations. This can include criteria such as 
+   * organization name, type, or owner ID.
+   * @return A list of organizations that match the specified filters. If no filters are provided, a list of all
+   * organizations accessible to the user will be returned.
+   */
+  async list( filters?: FilterListOrgs): Promise<ListOrgs200Response> {
     return await this.orgApi.listOrgs(filters || {});
   }
 
+  /**
+   * List the subscriptions for an organization. This will return a list of all active and past subscriptions associated
+   * with the organization, including details such as the subscription plan, status, and billing information.
+   * @param organizationId - The ID of the organization to list subscriptions for.
+   * @return A list of subscriptions for the specified organization.
+   */
   async listSubscriptions(organizationId: string): Promise<ListOrgSubscriptions200Response> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.subApi.listOrgSubscriptions({ organizationId });
   }
 
+  /**
+   * Add a member to an organization with the specified permissions. This will invite the user to join the organization, 
+   * and the user will need to accept the invitation before they become an active member of the organization. 
+   * The permissions parameter can be used to specify the level of access the member will have within the organization.
+   * @param organizationId - The ID of the organization to add the member to.
+   * @param userId - The ID of the user to add as a member of the organization.
+   * @param permissions - (Optional) The permissions to assign to the member within the organization.
+   * @returns The details of the added organization member, including their user ID, assigned permissions, 
+   * and membership status.
+   */
   async addMember(
     organizationId: string,
-    createOrgMemberRequest: CreateOrgMemberRequest,
+    userId: string,
+    permissions?: Permissions,
   ): Promise<OrganizationMember> {
     TaskBase.checkOrganizationId(organizationId);
-    TaskBase.checkUserId(createOrgMemberRequest.userId);
+    TaskBase.checkUserId(userId);
 
-    return await this.membersApi.createOrgMember({
-      organizationId,
-      createOrgMemberRequest
+    return await this.membersApi.createOrgMember({ 
+      organizationId, 
+      createOrgMemberRequest: { userId, permissions: permissions } 
     });
   }
 
+  /**
+   * Delete a member from an organization. This will remove the user's membership from the organization, and they will 
+   * no longer have access to the organization's resources.
+   * @param organizationId - The ID of the organization to remove the member from.
+   * @param userId - The ID of the user to remove from the organization.
+   */
   async deleteMember(organizationId: string, userId: string): Promise<void> {
     TaskBase.checkOrganizationId(organizationId);
     TaskBase.checkUserId(userId);
 
-    await this.membersApi.deleteOrgMember({
-      organizationId,
-      userId,
-    });
+    await this.membersApi.deleteOrgMember({ organizationId, userId });
   }
+
+  /**
+   * Get the details of an organization member by their user ID. This will return information about the member's
+   * membership in the organization, including their assigned permissions and membership status.
+   * @param organizationId - The ID of the organization to get the member from.
+   * @param userId - The ID of the user to retrieve as a member of the organization.
+   * @returns The details of the specified organization member, including their user ID, assigned permissions, and 
+   * membership status.
+   */
   async getMember(organizationId: string, userId: string): Promise<OrganizationMember> {
     TaskBase.checkOrganizationId(organizationId);
     TaskBase.checkUserId(userId);
 
-    return await this.membersApi.getOrgMember({
-      organizationId,
-      userId,
-    });
+    return await this.membersApi.getOrgMember({ organizationId, userId });
   }
 
+  /**
+   * List the members of an organization with optional filtering. 
+   * @param organizationId - The ID of the organization to list members for.
+   * @param filters - Optional filters to apply to the list of members, such as filtering by user ID or permissions.
+   * @returns A list of organization members that match the specified filters. If no filters are provided, a list of all
+   * members of the organization will be returned.
+   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the
+   * API request.
+   */
   async listMembers(organizationId: string, filters?: FilterListMembers): Promise<ListOrgMembers200Response> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.membersApi.listOrgMembers({ organizationId, ...filters });
   }
 
-  async listUserOrgs(
-    userId: string,
-    filters?: FilterListUser
-  ): Promise<ListUserOrgs200Response> {
-    TaskBase.checkUserId(userId);
-
-    return await this.orgApi.listUserOrgs(
-      { userId, ...filters }
-    );
-  }
-
-  async listCurrentUserOrgs(
-    filters?: FilterListUser
-  ): Promise<ListUserOrgs200Response> {
-    return await this.listUserOrgs(
-      (await this.client.users.me()).id,
-      filters
-    );
-  }
-
+  /**
+   * Update an organization member's permissions. This will modify the member's access level within the organization 
+   * based on the specified permissions.
+   * @param organizationId - The ID of the organization to update the member in.
+   * @param userId - The ID of the user whose membership is being updated.
+   * @param permissions - The new permissions to assign to the member within the organization.
+   * @returns The details of the updated organization member, including their user ID, assigned permissions, and 
+   * membership status.
+   * @throws An error if the organization ID or user ID is invalid, if the permissions are invalid, or if there is an 
+   * issue with the API request.
+   */
   async updateMember(
     organizationId: string,
     userId: string,
@@ -216,64 +297,150 @@ export class OrganizationsTask extends TaskBase {
     });
   }
 
-  //TODO Additional methods for organization projects and members management, and subscription estimation and creation, are implemented below for convenience, but they could be moved to specific tasks if needed (ex: OrganizationProjectsTask, OrganizationMembersTask, SubscriptionsTask)
+  /**
+   * List the organizations that a user belongs to, with optional filtering. This will return a list of organizations 
+   * that the specified user is a member of, and the filters can be used to narrow down the list based on specific 
+   * criteria.
+   * @param userId - The ID of the user to list organizations for.
+   * @param filters - Optional filters to apply to the list of organizations.
+   * @return A list of organizations that the specified user belongs to, matching the provided filters.
+   * 
+   * @todo(@micka): check if this function needs to land in the usersTask or here?
+   */
+  async listUserOrgs(
+    userId: string,
+    filters?: FilterListUser
+  ): Promise<ListUserOrgs200Response> {
+    TaskBase.checkUserId(userId);
+
+    return await this.orgApi.listUserOrgs(
+      { userId, ...filters }
+    );
+  }
+
+  /**
+   * List organization accessible to the current user, with optional filtering. 
+   * This will return a list of organizations that the current user has access to, and the filters can be used to narrow 
+   * down the list based on specific criteria.
+   * @param filters - Optional filters to apply to the list of organizations.
+   * @return A list of organizations that the current user has access to, matching the provided filters.
+   */
+  async listCurrentUserOrgs(
+    filters?: FilterListUser
+  ): Promise<ListUserOrgs200Response> {
+    return await this.listUserOrgs(
+      (await this.client.users.me()).id,
+      filters
+    );
+  }
   
+  /**
+   * List teams within an organization, with optional filtering. This will return a list of teams that belong to the 
+   * specified organization, and the filters can be used to narrow down the list based on specific criteria.
+   * @param params - Optional parameters to apply to the list of teams, such as filtering by team name or member count.
+   * @returns A list of teams within the organization that match the specified filters. If no filters are provided, a 
+   * list of all teams within the organization will be returned.
+   * @throws An error if there is an issue with the API request or if the filters are invalid.
+   */
   async listTeams(
     params?: ListTeamsRequest
   ): Promise<ListTeams200Response> {
-    TaskBase.checkOrganizationId(
-      params?.filterOrganizationId ? params.filterOrganizationId.eq || '' : ''
-    );
     return await this.client.teams.list(params || {});
   }
 
-  async listUserTeams(
+  /**
+   * Retrieves teams that the specified user is a member of.
+   * @param userId - The ID of the user to retrieve teams for.
+   * @param filters - Optional filters to apply to the list of teams.
+   * @returns A list of teams that the specified user is a member of, matching the provided filters.
+   * @throws An error if there is an issue with the API request or if the filters are invalid.
+   */
+  async listTeamsByMember(
     userId: string,
     filters?: FilterListUserTeams
   ): Promise<ListTeams200Response> {
-    TaskBase.checkUserId(userId);
-    
-    return await this.client.teams.listUserTeams(userId, filters);
+    return await this.client.teams.listByMember(userId, filters);
   }
 
-  async getProject( organizationId: string, projectId: string ): Promise<Project> {
-    TaskBase.checkOrganizationId(organizationId);
-    TaskBase.checkProjectId(projectId);
-
+  /**
+   * Get a project by its ID. This will return the details of the specified project.
+   * @param projectId - The ID of the project to retrieve.
+   * @return The details of the specified project.
+   * @throws An error if the project ID is invalid, or if there is an issue with the API request.
+   */
+  async getProject( projectId: string ): Promise<Project> {
     return await this.client.projects.get(projectId);
   }
 
+  /**
+   * List projects within an organization, with optional filtering. This will return a list of projects that belong to 
+   * the specified organization, and the filters can be used to narrow down the list based on specific criteria.
+   * @param organizationId - The ID of the organization to list projects for.
+   * @param filters - Optional filters to apply to the list of projects, such as filtering by project name or region.
+   * @return A list of projects within the organization that match the specified filters. If no filters are provided, a 
+   * list of all projects within the organization will be returned.
+   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the
+   * API request.
+   */
   async listProjects(
     organizationId: string,
     filters?: FilterListOrgProjects
-  ): Promise<Project[]> {
-    TaskBase.checkOrganizationId(organizationId);
-
+  ): Promise<ListOrgProjects200Response> {
     return await this.client.projects.list(organizationId, filters);
   }
 
+  /**
+   * Check if a new project can be created within the specified organization. This will return information about whether
+   * the organization is eligible to create a new project, based on factors such as the organization's current 
+   * subscription status, project limits, and any other relevant criteria defined by the API.
+   * @param organizationId - The ID of the organization to check for project creation eligibility.
+   * @return A response indicating whether a new project can be created within the organization, along with any relevant
+   * details or reasons if project creation is not allowed.
+   * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
+   */
   async canCreateProject(organizationId: string): Promise<CanCreateNewOrgSubscription200Response> {
-    TaskBase.checkOrganizationId(organizationId);
-
     return await this.client.projects.canCreate(organizationId);
   }
 
+  /**
+   * Create a new project within the specified organization, in the specified region, and with optional parameters such 
+   * as project name and subscription plan.
+   * @param organizationId - The ID of the organization to create the project in.
+   * @param projectRegion - The region to create the project in.
+   * @param params - Optional parameters for the project creation, such as the project name and subscription plan.
+   * @return The details of the created project, including its ID, name, region, and subscription information.
+   * @throws An error if the organization ID is invalid, if the project region is invalid, if the parameters are 
+   * invalid, or if there is an issue with the API request.
+   */
   async createProject(
     organizationId: string,
     projectRegion: string,
     params?: ProjectCreateRequest
   ): Promise<Subscription> {
-    TaskBase.checkOrganizationId(organizationId);
-
     return await this.client.projects.create(organizationId, projectRegion, params);
   }
 
+  /**
+   * Delete a project by its ID. This will permanently delete the project and all associated resources, so it should be
+   * used with caution.
+   * @param projectId - The ID of the project to delete.
+    * @throws An error if the project ID is invalid, or if there is an issue with the API request.
+   */
   async deleteProject(projectId: string): Promise<void> {
-    TaskBase.checkProjectId(projectId);
-
     await this.client.projects.delete(projectId);
   }
 
+  /**
+   * Estimate the cost of creating a new project within the specified organization, based on parameters such as the 
+   * number of environments, storage, and user licenses.
+   * @param organizationId - The ID of the organization to estimate the new project for.
+   * @param environments - The number of environments to include in the project (default is 3).
+   * @param storage - The amount of storage to include in the project, in GB (default is 500).
+   * @param userLicenses - The number of user licenses to include in the project (default is 1).
+   * @param format - (Optional) The format to return the estimation in, such as "detailed" or "summary".
+   * @return An estimation object containing the estimated cost and details of the new project based on the provided 
+   * parameters.
+   */
   async estimateNewProject(
     organizationId: string,
     environments: number = 3,
@@ -293,6 +460,21 @@ export class OrganizationsTask extends TaskBase {
     });
   }
 
+  /**
+   * Estimate the cost of a project based on its current subscription and parameters such as the number of environments,
+   * storage, and user licenses. This can be used to get an estimate of the cost of the project if changes are made to 
+   * its resources or subscription plan.
+   * @param organizationId - The ID of the organization that the project belongs to.
+   * @param projectId - The ID of the project to estimate the cost for.
+   * @param environments - The number of environments to include in the estimation (default is 3).
+   * @param storage - The amount of storage to include in the estimation, in GB (default is 500).
+   * @param userLicenses - The number of user licenses to include in the estimation (default is 1).
+   * @param format - (Optional) The format to return the estimation in, such as "detailed" or "summary".
+   * @return An estimation object containing the estimated cost and details of the project based on the provided 
+   * parameters and its current subscription.
+   * @throws An error if the organization ID or project ID is invalid, if the parameters are invalid, or if there is an 
+   * issue with the API request.
+   */
   async estimateProject(
     organizationId: string,
     projectId: string,
@@ -304,7 +486,7 @@ export class OrganizationsTask extends TaskBase {
     TaskBase.checkOrganizationId(organizationId);
     TaskBase.checkProjectId(projectId); 
 
-    const project = await this.getProject(organizationId, projectId);
+    const project = await this.getProject(projectId);
     const subscriptionId = TaskBase.extractSubscriptionId(project.subscription.licenseUri);
     TaskBase.checkSubscriptionId(subscriptionId);
 
@@ -319,6 +501,21 @@ export class OrganizationsTask extends TaskBase {
     }); 
   }
 
+  /**
+   * Get the current usage of a project based on its subscription, including details such as the number of environments,
+   * storage used, and user licenses in use. This can be used to monitor the project's resource usage and ensure it 
+   * stays within the allocated limits.
+   * @param organizationId - The ID of the organization that the project belongs to.
+   * @param projectId - The ID of the project to get the usage for.
+   * @param usageGroups - (Optional) Specific usage groups to include in the response, such as "environments", 
+   * "storage", or "userLicenses".
+   * @param includeNotCharged - (Optional) Whether to include usage that is not currently being charged for in the 
+   * response.
+   * @return An object containing the current usage details of the project based on its subscription, including metrics 
+   * such as the number of environments, storage used, and user licenses in use.
+   * @throws An error if the organization ID or project ID is invalid, if the parameters are invalid, or if there is an
+   * issue with the API request.
+   */
   async getProjectUsage(
     organizationId: string,
     projectId: string,
@@ -328,7 +525,7 @@ export class OrganizationsTask extends TaskBase {
     TaskBase.checkOrganizationId(organizationId);
     TaskBase.checkProjectId(projectId);
 
-    const project = await this.getProject(organizationId, projectId);
+    const project = await this.getProject(projectId);
     const subscriptionId = TaskBase.extractSubscriptionId(project.subscription.licenseUri);
     TaskBase.checkSubscriptionId(subscriptionId);
 
@@ -461,10 +658,7 @@ export class OrganizationsTask extends TaskBase {
   ): Promise<Address> {
     TaskBase.checkOrganizationId(organizationId);
     
-    return await this.profApi.updateOrgAddress({
-      organizationId,
-      address,
-    });
+    return await this.profApi.updateOrgAddress({ organizationId, address });
   }
   
   async updateProfile(
@@ -473,10 +667,7 @@ export class OrganizationsTask extends TaskBase {
   ): Promise<Profile> {
     TaskBase.checkOrganizationId(organizationId);
     
-    return await this.profApi.updateOrgProfile({
-      organizationId,
-      updateOrgProfileRequest: profile,
-    });
+    return await this.profApi.updateOrgProfile({ organizationId, updateOrgProfileRequest: profile });
   }
 
   async listRecords(

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { exit } from 'process';
-import { SubscriptionStatusEnum } from './model/index.js';
+import { DedicatedDeploymentTargetCreateInputTypeEnum, SubscriptionStatusEnum } from './model/index.js';
 import { UpsunClient, UpsunConfig } from './upsun.js';
 import dotenv from 'dotenv';
 import { ResponseError } from './index.js';
@@ -34,6 +34,19 @@ if (MODE_USE === 'API') {
   throw new Error('Invalid MODE_USE value. Use API or BEARER.');
 }
 
+const me = await upsun.users.me();
+
+const list = await upsun.users.listExtendedAccess(me.id);
+
+exit; 
+const variable = await upsun.projects.getVariable('irkw4aj7kw7lc', 'env:GITHUB_PRIVATE_KEY');
+
+const listgitBlob = await upsun.projects.listGitRefs(projectTestId);
+const gitBlob = await upsun.projects.getGitCommit(projectTestId, 'b2f80de1bfdd9412bb4927477d67a7ec94415240');
+const gitTree = await upsun.projects.getGitTree(projectTestId, '61b1cc5bf48ef000b165b48ccf88394615af2855');
+console.log(gitBlob);
+
+
 console.log('--- it\'s me ---');
 // const me = await upsun.user.me();
 // console.log(me);
@@ -60,7 +73,13 @@ console.log('--- Delete Project ---');
 
 if (FULL_TEST) {
   try {
-    const orgs = await upsun.organizations.list();
+    const orgs = await upsun.organizations.list(
+      {
+        filterName: {'eq': 'florent-huck'}, // Replace with your organization name (ex: 'perso-home')
+        filterCapabilities: {'eq': 'project-create'}, // Filter organizations where the user has the 'project-create' capability
+      }
+    );
+
     const orgName = 'florent-huck'; // Replace with your organization name (ex: 'perso-home')
     const org = orgs.items?.find(p => p.name === orgName) ?? null;
     if (org && org?.id) {

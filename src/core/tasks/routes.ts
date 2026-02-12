@@ -36,9 +36,4 @@ export class RoutesTask extends TaskBase {
       throw new Error('Route ID is required');
     }
   }
-
-  // async web(projectId: string) {
-  //   const api = new ProjectDiscoveryApi(this.client.apiConfig);
-  //   return await api.locateProject({ projectId });
-  // }
 }

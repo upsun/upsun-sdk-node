@@ -9,8 +9,6 @@ import {
   UpdateProjectsEnvironmentsDeploymentsNextRequestWorkersValue 
 } from '../../index.js';
 
-//import { ResourceApi } from "../hack/ResourceApi.js";
-
 interface ResourceApiPlaceholder {
   getNextDeployement: (params: { projectId: string; environmentId: string }) => Promise<unknown>;
 }
@@ -32,14 +30,8 @@ export class ResourcesTask extends TaskBase {
     type: DeploymentResourceGroup = 'webapps',
     app: string = 'app',
   ): Promise<Resources> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkEnvironmentId(environmentId);
+    const currentDeployment = await this.client.environments.getDeployment(projectId, environmentId, 'current');
 
-    const deploymentCollection = await this.deploymentApi.listProjectsEnvironmentsDeployments(
-      { projectId, environmentId }
-    );
-
-    const currentDeployment = deploymentCollection?.find(d => d.id === 'current') ?? null;
     if (!currentDeployment) {
       return {} as Resources;
     }

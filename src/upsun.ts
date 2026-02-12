@@ -27,8 +27,8 @@ import {
   VariablesTask,
   WorkersTask,
 } from './core/index.js';
-import { InvitationsTask } from './core/tasks/invitations.js';
-import { AddOnsApi, ApiTokensApi, AutoscalingApi, CertManagementApi, ConnectionsApi, DeploymentApi, DeploymentTargetApi, DomainManagementApi, EnvironmentActivityApi, EnvironmentApi, EnvironmentBackupsApi, EnvironmentTypeApi, EnvironmentVariablesApi, GrantsApi, InvoicesApi, MfaApi, OrdersApi, OrganizationInvitationsApi, OrganizationMembersApi, OrganizationProjectsApi, OrganizationsApi, PhoneNumberApi, ProfilesApi, ProjectActivityApi, ProjectApi, ProjectInvitationsApi, ProjectSettingsApi, ProjectVariablesApi, RecordsApi, RepositoryApi, RoutingApi, RuntimeOperationsApi, SubscriptionsApi, SystemInformationApi, TeamAccessApi, TeamsApi, ThirdPartyIntegrationsApi, UserAccessApi, UserProfilesApi, UsersApi, VouchersApi } from './index.js';
+import { UsersInvitationsTask } from './core/tasks/users-invitations.js';
+import { AddOnsApi, ApiTokensApi, AutoscalingApi, CertManagementApi, ConnectionsApi, DeploymentApi, DeploymentTargetApi, DomainManagementApi, EnvironmentActivityApi, EnvironmentApi, EnvironmentBackupsApi, EnvironmentTypeApi, EnvironmentVariablesApi, GrantsApi, InvoicesApi, MfaApi, OrdersApi, OrganizationInvitationsApi, OrganizationMembersApi, OrganizationProjectsApi, OrganizationsApi, PhoneNumberApi, ProfilesApi, ProjectActivityApi, ProjectApi, ProjectInvitationsApi, ProjectSettingsApi, ProjectVariablesApi, RecordsApi, RepositoryApi, RoutingApi, RuntimeOperationsApi, SourceOperationsApi, SubscriptionsApi, SystemInformationApi, TeamAccessApi, TeamsApi, ThirdPartyIntegrationsApi, UserAccessApi, UserProfilesApi, UsersApi, VouchersApi } from './index.js';
 
 /**
  * Configuration interface for the Upsun API client.
@@ -85,7 +85,7 @@ export class UpsunClient {
   public certificates: CertificatesTask;
   public domains: DomainsTask;
   public environments: EnvironmentsTask;
-  public invitations: InvitationsTask;
+  public invitations: UsersInvitationsTask;
   public metrics: MetricsTask;
   public mounts: MountsTask;
   public operations: OperationsTask;
@@ -161,7 +161,7 @@ export class UpsunClient {
       new DeploymentApi(this.apiConfig),
       new AutoscalingApi(this.apiConfig),
     );
-    this.invitations = new InvitationsTask(
+    this.invitations = new UsersInvitationsTask(
       this,
       new OrganizationInvitationsApi(this.apiConfig),
       new ProjectInvitationsApi(this.apiConfig),
@@ -188,6 +188,7 @@ export class UpsunClient {
     this.projects = new ProjectsTask(
       this,
       new ProjectApi(this.apiConfig),
+      new OrganizationProjectsApi(this.apiConfig),
       new SubscriptionsApi(this.apiConfig),
       new ProjectSettingsApi(this.apiConfig),
       new DeploymentTargetApi(this.apiConfig),
@@ -199,8 +200,8 @@ export class UpsunClient {
       this,
       new RoutingApi(this.apiConfig),
     );
-    this.services = new ServicesTask(this);
-    this.sourceOperations = new SourceOperationsTask(this);
+    this.services = new ServicesTask(this, new DeploymentApi(this.apiConfig));
+    this.sourceOperations = new SourceOperationsTask(this, new SourceOperationsApi(this.apiConfig));
     this.ssh = new SshTask(this);
     this.teams = new TeamsTask(
       this,
@@ -223,7 +224,7 @@ export class UpsunClient {
       new ProjectVariablesApi(this.apiConfig),
       new EnvironmentVariablesApi(this.apiConfig),
     );
-    this.workers = new WorkersTask(this);
+    this.workers = new WorkersTask(this, new DeploymentApi(this.apiConfig));
 
     this.resources = new ResourcesTask(
       this,

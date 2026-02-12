@@ -1,9 +1,11 @@
 import { UpsunClient } from '../../upsun.js';
 import { 
   DeploymentTargetApi,
-  ListOrgSubscriptionsRequest, 
+  ListOrgProjectsRequest,
   ListProjectTeamAccessRequest, 
   ListTeamProjectAccessRequest, 
+  OrganizationProjectsApi, 
+  OrganizationsApi, 
   ProjectApi, 
   ProjectSettingsApi, 
   RepositoryApi, 
@@ -45,23 +47,25 @@ import {
   GrantProjectUserAccessRequestInner,
   ListProjectUserAccess200Response,
   Environment,
-  ProjectInvitation
+  ProjectInvitation,
+  ListOrgProjects200Response
 } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
-import { CertificateCreateParams } from './certificates.js';
+import { 
+  CertificateCreateParams, 
+  CreateProjectInvite, 
+  FilterListOrgProjects, 
+  IntegrationCreateData, 
+  ProjectCreateRequest 
+} from '../model.js';
 import { FilterListProjectUserAccess } from '../index.js';
-import { CreateProjectInvite } from './invitations.js';
-
-// Type creation for request parameters that omit required fields from the original input types
-export type IntegrationCreateInputWithoutType = Omit<IntegrationCreateInput, 'type'>;
-export type ProjectCreateRequest = Omit<CreateOrgSubscriptionRequest, 'projectRegion'>;
-export type FilterListOrgProjects = Omit<ListOrgSubscriptionsRequest, 'organizationId'>;
 
 export class ProjectsTask extends TaskBase {
   
   constructor(
     protected readonly client: UpsunClient,
     private prjApi: ProjectApi,
+    private orgPrjApi: OrganizationProjectsApi,
     private subApi: SubscriptionsApi,
     private settingsApi: ProjectSettingsApi,
     private deploymentTargetApi: DeploymentTargetApi,
@@ -91,7 +95,7 @@ export class ProjectsTask extends TaskBase {
   ): Promise<Subscription> {
     TaskBase.checkOrganizationId(organizationId);
     TaskBase.checkProjectRegion(projectRegion);
-    
+
     return await this.subApi.createOrgSubscription({
       organizationId,
       createOrgSubscriptionRequest: {projectRegion, ...params},
@@ -108,16 +112,14 @@ export class ProjectsTask extends TaskBase {
     TaskBase.checkProjectId(projectId);
     
     const project = await this.prjApi.getProjects({ projectId });
+    //TODO Why not using Project.subscription.id directly? FHK: Because it's empty 
     const subscriptionId = TaskBase.extractSubscriptionId(project.subscription.licenseUri);
     TaskBase.checkSubscriptionId(subscriptionId);
 
     return await this.subApi.deleteOrgSubscription({ organizationId: project.organization as string, subscriptionId });
   }
 
-  async info(
-    projectId: string,
-    params?: ProjectPatch
-  ): Promise<Project> {
+  async info(projectId: string,params?: ProjectPatch): Promise<Project> {
     TaskBase.checkProjectId(projectId);
 
     if(params && Object.keys(params).length > 0) {
@@ -136,20 +138,14 @@ export class ProjectsTask extends TaskBase {
   async update(projectId: string, params: ProjectPatch): Promise<Project> {
     TaskBase.checkProjectId(projectId);
 
-    const response = await this.prjApi.updateProjects({ projectId, projectPatch: params });
-    if (response.code !== 200) {
-      return await this.get(projectId);
-    } else {
-      throw new Error('Project update failed');
-    }
+    await this.prjApi.updateProjects({ projectId, projectPatch: params });
+    return await this.get(projectId);
   }
 
-  //TODO do we return ListOrgSubscriptions200Response or Project[]
-  async list(organizationId: string, filters?: FilterListOrgProjects): Promise<Project[]> {
+  async list(organizationId: string, filters?: FilterListOrgProjects): Promise<ListOrgProjects200Response> {
     TaskBase.checkOrganizationId(organizationId);
-
-    const subscriptions = await this.subApi.listOrgSubscriptions({ organizationId, ...filters });
-    return Promise.all((subscriptions.items ?? []).map(subscription => this.client.projects.get(subscription.id!)));
+    
+    return await this.orgPrjApi.listOrgProjects({ organizationId, ...filters });
   }
 
   // Add more project-related methods as needed
@@ -165,8 +161,7 @@ export class ProjectsTask extends TaskBase {
 
     return await this.prjApi.getProjectsCapabilities({ projectId });
   }
-
-  
+ 
   async cancelInvite(projectId: string, inviteId: string): Promise<void> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkInviteId(inviteId);
@@ -174,11 +169,7 @@ export class ProjectsTask extends TaskBase {
     await this.client.invitations.cancelProjectInvite(projectId, inviteId);
   }
 
-  async createInvite(   
-    projectId: string, 
-    email: string,
-    params: CreateProjectInvite,
-  ): Promise<ProjectInvitation> {
+  async createInvite(projectId: string, email: string, params: CreateProjectInvite): Promise<ProjectInvitation> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEmail(email);
     
@@ -210,14 +201,6 @@ export class ProjectsTask extends TaskBase {
     params?: EnvironmentVariableCreateInput
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
-    
-    if(!name) {
-      throw new Error('Variable name is required');
-    }
-
-    if(!value) {
-      throw new Error('Variable value is required');
-    }
 
     return await this.client.variables.createProjectVariable(projectId, name, value, params);
   }
@@ -266,64 +249,65 @@ export class ProjectsTask extends TaskBase {
     return await this.client.activities.get(projectId, activityId);
   }
 
-  //TODO improve enforcedMounts typing
-  async createDeployment(
-    projectId: string,
-    type: DedicatedDeploymentTargetCreateInputTypeEnum,
-    name: string,
-    enforcedMounts?: object
-  ): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
+  // //TODO(@micka) do we expose it? seems that it's not public endpoint
+  // async createDeployment(
+  //   projectId: string,
+  //   type: DedicatedDeploymentTargetCreateInputTypeEnum,
+  //   name: string,
+  //   enforcedMounts?: object
+  // ): Promise<AcceptedResponse> {
+  //   TaskBase.checkProjectId(projectId);
 
-    return await this.deploymentTargetApi.createProjectsDeployments({
-      projectId,
-      deploymentTargetCreateInput: {type, name, enforcedMounts}
-    });
-  }
+  //   return await this.deploymentTargetApi.createProjectsDeployments({
+  //     projectId,
+  //     deploymentTargetCreateInput: {type, name, enforcedMounts}
+  //   });
+  // }
 
-  async deleteDeployment(projectId: string, deploymentId: string): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkDeploymentId(deploymentId);
+  // async deleteDeployment(projectId: string, deploymentId: string): Promise<AcceptedResponse> {
+  //   TaskBase.checkProjectId(projectId);
+  //   TaskBase.checkDeploymentId(deploymentId);
 
-    return await this.deploymentTargetApi.deleteProjectsDeployments({ 
-      projectId, 
-      deploymentTargetConfigurationId: deploymentId 
-    });
-  }
+  //   return await this.deploymentTargetApi.deleteProjectsDeployments({ 
+  //     projectId, 
+  //     deploymentTargetConfigurationId: deploymentId 
+  //   });
+  // }
 
-  async getDeployment(projectId: string, deploymentId: string): Promise<DeploymentTarget> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkDeploymentId(deploymentId);
+  // async getDeployment(projectId: string, deploymentId: string): Promise<DeploymentTarget> {
+  //   TaskBase.checkProjectId(projectId);
+  //   TaskBase.checkDeploymentId(deploymentId);
 
-    return await this.deploymentTargetApi.getProjectsDeployments({ 
-      projectId, 
-      deploymentTargetConfigurationId: deploymentId 
-     });
-  }
+  //   return await this.deploymentTargetApi.getProjectsDeployments({ 
+  //     projectId, 
+  //     deploymentTargetConfigurationId: deploymentId 
+  //    });
+  // }
 
-  async listDeployments(projectId: string): Promise<DeploymentTargetCollection> {
-    TaskBase.checkProjectId(projectId);
+  // async listDeployments(projectId: string): Promise<DeploymentTargetCollection> {
+  //   TaskBase.checkProjectId(projectId);
 
-    return await this.deploymentTargetApi.listProjectsDeployments({ projectId });
-  }
+  //   return await this.deploymentTargetApi.listProjectsDeployments({ projectId });
+  // }
 
-  async updateDeployment(
-    projectId: string, 
-    deploymentId: string,
-    type: DedicatedDeploymentTargetCreateInputTypeEnum,
-    name: string,
-    enforcedMounts?: object  
-  ): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkDeploymentId(deploymentId);
+  // async updateDeployment(
+  //   projectId: string, 
+  //   deploymentId: string,
+  //   type: DedicatedDeploymentTargetCreateInputTypeEnum,
+  //   name: string,
+  //   enforcedMounts?: object  
+  // ): Promise<AcceptedResponse> {
+  //   TaskBase.checkProjectId(projectId);
+  //   TaskBase.checkDeploymentId(deploymentId);
 
-    return await this.deploymentTargetApi.updateProjectsDeployments({ 
-      projectId, 
-      deploymentTargetConfigurationId: deploymentId, 
-      deploymentTargetPatch: { type, name, enforcedMounts }
-    });
-  }
+  //   return await this.deploymentTargetApi.updateProjectsDeployments({ 
+  //     projectId, 
+  //     deploymentTargetConfigurationId: deploymentId, 
+  //     deploymentTargetPatch: { type, name, enforcedMounts }
+  //   });
+  // }
 
+  //TODO move them into a dedicated RepositoryTask
   async getGitBlob(projectId: string, repositoryBlobId: string): Promise<Blob> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkRepositoryBlobId(repositoryBlobId);
@@ -338,6 +322,13 @@ export class ProjectsTask extends TaskBase {
     return await this.repositoryApi.getProjectsGitCommits({ projectId, repositoryCommitId });
   }
 
+  /**
+   * Get a Git reference (e.g., branch or tag) by its ID in the specified project.
+   * @param projectId 
+   * @param repositoryRefId Id of the Git reference to retrieve 
+   *        (e.g., "heads/main" for the main branch or "tags/v1.0" for a tag).
+   * @returns
+   */
   async getGitRef(projectId: string, repositoryRefId: string): Promise<Ref> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkRepositoryRefId(repositoryRefId);
@@ -358,11 +349,12 @@ export class ProjectsTask extends TaskBase {
     return await this.repositoryApi.getProjectsGitTrees({ projectId, repositoryTreeId });
   }
 
-  async restartGitServer(projectId: string): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
+  //TODO internal
+  // async restartGitServer(projectId: string): Promise<AcceptedResponse> {
+  //   TaskBase.checkProjectId(projectId);
 
-    return await this.systemInfoApi.actionProjectsSystemRestart({ projectId });
-  }
+  //   return await this.systemInfoApi.actionProjectsSystemRestart({ projectId });
+  // }
 
   async getGitInfo(projectId: string): Promise<SystemInformation> {
     TaskBase.checkProjectId(projectId);
@@ -370,10 +362,11 @@ export class ProjectsTask extends TaskBase {
     return await this.systemInfoApi.getProjectsSystem({ projectId });
   }
 
+  //TODO move them into a dedicated IntegrationTask
   async createIntegration(
     projectId: string, 
     type: string,
-    params: IntegrationCreateInputWithoutType
+    params: IntegrationCreateData
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     
@@ -417,7 +410,7 @@ export class ProjectsTask extends TaskBase {
     projectId: string,
     integrationId: string,
     type: string,
-    params: IntegrationCreateInputWithoutType
+    params: IntegrationCreateData
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkIntegrationId(integrationId);
@@ -440,32 +433,18 @@ export class ProjectsTask extends TaskBase {
     isDefault?: boolean,
     replacementFor?: string,
   ): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
-    
-    if(!domainName) {
-      throw new Error('Domain name is required');
-    }
-
     return await this.client.domains.add( projectId, domainName, attributes, isDefault, replacementFor);
   }
    
   async deleteDomain(projectId: string, domainId: string): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkDomainId(domainId);
-
     return await this.client.domains.delete(projectId, domainId);
   }
 
   async getDomain(projectId: string, domainId: string): Promise<Domain> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkDomainId(domainId);
-
     return await this.client.domains.get(projectId, domainId);
   }
 
   async listDomains(projectId: string): Promise<Domain[]> {
-    TaskBase.checkProjectId(projectId);
-
     return await this.client.domains.list(projectId);
   }
 
@@ -474,9 +453,6 @@ export class ProjectsTask extends TaskBase {
     domainId: string, 
     params?: DomainPatch
   ): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkDomainId(domainId);
-
     return await this.client.domains.update(projectId, domainId, params);
   }
 
@@ -486,137 +462,97 @@ export class ProjectsTask extends TaskBase {
     key: string,
     params?: CertificateCreateParams
   ): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
-
     return await this.client.certificates.add(projectId, certificate, key, params);
   }
 
   async deleteCertificate(projectId: string, certificateId: string): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkCertificateId(certificateId);
-
     return await this.client.certificates.delete(projectId, certificateId);
   }
 
   async getCertificate(projectId: string, certificateId: string): Promise<Certificate> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkCertificateId(certificateId);
-
     return await this.client.certificates.get(projectId, certificateId);
   }
 
   async listCertificates(projectId: string): Promise<Certificate[]> {
-    TaskBase.checkProjectId(projectId);
-
     return await this.client.certificates.list(projectId);
   }
 
-  async getProjectTeamAccess(projectId: string, teamId: string): Promise<TeamProjectAccess> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkTeamId(teamId);
-
-    return await this.client.teams.getProjectTeamAccess(projectId, teamId);
+  async getTeamProjectAccessByProject(projectId: string, teamId: string): Promise<TeamProjectAccess> {
+    return await this.client.teams.getTeamProjectAccessByProject(projectId, teamId);
   }
 
-  async getTeamProjectAccess(teamId: string, projectId: string): Promise<TeamProjectAccess> {
-    TaskBase.checkTeamId(teamId);
-    TaskBase.checkProjectId(projectId);
-
-    return await this.client.teams.getTeamProjectAccess(teamId, projectId);
+  async getTeamProjectAccessByTeam(teamId: string, projectId: string): Promise<TeamProjectAccess> {
+    return await this.client.teams.getTeamProjectAccessByTeam(teamId, projectId);
   }
 
-  async grantProjectTeamAccess(
+  async grantTeamProjectAccessToProject(
     projectId: string, 
     access: Array<GrantProjectTeamAccessRequestInner>
   ): Promise<void> {
-    TaskBase.checkProjectId(projectId);
-
-    return await this.client.teams.grantProjectTeamAccess(projectId, access);
+    return await this.client.teams.grantTeamProjectAccessToProject(projectId, access);
   }
 
-  async grantTeamProjectAccess(teamId: string, access: Array<GrantTeamProjectAccessRequestInner>): Promise<void> {
-    TaskBase.checkTeamId(teamId);
-
-    return await this.client.teams.grantTeamProjectAccess(teamId, access);
+  async grantTeamProjectAccessToTeam(teamId: string, access: Array<GrantTeamProjectAccessRequestInner>): Promise<void> {
+    return await this.client.teams.grantTeamProjectAccessToTeam(teamId, access);
   }
 
-  async listProjectTeamAccess(projectId: string, params: ListProjectTeamAccessRequest): Promise<ListProjectTeamAccess200Response> {
-    TaskBase.checkProjectId(projectId);
-
-    return await this.client.teams.listProjectTeamAccess(projectId, params);
+  async listTeamProjectAccessByProject(
+    projectId: string, 
+    params: ListProjectTeamAccessRequest
+  ): Promise<ListProjectTeamAccess200Response> {
+    return await this.client.teams.listTeamProjectAccessByProject(projectId, params);
   }
 
-  async listTeamProjectAccess(teamId: string, params: ListTeamProjectAccessRequest): Promise<ListProjectTeamAccess200Response> {
-    TaskBase.checkTeamId(teamId);
-    return await this.client.teams.listTeamProjectAccess(teamId, params);
+  async listTeamProjectAccessByTeam(
+    teamId: string, 
+    params: ListTeamProjectAccessRequest
+  ): Promise<ListProjectTeamAccess200Response> {
+    return await this.client.teams.listTeamProjectAccessByTeam(teamId, params);
   }
   
-  async revokeProjectTeamAccess(projectId: string, teamId: string): Promise<void> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkTeamId(teamId);
-
-    return await this.client.teams.revokeProjectTeamAccess(projectId, teamId);
+  async revokeTeamProjectAccessByProject(projectId: string, teamId: string): Promise<void> {
+    return await this.client.teams.revokeTeamProjectAccessByProject(projectId, teamId);
   }
 
-  async revokeTeamProjectAccess(teamId: string, projectId: string): Promise<void> {
-    TaskBase.checkTeamId(teamId);
-    TaskBase.checkProjectId(projectId);
-
-    return await this.client.teams.revokeTeamProjectAccess(teamId, projectId);
+  async revokeTeamProjectAccessByTeam(teamId: string, projectId: string): Promise<void> {
+    return await this.client.teams.revokeTeamProjectAccessByTeam(teamId, projectId);
   }
 
-  async getProjectUserAccess(projectId: string, userId: string): Promise<UserProjectAccess> {
-    TaskBase.checkUserId(userId);
-    TaskBase.checkProjectId(projectId);
-
-    return await this.client.users.getProjectUserAccess(projectId, userId);
+  async getUserProjectAccessByProject(projectId: string, userId: string): Promise<UserProjectAccess> {
+    return await this.client.users.getUserProjectAccessByProject(projectId, userId);
   }
 
-  async grantProjectUserAccess(projectId: string, access: Array<GrantProjectUserAccessRequestInner>): Promise<void> {
-    TaskBase.checkProjectId(projectId);
-    
-    return await this.client.users.grantProjectUserAccess(projectId, access);
+  async grantUserProjectAccessByProject(projectId: string, access: Array<GrantProjectUserAccessRequestInner>): Promise<void> {
+    return await this.client.users.grantUserProjectAccessByProject(projectId, access);
   }
 
-  async revokeProjectUserAccess(projectId: string, userId: string): Promise<void> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkUserId(userId);
-
-    return await this.client.users.revokeProjectUserAccess(projectId, userId);
+  async revokeUserProjectAccessByProject(projectId: string, userId: string): Promise<void> {
+    return await this.client.users.revokeUserProjectAccessByProject(projectId, userId);
   }
 
-  async updateProjectUserAccess(
+  async updateUserProjectAccessByProject(
     projectId: string, 
     userId: string, 
     access: GrantProjectUserAccessRequestInner
   ): Promise<void> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkUserId(userId);
-
-    return await this.client.users.updateProjectUserAccess(projectId, userId, access);
+    return await this.client.users.updateUserProjectAccessByProject(projectId, userId, access);
   }
 
-  async listProjectUserAccess(
+  async listUserProjectAccessByProject(
     projectId: string, 
     filters?: FilterListProjectUserAccess
   ): Promise<ListProjectUserAccess200Response> {
-    TaskBase.checkProjectId(projectId);
-
-    return await this.client.users.listProjectUserAccess(projectId, filters);
+    return await this.client.users.listUserProjectAccessByProject(projectId, filters);
   }
 
-  async listUserProjectAccess(
+  async listUserProjectAccessByUser(
     userId: string, 
     filters?: FilterListProjectUserAccess
   ): Promise<ListProjectUserAccess200Response> {
-    TaskBase.checkUserId(userId);
-
-    return await this.client.users.listUserProjectAccess(userId, filters);
+    return await this.client.users.listUserProjectAccessByUser(userId, filters);
   }
 
   async listEnvironments(projectId: string): Promise<Environment[]> {
-    TaskBase.checkProjectId(projectId);
-
     return await this.client.environments.list(projectId);
   }
 }

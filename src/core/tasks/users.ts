@@ -62,6 +62,9 @@ export class UsersTask extends TaskBase {
     return await this.usersApi.getCurrentUser();
   }
 
+  //TODO add create User method when API is available
+
+
   /**
    * Adds a user to a project with specified permissions. 
    * This method allows you to grant access to a project for one or more users, specifying their access levels 
@@ -69,7 +72,7 @@ export class UsersTask extends TaskBase {
    */
   async add(
     projectId: string, 
-    userPermission: Array<GrantProjectUserAccessRequestInner>
+    userPermission: GrantProjectUserAccessRequestInner[]
   ): Promise<void> { 
     TaskBase.checkProjectId(projectId);
 
@@ -148,6 +151,8 @@ export class UsersTask extends TaskBase {
    * Retrieves a user's information by their username.
    */
   async getByUsername(username: string): Promise<UserModel> {
+    TaskBase.checkUsername(username);
+
     return await this.usersApi.getUserByUsername({ username });
   }
 
@@ -160,6 +165,7 @@ export class UsersTask extends TaskBase {
    */
   async resetEmailAddress(userId: string, email?: string): Promise<void> {
     TaskBase.checkUserId(userId);
+    
     if(email) {
       TaskBase.checkEmail(email);
     }
@@ -182,11 +188,11 @@ export class UsersTask extends TaskBase {
   }
 
   /**
-   * Retrieves a user's access level and permissions for a specific project. This method is useful for checking what 
+   * Retrieves a project's access level and permissions for a specific user. This method is useful for checking what 
    * level of access a user has to a project, which can help with managing permissions and ensuring that users have the 
    * appropriate access to perform their tasks within the project.
    */
-  async getProjectUserAccess(projectId: string, userId: string): Promise<UserProjectAccess> {
+  async getUserProjectAccessByProject(projectId: string, userId: string): Promise<UserProjectAccess> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkUserId(userId);
 
@@ -201,11 +207,11 @@ export class UsersTask extends TaskBase {
    * level of access a user has to a project, which can help with managing permissions and ensuring that users have the 
    * appropriate access to perform their tasks within the project.
    */
-  async getUserProjectAccess(userId: string, projectId: string): Promise<UserProjectAccess> {
+  async getUserProjectAccessByUser(userId: string, projectId: string): Promise<UserProjectAccess> {
     TaskBase.checkUserId(userId);
     TaskBase.checkProjectId(projectId);
 
-    return await this.userAccessApi.getProjectUserAccess({
+    return await this.userAccessApi.getUserProjectAccess({
       projectId: projectId,
        userId: userId,
     });
@@ -215,7 +221,7 @@ export class UsersTask extends TaskBase {
    * Retrieves a list of all projects that a user has access to, along with their access levels and permissions for each 
    * project.
    */
-  async grantProjectUserAccess(projectId: string, access: Array<GrantProjectUserAccessRequestInner>): Promise<void> {
+  async grantUserProjectAccessByProject(projectId: string, access: Array<GrantProjectUserAccessRequestInner>): Promise<void> {
     TaskBase.checkProjectId(projectId);
 
     if(!access || access.length === 0) {
@@ -233,7 +239,7 @@ export class UsersTask extends TaskBase {
    * define their access levels and permissions within that project. By granting a user access to a project, you enable 
    * them to collaborate and contribute to the project according to the permissions you have set.
    */
-  async grantUserProjectAccess(userId: string, access: Array<GrantProjectUserAccessRequestInner>): Promise<void> {
+  async grantUserProjectAccessByUser(userId: string, access: Array<GrantProjectUserAccessRequestInner>): Promise<void> {
     TaskBase.checkUserId(userId);
     
     if(!access || access.length === 0) {
@@ -249,7 +255,7 @@ export class UsersTask extends TaskBase {
   /**
    * Lists all users who have access to a specific project, along with their access levels and permissions.
    */
-  async listProjectUserAccess(projectId: string, filters?: FilterListProjectUserAccess): Promise<ListProjectUserAccess200Response> {
+  async listUserProjectAccessByProject(projectId: string, filters?: FilterListProjectUserAccess): Promise<ListProjectUserAccess200Response> {
     TaskBase.checkProjectId(projectId);
 
     return await this.userAccessApi.listProjectUserAccess({
@@ -262,7 +268,7 @@ export class UsersTask extends TaskBase {
    * Retrieves a list of all projects that a user has access to, along with their access levels and permissions for each 
    * project.
    */
-  async listUserProjectAccess(userId: string, filters?: FilterListProjectUserAccess): Promise<ListProjectUserAccess200Response> {
+  async listUserProjectAccessByUser(userId: string, filters?: FilterListProjectUserAccess): Promise<ListProjectUserAccess200Response> {
     TaskBase.checkUserId(userId);
 
     return await this.userAccessApi.listUserProjectAccess({
@@ -272,11 +278,26 @@ export class UsersTask extends TaskBase {
   }
 
   /**
+   * Retrieves a list of all projects that a user has access to, along with their access levels and permissions for each 
+   * project. This method provides an extended view of the user's access, which may include additional details about the 
+   * projects and the user's permissions within those projects, making it easier to manage and review user access across 
+   * multiple projects.
+   */
+  async listExtendedUserProjectAccess(
+    userId: string, 
+    filters?: FilterListUserExtendedAccess
+  ): Promise<ListUserExtendedAccess200Response> {
+    TaskBase.checkUserId(userId);
+
+    return await this.grantsApi.listUserExtendedAccess({ userId, ...filters });
+  }
+
+  /**
    * Revokes a user's access to a project. This method revokes the user's permissions for the specified project, 
    * effectively preventing them from accessing or collaborating on the project. Note that this does not delete the user
    * from the system, but simply removes their access to the specified project.
    */
-  async revokeProjectUserAccess(projectId: string, userId: string): Promise<void> {
+  async revokeUserProjectAccessByProject(projectId: string, userId: string): Promise<void> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkUserId(userId);
 
@@ -288,11 +309,11 @@ export class UsersTask extends TaskBase {
    * effectively preventing them from accessing or collaborating on the project. Note that this does not delete the user
    * from the system, but simply removes their access to the specified project.
    */
-  async revokeUserProjectAccess(userId: string, projectId: string): Promise<void> {
+  async revokeUserProjectAccessByUser(userId: string, projectId: string): Promise<void> {
     TaskBase.checkUserId(userId);
     TaskBase.checkProjectId(projectId);
 
-    await this.userAccessApi.removeProjectUserAccess({ projectId, userId });
+    await this.userAccessApi.removeUserProjectAccess({ projectId, userId });
   }
 
   /**
@@ -301,7 +322,7 @@ export class UsersTask extends TaskBase {
    * appropriate level of access to perform their tasks within the project. By updating a user's project access, you can 
    * grant them additional permissions or restrict their access as needed.
    */
-  async updateProjectUserAccess(projectId: string, userId: string, access: UpdateProjectUserAccessRequest): Promise<void> {
+  async updateUserProjectAccessByProject(projectId: string, userId: string, access: UpdateProjectUserAccessRequest): Promise<void> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkUserId(userId);
     
@@ -322,7 +343,7 @@ export class UsersTask extends TaskBase {
    * appropriate level of access to perform their tasks within the project. By updating a user's project access, you can 
    * grant them additional permissions or restrict their access as needed.
    */
-  async updateUserProjectAccess(userId: string, projectId: string, access: UpdateProjectUserAccessRequest): Promise<void> {
+  async updateUserProjectAccessByUser(userId: string, projectId: string, access: UpdateProjectUserAccessRequest): Promise<void> {
     TaskBase.checkUserId(userId);
     TaskBase.checkProjectId(projectId);
     
@@ -330,7 +351,7 @@ export class UsersTask extends TaskBase {
       throw new Error('At least one access level is required to update user access');
     }
 
-    await this.userAccessApi.updateProjectUserAccess({
+    await this.userAccessApi.updateUserProjectAccess({
       projectId: projectId,
       userId: userId,
       updateProjectUserAccessRequest: access,
@@ -449,7 +470,7 @@ export class UsersTask extends TaskBase {
    * Lists all API tokens for a user. This method retrieves a list of all API tokens associated with a user's account, 
    * which can be useful for managing and reviewing the tokens that have been created.
    */
-  async listApiTokens(userId: string): Promise<Array<ApiToken>> {
+  async listApiTokens(userId: string): Promise<ApiToken[]> {
     TaskBase.checkUserId(userId);
 
     return await this.apiTokensApi.listApiTokens({ userId });
@@ -489,19 +510,6 @@ export class UsersTask extends TaskBase {
       userId,
       provider,
     });
-  }
-
-  /**
-   * Lists all login connections for a user. This method retrieves a list of all authentication connections associated 
-   * with a user's account, which can be useful for managing and reviewing the connected accounts for a user.
-   */
-  async listExtendedAccess(
-    userId: string, 
-    filters?: FilterListUserExtendedAccess
-  ): Promise<ListUserExtendedAccess200Response> {
-    TaskBase.checkUserId(userId);
-
-    return await this.grantsApi.listUserExtendedAccess({ userId, ...filters });
   }
 
   /**
@@ -545,15 +553,6 @@ export class UsersTask extends TaskBase {
   }
 
   /**
-   * Recreates a user's TOTP recovery codes. This method allows you to generate new TOTP recovery codes for a user.
-   */
-  async recreateRecoveryCodes(userId: string): Promise<void> {
-    TaskBase.checkUserId(userId);
-
-    await this.mfaApi.recreateRecoveryCodes({ userId });
-  }
-
-  /**
    * Withdraws a user's TOTP enrollment. This method allows you to revoke a user's TOTP enrollment.
    */
   async withdrawTotpEnrollment(userId: string): Promise<void> {
@@ -561,6 +560,20 @@ export class UsersTask extends TaskBase {
 
     await this.mfaApi.withdrawTotpEnrollment({ userId });
   }
+
+  /**
+   * Recreates a user's MFA recovery codes. This method allows you to generate a new set of MFA recovery codes for a 
+   * user, which can be useful if the user has lost their original recovery codes or if they want to invalidate their 
+   * existing codes for security reasons.
+   */
+  async recreateMfaRecoveryCodes(userId: string): Promise<void> {
+    TaskBase.checkUserId(userId);
+
+    await this.mfaApi.recreateRecoveryCodes({ userId });
+  }
+
+  //TODO(FHK) add missing MFA methods
+
 
   /**
    * Confirms a user's phone number by verifying the provided SID and confirmation code. 

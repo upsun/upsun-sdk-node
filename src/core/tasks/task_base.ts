@@ -156,6 +156,13 @@ export abstract class TaskBase {
       throw new Error('Invite ID is required');
     }
   }
+
+  static checkUsername(username: string): void {
+    if (!username) {
+      throw new Error('Username is required');
+    }
+  }
+
   // works for URIs like /subscriptions/{subscriptionId} to extract subscriptionId
   // as the subscriptionId is not returned directly in the project object (emty field)
   // e.g. /subscriptions/abc123

@@ -34,71 +34,16 @@ export class TeamsTask extends TaskBase {
     });
   }
 
-  async createMember(teamId: string, userId: string): Promise<TeamMember> {
-    TaskBase.checkTeamId(teamId);
-    TaskBase.checkUserId(userId);
-
-    return await this.teamsApi.createTeamMember({
-      teamId: teamId,
-      createTeamMemberRequest: {
-        userId: userId,
-      },
-    });
-  }
-
   async delete(teamId: string): Promise<void> {
     TaskBase.checkTeamId(teamId);
 
     await this.teamsApi.deleteTeam({ teamId });
   }
 
-  async deleteMember(teamId: string, userId: string): Promise<void> {
-    TaskBase.checkTeamId(teamId);
-    TaskBase.checkUserId(userId);
-
-    await this.teamsApi.deleteTeamMember({
-      teamId: teamId,
-      userId: userId,
-    });
-  }
-
   async get(teamId: string): Promise<Team> {
     TaskBase.checkTeamId(teamId);
 
     return await this.teamsApi.getTeam({ teamId });
-  }
-
-  async getMember(teamId: string, userId: string): Promise<TeamMember> {
-    TaskBase.checkTeamId(teamId);
-    TaskBase.checkUserId(userId);
-
-    return await this.teamsApi.getTeamMember({
-      teamId: teamId,
-      userId: userId,
-    });
-  }
-
-  async list(filters: ListTeamsRequest): Promise<ListTeams200Response> {
-    
-    return await this.teamsApi.listTeams(filters);
-  }
-
-  async listMembers(
-    teamId: string,
-    filters: FilterListTeamMembers
-  ): Promise<ListTeamMembers200Response> {
-    TaskBase.checkTeamId(teamId);
-
-    return await this.teamsApi.listTeamMembers({ teamId, ...filters });
-  }
-
-  async listUserTeams(
-    userId: string,
-    filters?: FilterListUserTeams
-  ): Promise<ListTeams200Response> {
-    TaskBase.checkUserId(userId);
-
-    return await this.teamsApi.listUserTeams({ userId, ...filters });
   }
 
   async update(teamId: string, params?: UpdateTeamRequest): Promise<void> {
@@ -114,7 +59,74 @@ export class TeamsTask extends TaskBase {
     });
   }
 
-  async getProjectTeamAccess(teamId: string, projectId: string): Promise<TeamProjectAccess> {
+  async list(filters: ListTeamsRequest): Promise<ListTeams200Response> {
+    return await this.teamsApi.listTeams(filters);
+  }
+
+  /**
+   * List all teams that a user is a member of, with optional filtering. This will return a list of teams that the specified
+   */
+  async listByMember(
+    userId: string,
+    filters?: FilterListUserTeams
+  ): Promise<ListTeams200Response> {
+    TaskBase.checkUserId(userId);
+
+    return await this.teamsApi.listUserTeams({ userId, ...filters });
+  }
+
+  async addMember(teamId: string, userId: string): Promise<TeamMember> {
+    TaskBase.checkTeamId(teamId);
+    TaskBase.checkUserId(userId);
+
+    return await this.teamsApi.createTeamMember({
+      teamId: teamId,
+      createTeamMemberRequest: {
+        userId: userId,
+      },
+    });
+  }
+
+  async deleteMember(teamId: string, userId: string): Promise<void> {
+    TaskBase.checkTeamId(teamId);
+    TaskBase.checkUserId(userId);
+
+    await this.teamsApi.deleteTeamMember({
+      teamId: teamId,
+      userId: userId,
+    });
+  }
+
+  async getMember(teamId: string, userId: string): Promise<TeamMember> {
+    TaskBase.checkTeamId(teamId);
+    TaskBase.checkUserId(userId);
+
+    return await this.teamsApi.getTeamMember({
+      teamId: teamId,
+      userId: userId,
+    });
+  }
+
+  async listMembers(
+    teamId: string,
+    filters: FilterListTeamMembers
+  ): Promise<ListTeamMembers200Response> {
+    TaskBase.checkTeamId(teamId);
+
+    return await this.teamsApi.listTeamMembers({ teamId, ...filters });
+  }
+
+  async getTeamProjectAccessByProject(projectId: string, teamId: string): Promise<TeamProjectAccess> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkTeamId(teamId);
+
+    return await this.teamAccessApi.getProjectTeamAccess({
+      teamId: teamId,
+      projectId: projectId,
+    });
+  }
+
+  async getTeamProjectAccessByTeam(teamId: string, projectId: string): Promise<TeamProjectAccess> {
     TaskBase.checkTeamId(teamId);
     TaskBase.checkProjectId(projectId);
 
@@ -124,17 +136,7 @@ export class TeamsTask extends TaskBase {
     });
   }
 
-  async getTeamProjectAccess(teamId: string, projectId: string): Promise<TeamProjectAccess> {
-    TaskBase.checkTeamId(teamId);
-    TaskBase.checkProjectId(projectId);
-
-    return await this.teamAccessApi.getTeamProjectAccess({
-      teamId: teamId,
-      projectId: projectId,
-    });
-  }
-
-  async grantProjectTeamAccess(projectId: string, access: Array<GrantProjectTeamAccessRequestInner>): Promise<void> {
+  async grantTeamProjectAccessToProject(projectId: string, access: GrantProjectTeamAccessRequestInner[]): Promise<void> {
     TaskBase.checkProjectId(projectId);
 
     if(!access || access.length === 0) {
@@ -147,7 +149,7 @@ export class TeamsTask extends TaskBase {
     });
   }
 
-  async grantTeamProjectAccess(teamId: string, access: Array<GrantTeamProjectAccessRequestInner>): Promise<void> {
+  async grantTeamProjectAccessToTeam(teamId: string, access: GrantTeamProjectAccessRequestInner[]): Promise<void> {
     TaskBase.checkTeamId(teamId);
     
     if(!access || access.length === 0) {
@@ -160,7 +162,7 @@ export class TeamsTask extends TaskBase {
     });
   }
     
-  async listProjectTeamAccess(
+  async listTeamProjectAccessByProject(
     projectId: string, 
     filters: FilterListProjectTeamAccess
   ): Promise<ListProjectTeamAccess200Response> {
@@ -169,7 +171,7 @@ export class TeamsTask extends TaskBase {
     return await this.teamAccessApi.listProjectTeamAccess({ projectId, ...filters });
   }
 
-  async listTeamProjectAccess(
+  async listTeamProjectAccessByTeam(
     teamId: string, 
     filters: FilterListTeamProjectAccess
   ): Promise<ListProjectTeamAccess200Response> {
@@ -178,7 +180,7 @@ export class TeamsTask extends TaskBase {
     return await this.teamAccessApi.listTeamProjectAccess({ teamId, ...filters });
   }
   
-  async revokeProjectTeamAccess(projectId: string, teamId: string): Promise<void> {
+  async revokeTeamProjectAccessByProject(projectId: string, teamId: string): Promise<void> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkTeamId(teamId);
 
@@ -188,7 +190,7 @@ export class TeamsTask extends TaskBase {
     });
   }
 
-  async revokeTeamProjectAccess(teamId: string, projectId: string): Promise<void> {
+  async revokeTeamProjectAccessByTeam(teamId: string, projectId: string): Promise<void> {
     TaskBase.checkTeamId(teamId);
     TaskBase.checkProjectId(projectId);
 
