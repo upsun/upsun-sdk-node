@@ -84,7 +84,7 @@ export class BackupsTask extends TaskBase {
    * @param environmentId - The ID of the environment.
    * @returns A list of backups for the specified environment.
    */
-  async list(projectId: string, environmentId: string): Promise<Array<Backup>> {
+  async list(projectId: string, environmentId: string): Promise<Backup[]> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 

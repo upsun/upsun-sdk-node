@@ -34,7 +34,7 @@ export class OperationsTask extends TaskBase {
     deploymentId: string,
     service: string,
     operation: string,
-    parameters: Array<string>,
+    parameters: string[],
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);

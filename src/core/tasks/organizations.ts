@@ -5,13 +5,7 @@ import {
   InvoicesApi,
   ListOrgInvoicesFilterStatusEnum,
   ListOrgInvoicesFilterTypeEnum,
-  ListOrgMembersRequest,
-  ListOrgOrdersRequest,
-  ListOrgPlanRecordsRequest,
-  ListOrgsRequest,
-  ListOrgUsageRecordsRequest,
   ListTeamsRequest,
-  ListUserOrgsRequest,
   MfaApi,
   OrdersApi,
   OrganizationMembersApi,
@@ -25,7 +19,6 @@ import {
   Address,
   CanCreateNewOrgSubscription200Response,
   CreateAuthorizationCredentials200Response,
-  CreateOrgMemberRequest,
   CreateOrgRequestTypeEnum,
   EstimationObject,
   Invoice,
@@ -55,7 +48,6 @@ import {
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 import {} from './projects.js';
-import { FilterListUserTeams } from './teams.js';
 import {
   FilterListMembers,
   FilterListOrders,
@@ -64,6 +56,7 @@ import {
   FilterListPlanRecords,
   FilterListUsageRecords,
   FilterListUser,
+  FilterListUserTeams,
   ProjectCreateRequest,
 } from '../model.js';
 
@@ -113,11 +106,11 @@ export class OrganizationsTask extends TaskBase {
 
     return await this.orgApi.createOrg({
       createOrgRequest: {
-        label: label,
-        type: type,
-        ownerId: ownerId,
-        name: name,
-        country: country,
+        label,
+        type,
+        ownerId,
+        name,
+        country,
       },
     });
   }
@@ -196,7 +189,7 @@ export class OrganizationsTask extends TaskBase {
    * organizations accessible to the user will be returned.
    */
   async list(filters?: FilterListOrgs): Promise<ListOrgs200Response> {
-    return await this.orgApi.listOrgs(filters || {});
+    return await this.orgApi.listOrgs(filters);
   }
 
   /**
@@ -447,6 +440,7 @@ export class OrganizationsTask extends TaskBase {
     storage: number = 500,
     userLicenses: number = 1,
     format?: EstimateNewOrgSubscriptionFormatEnum,
+    plan: string = 'upsun/flexible',
   ): Promise<EstimationObject> {
     TaskBase.checkOrganizationId(organizationId);
 
@@ -456,7 +450,7 @@ export class OrganizationsTask extends TaskBase {
       storage,
       userLicenses,
       format,
-      plan: 'upsun/flexible',
+      plan: plan,
     });
   }
 
@@ -482,6 +476,7 @@ export class OrganizationsTask extends TaskBase {
     storage: number = 500,
     userLicenses: number = 1,
     format?: EstimateNewOrgSubscriptionFormatEnum,
+    plan: string = 'upsun/flexible',
   ): Promise<EstimationObject> {
     TaskBase.checkOrganizationId(organizationId);
     TaskBase.checkProjectId(projectId);
@@ -493,7 +488,7 @@ export class OrganizationsTask extends TaskBase {
     return await this.subApi.estimateOrgSubscription({
       organizationId,
       subscriptionId,
-      plan: 'upsun/flexible',
+      plan: plan,
       environments,
       storage,
       userLicenses,
@@ -537,24 +532,54 @@ export class OrganizationsTask extends TaskBase {
     });
   }
 
+  /**
+   * Disable MFA enforcement for an organization. This will allow members of the organization to log in without being
+   * required to use multi-factor authentication (MFA). This should be used with caution, as it can reduce the security 
+   * of the organization.
+   * @param organizationId - The ID of the organization to disable MFA enforcement for.
+   * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
+   */
   async disableMfaEnforcement(organizationId: string): Promise<void> {
     TaskBase.checkOrganizationId(organizationId);
 
     await this.mfaApi.disableOrgMfaEnforcement({ organizationId });
   }
 
+  /**
+   * Enable MFA enforcement for an organization. This will require all members of the organization to use multi-factor
+   * authentication (MFA) when logging in, which can enhance the security of the organization.
+   * @param organizationId - The ID of the organization to enable MFA enforcement for.
+   * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
+   */
   async enableMfaEnforcement(organizationId: string): Promise<void> {
     TaskBase.checkOrganizationId(organizationId);
 
     await this.mfaApi.enableOrgMfaEnforcement({ organizationId });
   }
 
+  /**
+   * Get the current MFA enforcement status for an organization. This will return information about whether MFA 
+   * enforcement is enabled or disabled.
+   * @param organizationId - The ID of the organization to get the MFA enforcement status for.
+   * @return An object containing the current MFA enforcement status for the organization, indicating whether MFA 
+   * enforcement is enabled or disabled.
+   * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
+   */
   async getMfaEnforcement(organizationId: string): Promise<OrganizationMfaEnforcement> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.mfaApi.getOrgMfaEnforcement({ organizationId });
   }
 
+  /**
+   * Send MFA reminders to specified users within an organization. This can be used to prompt users to set up or use MFA
+   * if MFA enforcement is enabled for the organization and some users have not yet set up MFA or are not using it.
+   * @param organizationId - The ID of the organization to send MFA reminders for.
+   * @param userIds - A list of user IDs to send MFA reminders to. These should be users who are members of the 
+   * organization and are expected to use MFA based on the organization's MFA enforcement settings.
+   * @throws An error if the organization ID is invalid, if the user IDs are invalid, or if there is an issue with the 
+   * API request.
+   */
   async sendMfaReminders(organizationId: string, userIds: string[]): Promise<void> {
     TaskBase.checkOrganizationId(organizationId);
 
@@ -566,6 +591,14 @@ export class OrganizationsTask extends TaskBase {
     });
   }
 
+  /**
+   * Get the details of an invoice by its ID for a specific organization. This will return information about the 
+   * invoice, including the invoice amount, status, billing period, and any associated order or subscription details.
+   * @param invoiceId - The ID of the invoice to retrieve.
+   * @param organizationId - The ID of the organization that the invoice belongs to.
+   * @return The details of the specified invoice for the organization.
+   * @throws An error if the invoice ID or organization ID is invalid, or if there is an issue with the API request.
+   */
   async getInvoice(invoiceId: string, organizationId: string): Promise<Invoice> {
     TaskBase.checkOrganizationId(organizationId);
     TaskBase.checkInvoiceId(invoiceId);
@@ -573,6 +606,20 @@ export class OrganizationsTask extends TaskBase {
     return await this.invApi.getOrgInvoice({ invoiceId, organizationId });
   }
 
+  /**
+   * List the invoices for a specific organization, with optional filtering by status, type, or associated order ID. 
+   * This will return a paginated list of invoices matching the specified criteria.
+   * @param organizationId - The ID of the organization to list invoices for.
+   * @param filterStatus - (Optional) Filter invoices by their status, such as "paid", "unpaid", "overdue", etc.
+   * @param filterType - (Optional) Filter invoices by their type, such as "subscription", "one-time", etc.
+   * @param filterOrderId - (Optional) Filter invoices by the associated order ID, to get invoices related to a specific
+   * order.
+   * @param page - (Optional) The page number to retrieve for paginated results (default is 1).
+   * @return A paginated list of invoices for the specified organization that match the provided filters. 
+   * If no filters are provided, all invoices for the organization will be returned.
+   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the 
+   * API request.
+   */
   async listInvoices(
     organizationId: string,
     filterStatus?: ListOrgInvoicesFilterStatusEnum,
@@ -581,6 +628,7 @@ export class OrganizationsTask extends TaskBase {
     page?: number,
   ): Promise<ListOrgInvoices200Response> {
     TaskBase.checkOrganizationId(organizationId);
+
     return await this.invApi.listOrgInvoices({
       organizationId,
       filterStatus,
@@ -611,6 +659,14 @@ export class OrganizationsTask extends TaskBase {
     //return await this.ordApi.downloadInvoice({ token });
   }
 
+  /**
+   * Create authorization credentials for a specific order within an organization. This will return credentials that 
+   * can be used to authorize actions related to the order.
+   * @param organizationId - The ID of the organization that the order belongs to.
+   * @param orderId - The ID of the order to create authorization credentials for.
+   * @return The created authorization credentials for the specified order within the organization.
+   * @throws An error if the organization ID or order ID is invalid, or if there is an issue with the API request.
+   */
   async createAuthorizationCredentials(
     organizationId: string,
     orderId: string,
@@ -624,6 +680,16 @@ export class OrganizationsTask extends TaskBase {
     });
   }
 
+  /**
+   * Get the details of an order by its ID for a specific organization. This will return information about the order,
+   * including the order status, items, total amount, and any associated invoice or subscription details.
+   * @param organizationId - The ID of the organization that the order belongs to.
+   * @param orderId - The ID of the order to retrieve.
+   * @param mode - (Optional) The mode to retrieve the order in, which can affect the level of detail or format of the
+   * returned order information.
+   * @return The details of the specified order for the organization.
+   * @throws An error if the organization ID or order ID is invalid, or if there is an issue with the API request.
+   */
   async getOrder(
     organizationId: string,
     orderId: string,
@@ -635,6 +701,21 @@ export class OrganizationsTask extends TaskBase {
     return await this.ordApi.getOrgOrder({ organizationId, orderId, mode });
   }
 
+  /**
+   * List the orders for a specific organization, with optional filtering by order status, date range, or associated
+   * subscription ID. This will return a paginated list of orders matching the specified criteria.
+   * @param organizationId - The ID of the organization to list orders for.
+   * @param filterStatus - (Optional) Filter orders by their status, such as "pending", "completed", "canceled", etc.
+   * @param filterStartDate - (Optional) Filter orders by a start date, to get orders created on or after this date.
+   * @param filterEndDate - (Optional) Filter orders by an end date, to get orders created on or before this date.
+   * @param filterSubscriptionId - (Optional) Filter orders by the associated subscription ID, to get orders related to a
+   * specific subscription.
+   * @param page - (Optional) The page number to retrieve for paginated results (default is 1).
+   * @return A paginated list of orders for the specified organization that match the provided filters. If no filters 
+   * are provided, all orders for the organization will be returned.
+   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the 
+   * API request.
+   */
   async listOrders(
     organizationId: string,
     filters: FilterListOrders,
@@ -644,24 +725,58 @@ export class OrganizationsTask extends TaskBase {
     return await this.ordApi.listOrgOrders({ organizationId, ...filters });
   }
 
+  /**
+   * Get the address details for a specific organization. This will return information about the organization's address,
+   * including fields such as street, city, state, postal code, and country.
+   * @param organizationId - The ID of the organization to get the address for.
+   * @return The address details for the specified organization.
+   * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
+   */
   async getAddress(organizationId: string): Promise<Address> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.profApi.getOrgAddress({ organizationId });
   }
 
+  /**
+   * Get the profile details for a specific organization. This will return information about the organization's profile,
+   * including fields such as name, description, contact information, and other relevant details.
+   * @param organizationId - The ID of the organization to get the profile for.
+   * @return The profile details for the specified organization.
+   * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
+   */
   async getProfile(organizationId: string): Promise<Profile> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.profApi.getOrgProfile({ organizationId });
   }
 
+  /**
+   * Update the address details for a specific organization. This will modify the organization's address information 
+   * based on the provided address object.
+   * @param organizationId - The ID of the organization to update the address for.
+   * @param address - The new address details to update for the organization, including fields such as street, city, 
+   * state, postal code, and country.
+   * @return The updated address details for the organization after the update is applied.
+   * @throws An error if the organization ID is invalid, if the address details are invalid, or if there is an issue 
+   * with the API request.
+   */
   async updateAddress(organizationId: string, address: Address): Promise<Address> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.profApi.updateOrgAddress({ organizationId, address });
   }
 
+  /**
+   * Update the profile details for a specific organization. This will modify the organization's profile information 
+   * based on the provided profile object.
+   * @param organizationId - The ID of the organization to update the profile for.
+   * @param profile - The new profile details to update for the organization, including fields such as name, 
+   * description, contact information, and other relevant details.
+   * @return The updated profile details for the organization after the update is applied.
+   * @throws An error if the organization ID is invalid, if the profile details are invalid, or if there is an issue
+   * with the API request.
+   */
   async updateProfile(organizationId: string, profile?: UpdateOrgProfileRequest): Promise<Profile> {
     TaskBase.checkOrganizationId(organizationId);
 
@@ -671,6 +786,17 @@ export class OrganizationsTask extends TaskBase {
     });
   }
 
+  /**
+   * List the plan records for a specific organization, with optional filtering by date range, record type, or 
+   * associated subscription ID. This will return a paginated list of plan records matching the specified criteria.
+   * @param organizationId - The ID of the organization to list plan records for.
+   * @param filters - Optional filters to apply to the list of plan records, such as filtering by date range, record 
+   * type, or associated subscription ID.
+   * @return A paginated list of plan records for the specified organization that match the provided filters. If no 
+   * filters are provided, all plan records for the organization will be returned.
+   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the 
+   * API request.
+   */
   async listRecords(
     organizationId: string,
     filters: FilterListPlanRecords,
@@ -680,6 +806,17 @@ export class OrganizationsTask extends TaskBase {
     return await this.recApi.listOrgPlanRecords({ organizationId, ...filters });
   }
 
+  /**
+   * List the usage records for a specific organization, with optional filtering by date range, usage type, or 
+   * associated subscription ID. This will return a paginated list of usage records matching the specified criteria.
+   * @param organizationId - The ID of the organization to list usage records for.
+   * @param filters - Optional filters to apply to the list of usage records, such as filtering by date range, usage 
+   * type, or associated subscription ID.
+   * @return A paginated list of usage records for the specified organization that match the provided filters. If no
+   * filters are provided, all usage records for the organization will be returned.
+   * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the 
+   * API request.
+   */
   async listUsageRecords(
     organizationId: string,
     filters: FilterListUsageRecords,
@@ -689,6 +826,16 @@ export class OrganizationsTask extends TaskBase {
     return await this.recApi.listOrgUsageRecords({ organizationId, ...filters });
   }
 
+  /**
+   * Apply a voucher code to an organization. This will attempt to apply the specified voucher code to the 
+   * organization's account, which may result in discounts, credits, or other benefits being applied to the 
+   * organization's subscription.
+   * @param organizationId - The ID of the organization to apply the voucher to.
+   * @param code - The voucher code to apply to the organization. This should be a valid voucher code that is eligible 
+   * for use.
+   * @throws An error if the organization ID is invalid, if the voucher code is invalid or ineligible, or if there is 
+   * an issue with the API request.
+   */
   async applyVoucher(organizationId: string, code: string): Promise<void> {
     TaskBase.checkOrganizationId(organizationId);
     TaskBase.checkVoucherCode(code);
@@ -699,18 +846,46 @@ export class OrganizationsTask extends TaskBase {
     });
   }
 
+  /**
+   * List the vouchers that have been applied to an organization. This will return a list of vouchers that are currently
+   * applied to the organization's account, along with details about each voucher such as the code, discount amount,
+   * expiration date, and any associated benefits or restrictions.
+   * @param organizationId - The ID of the organization to list vouchers for.
+   * @return A list of vouchers that have been applied to the specified organization, including details about each 
+   * voucher.
+   * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
+   */
   async listVouchers(organizationId: string): Promise<ListOrgSubscriptions200Response> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.vouchApi.listOrgVouchers({ organizationId });
   }
 
+  /**
+   * Get the add-ons that are currently enabled for a specific organization. This will return a list of add-ons that are
+   * currently active for the organization, along with details about each add-on such as its name, description, and any
+   * associated benefits or features that it provides to the organization.
+   * @param organizationId - The ID of the organization to get add-ons for.
+   * @return A list of add-ons that are currently enabled for the specified organization, including details about each
+   * add-on.
+   * @throws An error if the organization ID is invalid, or if there is an issue with the API request.
+   */
   async getAddons(organizationId: string): Promise<OrganizationAddonsObject> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.addOnsApi.getOrgAddons({ organizationId });
   }
 
+  /**
+   * Update the add-ons for a specific organization. This will modify the organization's enabled add-ons based on the
+   * provided add-ons object, which may include enabling new add-ons or disabling existing ones. The response will 
+   * return the updated list of add-ons that are currently enabled for the organization after the update is applied.
+   * @param organizationId - The ID of the organization to update add-ons for.
+   * @param addons - The add-ons details to update for the organization, including which add-ons to enable or disable.
+   * @return The updated list of add-ons that are currently enabled for the organization after the update is applied.
+   * @throws An error if the organization ID is invalid, if the add-ons details are invalid, or if there is an issue 
+   * with the API request.
+   */
   async updateAddons(
     organizationId: string,
     addons: UpdateOrgAddonsRequest,

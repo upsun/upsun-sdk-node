@@ -38,7 +38,6 @@ export class EnvironmentsTask extends TaskBase {
     private envApi: EnvironmentApi,
     private envTypeApi: EnvironmentTypeApi,
     private deployApi: DeploymentApi,
-    private autoscalingApi: AutoscalingApi,
   ) {
     super(client);
   }
@@ -231,7 +230,7 @@ export class EnvironmentsTask extends TaskBase {
     environmentId: string,
     profile: string,
     repository: string,
-    files: Array<FilesInner>,
+    files: FilesInner[],
     config?: string,
     init: Resources4InitEnum = Resources4InitEnum.DEFAULT,
   ): Promise<AcceptedResponse> {
@@ -279,7 +278,7 @@ export class EnvironmentsTask extends TaskBase {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
-    throw new Error('Not implemented');
+    throw new Error('Not implemented yet');
   }
 
   /**
@@ -867,10 +866,7 @@ export class EnvironmentsTask extends TaskBase {
   ): Promise<Deployment> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
-
-    if (!deploymentId) {
-      throw new Error('Deployment ID must be a non-empty string');
-    }
+    TaskBase.checkDeploymentId(deploymentId);
 
     return await this.deployApi.getProjectsEnvironmentsDeployments({
       projectId,
@@ -892,53 +888,5 @@ export class EnvironmentsTask extends TaskBase {
     TaskBase.checkEnvironmentId(environmentId);
 
     return await this.deployApi.listProjectsEnvironmentsDeployments({ projectId, environmentId });
-  }
-
-  /**
-   * Get the autoscaler settings for the environment. Autoscaling allows the environment to automatically scale its
-   * resources up or down based on the current load and traffic. The autoscaler settings include information about
-   * whether autoscaling is enabled, the addresses that are being autoscaled, and any authentication settings for the
-   * autoscaler services.
-   * @param projectId - The ID of the project.
-   * @param environmentId - The ID of the environment to get the autoscaler settings for.
-   * @return The autoscaler settings for the specified environment.
-   * @throws An error if the project ID or environment ID is invalid, or if there is an issue with the API request.
-   */
-  async getAutoscalerSettings(projectId: string, environmentId: string): Promise<AutoscalerSettings> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkEnvironmentId(environmentId);
-
-    return await this.autoscalingApi.getAutoscalerSettings({
-      projectId,
-      environmentId,
-    });
-  }
-
-  /**
-   * Update the autoscaler settings for the environment. Autoscaling allows the environment to automatically scale its
-   * resources up or down based on the current load and traffic. The autoscaler settings include information about
-   * whether autoscaling is enabled, the addresses that are being autoscaled, and any authentication settings for the
-   * autoscaler services. Updating the autoscaler settings will allow you to enable or disable autoscaling, change the
-   * addresses that are being autoscaled, and update the authentication settings for the autoscaler services.
-   * @param projectId - The ID of the project.
-   * @param environmentId - The ID of the environment to update the autoscaler settings for.
-   * @param params - The new autoscaler settings for the environment.
-   * @return The updated autoscaler settings for the environment.
-   * @throws An error if the project ID or environment ID is invalid, if the parameters are invalid, or if there is an
-   * issue with the API request.
-   */
-  async updateAutoscalerSettings(
-    projectId: string,
-    environmentId: string,
-    params: AutoscalerSettings
-  ): Promise<AutoscalerSettings> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkEnvironmentId(environmentId);
-
-    return await this.autoscalingApi.patchAutoscalerSettings({
-      projectId,
-      environmentId,
-      autoscalerSettings: params,
-    });
   }
 }

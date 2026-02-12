@@ -6,7 +6,6 @@ import { TaskBase } from './task_base.js';
 export class ApplicationsTask extends TaskBase {
   constructor(
     protected readonly client: UpsunClient,
-    private depApi: DeploymentApi,
   ) {
     super(client);
   }
@@ -55,6 +54,6 @@ export class ApplicationsTask extends TaskBase {
       'current',
     );
 
-    return currentDeployment.webapps;
+    return currentDeployment.webapps || {};
   }
 }

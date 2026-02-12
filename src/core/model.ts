@@ -7,7 +7,11 @@ import {
   ListOrgsRequest,
   ListOrgUsageRecordsRequest,
   ListProjectInvitesRequest,
+  ListProjectTeamAccessRequest,
+  ListTeamMembersRequest,
+  ListTeamProjectAccessRequest,
   ListUserOrgsRequest,
+  ListUserTeamsRequest,
 } from '../api';
 import {
   CertificateCreateInput,
@@ -34,3 +38,9 @@ export type FilterListOrgs = Omit<ListOrgsRequest, never>;
 export type IntegrationCreateData = Omit<IntegrationCreateInput, 'type'>;
 export type ProjectCreateRequest = Omit<CreateOrgSubscriptionRequest, 'projectRegion'>;
 export type FilterListOrgProjects = Omit<ListOrgProjectsRequest, 'organizationId'>;
+
+// used in TeamsTask
+export type FilterListTeamProjectAccess = Omit<ListTeamProjectAccessRequest, 'teamId'>;
+export type FilterListProjectTeamAccess = Omit<ListProjectTeamAccessRequest, 'projectId'>;
+export type FilterListUserTeams = Omit<ListUserTeamsRequest, 'userId'>;
+export type FilterListTeamMembers = Omit<ListTeamMembersRequest, 'teamId'>;

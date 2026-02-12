@@ -43,12 +43,8 @@ export class VariablesTask extends TaskBase {
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
 
-    if (!name) {
-      throw new Error('Variable name is required');
-    }
-    if (!value) {
-      throw new Error('Variable value is required');
-    }
+    if (!name) { throw new Error('Variable name is required'); }
+    if (!value) { throw new Error('Variable value is required'); }
 
     return await this.projVarApi.createProjectsVariables({
       projectId,
@@ -56,6 +52,15 @@ export class VariablesTask extends TaskBase {
     });
   }
 
+  /**
+   * Deletes a project variable by its ID. This method allows you to delete an existing variable from a project. Once 
+   * deleted, the variable will no longer be available for use in tasks and deployments within the project. 
+   * @param projectId The ID of the project from which the variable will be deleted.
+   * @param variableId The ID of the variable to delete. This should be a valid variable ID that exists within the 
+   * project.
+   * @throws An error if the project ID or variable ID is invalid, or if there is an issue with the API request to 
+   * delete the variable.
+   */
   async deleteProjectVariable(projectId: string, variableId: string): Promise<void> {
     TaskBase.checkProjectId(projectId);
     VariablesTask.checkVariableId(variableId);
@@ -85,12 +90,32 @@ export class VariablesTask extends TaskBase {
     });
   }
 
+  /**
+   * List all project variables for a given project.
+   * @param projectId The ID of the project to list variables for.
+   * @return An array of project variables associated with the specified project. 
+   * @throws An error if the project ID is invalid or if there is an issue with the API request to list the project 
+   * variables.
+   */
   async listProjectVariables(projectId: string): Promise<ProjectVariable[]> {
     TaskBase.checkProjectId(projectId);
 
     return await this.projVarApi.listProjectsVariables({ projectId: projectId });
   }
 
+  /**
+   * Updates a project variable by its ID. 
+   * @param projectId The ID of the project that the variable belongs to.
+   * @param variableId The ID of the variable to update. This should be a valid variable ID that exists within the 
+   * project.
+   * @param params Optional parameters for updating the variable, such as a new name, value, or sensitivity status. 
+   * If the variable is marked as sensitive, its value will not be returned in API responses for security reasons, but 
+   * it will be stored securely and can be used in tasks and deployments.
+   * @return A promise that resolves to an AcceptedResponse indicating that the variable update request has been 
+   * accepted.
+   * @throws An error if the project ID or variable ID is invalid, or if there is an issue with the API request to 
+   * update the variable.
+   */
   async updateProjectVariable(
     projectId: string,
     variableId: string,
@@ -106,6 +131,23 @@ export class VariablesTask extends TaskBase {
     });
   }
 
+  /**
+   * Creates a new environment variable for a specific environment within a project. 
+   * @param projectId The ID of the project that the environment belongs to.
+   * @param environmentId The ID of the environment that the variable will be associated with. This should be a valid 
+   * environment ID that exists within the project.
+   * @param name The name of the variable. It must be unique within the environment and should be prefixed with "env:" 
+   * to indicate that it is an environment variable.
+   * @param value The value of the variable. For sensitive variables, the value will not be returned in API responses 
+   * for security reasons, but it will be stored securely and can be used in tasks and deployments.
+   * @param params Optional additional parameters for creating the environment variable, such as whether it is sensitive 
+   * or not. If the variable is marked as sensitive, its value will not be returned in API responses for security 
+   * reasons, but it will be stored securely and can be used in tasks and deployments.
+   * @return A promise that resolves to an AcceptedResponse indicating that the environment variable creation request 
+   * has been accepted.
+   * @throws An error if the project ID, environment ID, variable name, or variable value is invalid, or if there is an
+   * issue with the API request to create the environment variable.
+   */
   async createEnvironmentVariable(
     projectId: string,
     environmentId: string,
@@ -116,12 +158,8 @@ export class VariablesTask extends TaskBase {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
-    if (!name) {
-      throw new Error('Variable name is required');
-    }
-    if (!value) {
-      throw new Error('Variable value is required');
-    }
+    if (!name) { throw new Error('Variable name is required'); }
+    if (!value) { throw new Error('Variable value is required'); }
 
     return await this.envVarApi.createProjectsEnvironmentsVariables({
       projectId: projectId,
@@ -130,6 +168,19 @@ export class VariablesTask extends TaskBase {
     });
   }
 
+  /**
+   * Deletes an environment variable by its ID. This method allows you to delete an existing variable from a specific 
+   * environment within a project. Once deleted, the variable will no longer be available for use in tasks and 
+   * deployments within that environment.
+   * @param projectId The ID of the project that the environment belongs to.
+   * @param environmentId The ID of the environment that the variable is associated with. 
+   * @param variableId The ID of the variable to delete. This should be a valid variable ID that exists within the
+   * environment.
+   * @returns A promise that resolves to an AcceptedResponse indicating that the environment variable deletion request 
+   * has been accepted.
+   * @throws An error if the project ID, environment ID, or variable ID is invalid, or if there is an issue with the API
+   * request to delete the environment variable.
+   */
   async deleteEnvironmentVariable(
     projectId: string,
     environmentId: string,
@@ -148,13 +199,14 @@ export class VariablesTask extends TaskBase {
 
   /**
    * Get an environment variable by its ID.
-   *
    * @param projectId
    * @param environmentId
    * @param variableId The ID of the variable to retrieve. Its name is prefixed with "env:" for environment variables
    *        (e.g., "env:MY_VARIABLE"). In case of a sensitive variable, the value will not be returned for security
    *        reasons.
-   * @returns
+   * @returns A promise that resolves to the requested EnvironmentVariable.
+   * @throws An error if the project ID, environment ID, or variable ID is invalid, or if there is an issue with the API
+   * request to retrieve the environment variable.
    */
   async getEnvironmentVariable(
     projectId: string,
@@ -172,6 +224,19 @@ export class VariablesTask extends TaskBase {
     });
   }
 
+  /**
+   * List all environment variables for a specific environment within a project. This method retrieves all variables 
+   * that are associated with the specified environment, allowing you to view and manage the environment variables that 
+   * are available for use in tasks and deployments within that environment.
+   * @param projectId The ID of the project that the environment belongs to.
+   * @param environmentId The ID of the environment to list variables for. This should be a valid environment ID that 
+   * exists within the project.
+   * @return An array of environment variables associated with the specified environment. Each variable in the array
+   * includes details such as the variable's name, value (if not sensitive), and other relevant information. If there 
+   * are no environment variables, an empty array is returned.
+   * @throws An error if the project ID or environment ID is invalid, or if there is an issue with the API request to 
+   * list environment variables.
+   */
   async listEnvironmentVariables(
     projectId: string,
     environmentId: string,
@@ -185,6 +250,27 @@ export class VariablesTask extends TaskBase {
     });
   }
 
+  /**
+   * Updates an environment variable by its ID. This method allows you to update the details of an existing variable for
+   * a specific environment within a project. You can update the variable's name, value, and other properties. If the 
+   * variable is marked as sensitive, its value will not be returned in API responses for security reasons, but it will 
+   * be stored securely and can be used in tasks and deployments.
+   * @param projectId The ID of the project that the environment belongs to.
+   * @param environmentId The ID of the environment that the variable is associated with.
+   * @param variableId The ID of the variable to update. This should be a valid variable ID that exists within the
+   * environment.
+   * @param name The new name of the variable. It must be unique within the environment and should be prefixed with 
+   * "env:" to indicate that it is an environment variable.
+   * @param value The new value of the variable. For sensitive variables, the value will not be returned in API 
+   * responses.
+   * @param params Optional additional parameters for updating the environment variable, such as sensitivity status. 
+   * If the variable is marked as sensitive, its value will not be returned in API responses for security reasons, 
+   * but it will be stored securely and can be used in tasks and deployments.
+   * @return A promise that resolves to an AcceptedResponse indicating that the environment variable update request has 
+   * been accepted.
+   * @throws An error if the project ID, environment ID, variable ID, variable name, or variable value is invalid, or 
+   * if there is an issue with the API request to update the environment variable.
+   */
   async updateEnvironmentVariable(
     projectId: string,
     environmentId: string,
@@ -197,12 +283,8 @@ export class VariablesTask extends TaskBase {
     TaskBase.checkEnvironmentId(environmentId);
     VariablesTask.checkVariableId(variableId);
 
-    if (!name) {
-      throw new Error('Variable name is required');
-    }
-    if (!value) {
-      throw new Error('Variable value is required');
-    }
+    if (!name) { throw new Error('Variable name is required'); }
+    if (!value) { throw new Error('Variable value is required'); }
 
     return await this.envVarApi.updateProjectsEnvironmentsVariables({
       projectId,
@@ -212,6 +294,12 @@ export class VariablesTask extends TaskBase {
     });
   }
 
+  /**
+   * Checks if the provided variable ID is valid. This method is used to validate that a variable ID is provided and is 
+   * in the correct format before making API requests that require a variable ID. If the variable ID is invalid, an 
+   * error is thrown to prevent making an API request with an invalid variable ID.
+   * @param variableId 
+   */
   static checkVariableId(variableId: string): void {
     if (!variableId) {
       throw new Error('Variable ID is required');

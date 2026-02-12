@@ -27,6 +27,7 @@ import {
   VariablesTask,
   WorkersTask,
 } from './core/index.js';
+import { IntegrationsTask } from './core/tasks/integrations.js';
 import { UsersInvitationsTask } from './core/tasks/users-invitations.js';
 import {
   AddOnsApi,
@@ -43,6 +44,7 @@ import {
   EnvironmentTypeApi,
   EnvironmentVariablesApi,
   GrantsApi,
+  Integrations,
   InvoicesApi,
   MfaApi,
   OrdersApi,
@@ -62,6 +64,7 @@ import {
   RoutingApi,
   RuntimeOperationsApi,
   SourceOperationsApi,
+  SshKeysApi,
   SubscriptionsApi,
   SystemInformationApi,
   TeamAccessApi,
@@ -128,6 +131,7 @@ export class UpsunClient {
   public certificates: CertificatesTask;
   public domains: DomainsTask;
   public environments: EnvironmentsTask;
+  public integrations: IntegrationsTask;
   public invitations: UsersInvitationsTask;
   public metrics: MetricsTask;
   public mounts: MountsTask;
@@ -177,6 +181,7 @@ export class UpsunClient {
 
     // Init API classes only once
     const addOnsApi = new AddOnsApi(this.apiConfig);
+    const autoscalingApi = new AutoscalingApi(this.apiConfig);
     const apiTokensApi = new ApiTokensApi(this.apiConfig);
     const certManagementApi = new CertManagementApi(this.apiConfig);
     const connectionsApi = new ConnectionsApi(this.apiConfig);
@@ -207,6 +212,7 @@ export class UpsunClient {
     const runtimeOperationsApi = new RuntimeOperationsApi(this.apiConfig);
     const sourceOperationsApi = new SourceOperationsApi(this.apiConfig);
     const subscriptionsApi = new SubscriptionsApi(this.apiConfig);
+    const sshKeysApi = new SshKeysApi(this.apiConfig);
     const systemInformationApi = new SystemInformationApi(this.apiConfig);
     const teamAccessApi = new TeamAccessApi(this.apiConfig);
     const teamsApi = new TeamsApi(this.apiConfig);
@@ -222,7 +228,7 @@ export class UpsunClient {
       new ProjectActivityApi(this.apiConfig),
       new EnvironmentActivityApi(this.apiConfig),
     );
-    this.applications = new ApplicationsTask(this, deploymentApi);
+    this.applications = new ApplicationsTask(this);
     this.backups = new BackupsTask(this, environmentBackupsApi);
     this.certificates = new CertificatesTask(this, certManagementApi);
     this.domains = new DomainsTask(this, domainManagementApi);
@@ -231,8 +237,8 @@ export class UpsunClient {
       environmentApi,
       environmentTypeApi,
       deploymentApi,
-      new AutoscalingApi(this.apiConfig),
     );
+    this.integrations = new IntegrationsTask(this, thirdPartyIntegrationsApi);
     this.invitations = new UsersInvitationsTask(
       this,
       organizationInvitationsApi,
@@ -260,15 +266,14 @@ export class UpsunClient {
       organizationProjectsApi,
       subscriptionsApi,
       projectSettingsApi,
-      deploymentTargetApi,
       repositoryApi,
       systemInformationApi,
-      thirdPartyIntegrationsApi,
     );
+    this.resources = new ResourcesTask(this, deploymentApi, autoscalingApi);    
     this.routes = new RoutesTask(this, routingApi);
-    this.services = new ServicesTask(this, deploymentApi);
+    this.services = new ServicesTask(this);
     this.sourceOperations = new SourceOperationsTask(this, sourceOperationsApi);
-    this.ssh = new SshTask(this);
+    this.ssh = new SshTask(this, sshKeysApi);
     this.teams = new TeamsTask(
       this,
       teamsApi,
@@ -290,9 +295,7 @@ export class UpsunClient {
       projectVariablesApi,
       environmentVariablesApi,
     );
-    this.workers = new WorkersTask(this, deploymentApi);
-
-    this.resources = new ResourcesTask(this, deploymentApi);
+    this.workers = new WorkersTask(this);
   }
 
   private createAuthRetryMiddleware(): Middleware {
