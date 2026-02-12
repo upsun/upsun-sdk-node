@@ -79,8 +79,14 @@ describe('DomainsTask', () => {
 
       mockDomainApi.createProjectsDomains.mockResolvedValue(mockDomain as any);
 
-      const attributes = { 'cdn': 'enabled' };
-      const result = await domainsTask.add('project-123', 'example.com', attributes, true, 'old-domain.com');
+      const attributes = { cdn: 'enabled' };
+      const result = await domainsTask.add(
+        'project-123',
+        'example.com',
+        attributes,
+        true,
+        'old-domain.com',
+      );
       expect(result).toBeDefined();
       expect(mockDomainApi.createProjectsDomains).toHaveBeenCalledWith({
         projectId: 'project-123',
@@ -125,14 +131,14 @@ describe('DomainsTask', () => {
 
       mockDomainApi.createProjectsEnvironmentsDomains.mockResolvedValue(mockDomain as any);
 
-      const attributes = { 'ssl': 'auto', 'cache': 'enabled' };
+      const attributes = { ssl: 'auto', cache: 'enabled' };
       const result = await domainsTask.add(
         'project-123',
         'env-example.com',
         attributes,
         true,
         'old-env-domain.com',
-        'env-456'
+        'env-456',
       );
       expect(result).toBeDefined();
       expect(mockDomainApi.createProjectsEnvironmentsDomains).toHaveBeenCalledWith({
@@ -308,9 +314,9 @@ describe('DomainsTask', () => {
 
       mockDomainApi.updateProjectsDomains.mockResolvedValue(mockActivity as any);
 
-      const attributes = { 'cdn': 'enabled' };
+      const attributes = { cdn: 'enabled' };
       const result = await domainsTask.update('project-123', 'domain-456', attributes, true);
-      
+
       expect(result).toBeDefined();
       expect(result).toEqual(mockActivity);
       expect(mockDomainApi.updateProjectsDomains).toHaveBeenCalledWith({
@@ -331,9 +337,15 @@ describe('DomainsTask', () => {
 
       mockDomainApi.updateProjectsEnvironmentsDomains.mockResolvedValue(mockActivity as any);
 
-      const attributes = { 'ssl': 'auto' };
-      const result = await domainsTask.update('project-123', 'domain-456', attributes, false, 'env-789');
-      
+      const attributes = { ssl: 'auto' };
+      const result = await domainsTask.update(
+        'project-123',
+        'domain-456',
+        attributes,
+        false,
+        'env-789',
+      );
+
       expect(result).toBeDefined();
       expect(result).toEqual(mockActivity);
       expect(mockDomainApi.updateProjectsEnvironmentsDomains).toHaveBeenCalledWith({
@@ -356,7 +368,7 @@ describe('DomainsTask', () => {
       mockDomainApi.updateProjectsDomains.mockResolvedValue(mockActivity as any);
 
       const result = await domainsTask.update('project-123', 'domain-456');
-      
+
       expect(result).toBeDefined();
       expect(mockDomainApi.updateProjectsDomains).toHaveBeenCalledWith({
         projectId: 'project-123',
@@ -376,5 +388,4 @@ describe('DomainsTask', () => {
       );
     });
   });
-
 });

@@ -1,4 +1,6 @@
 import { SourceOperationsApi } from '../../api/SourceOperationsApi.js';
+import { AcceptedResponse } from '../../model/AcceptedResponse.js';
+import { EnvironmentSourceOperationCollection } from '../../model/EnvironmentSourceOperationCollection.js';
 import { EnvironmentSourceOperationInput } from '../../model/EnvironmentSourceOperationInput.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
@@ -11,7 +13,7 @@ export class SourceOperationsTask extends TaskBase {
     super(client);
   }
 
-  async list(projectId: string, environmentId: string): Promise<{[key: string]: any}> {
+  async list(projectId: string, environmentId: string): Promise<EnvironmentSourceOperationCollection> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
@@ -21,10 +23,14 @@ export class SourceOperationsTask extends TaskBase {
     });
   }
 
-  async get(projectId: string, environmentId: string, params: EnvironmentSourceOperationInput): Promise<any> {
+  async get(
+    projectId: string,
+    environmentId: string,
+    params: EnvironmentSourceOperationInput,
+  ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
-    
+
     return await this.sourceOperationsApi.runSourceOperation({
       projectId,
       environmentId,

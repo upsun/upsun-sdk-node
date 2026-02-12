@@ -224,12 +224,14 @@ describe('CertificatesTask', () => {
     });
 
     it('should handle update errors', async () => {
-      mockCertApi.updateProjectsCertificates = jest.fn().mockRejectedValue(new Error('Update failed'));
+      mockCertApi.updateProjectsCertificates = jest
+        .fn()
+        .mockRejectedValue(new Error('Update failed'));
       const chain = ['-----BEGIN CERTIFICATE-----\nchain\n-----END CERTIFICATE-----'];
       const isInvalid = false;
-      await expect(certificatesTask.update('project-123', 'cert-456', chain, isInvalid)).rejects.toThrow('Update failed');
+      await expect(
+        certificatesTask.update('project-123', 'cert-456', chain, isInvalid),
+      ).rejects.toThrow('Update failed');
     });
   });
-
-  
 });

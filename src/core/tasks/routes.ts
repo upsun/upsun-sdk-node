@@ -4,7 +4,6 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class RoutesTask extends TaskBase {
-  
   constructor(
     protected readonly client: UpsunClient,
     private rteApi: RoutingApi,
@@ -27,7 +26,7 @@ export class RoutesTask extends TaskBase {
   async list(projectId: string, env_name: string): Promise<RouteCollection> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(env_name);
-    
+
     return await this.rteApi.listProjectsEnvironmentsRoutes({ projectId, environmentId: env_name });
   }
 

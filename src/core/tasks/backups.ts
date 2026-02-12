@@ -4,16 +4,18 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class BackupsTask extends TaskBase {
-  
-  constructor(protected readonly client: UpsunClient, private bckApi: EnvironmentBackupsApi) {
+  constructor(
+    protected readonly client: UpsunClient,
+    private bckApi: EnvironmentBackupsApi,
+  ) {
     super(client);
   }
 
   /**
-   * Create a backup for an environment. 
-   * By default, the backup will be created as a "safe" backup, which means that the backup process will attempt to 
-   * minimize the impact on the environment's performance and availability. 
-   * If set to false ("Live backup"), this leaves the environment running and open to connections during the backup. 
+   * Create a backup for an environment.
+   * By default, the backup will be created as a "safe" backup, which means that the backup process will attempt to
+   * minimize the impact on the environment's performance and availability.
+   * If set to false ("Live backup"), this leaves the environment running and open to connections during the backup.
    * This reduces downtime, at the risk of backing up data in an inconsistent state.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
@@ -28,12 +30,16 @@ export class BackupsTask extends TaskBase {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
-    return await this.bckApi.backupEnvironment({projectId, environmentId, environmentBackupInput: { safe: isSafe }});
+    return await this.bckApi.backupEnvironment({
+      projectId,
+      environmentId,
+      environmentBackupInput: { safe: isSafe },
+    });
   }
 
   /**
    * Delete a backup for an environment. The API will return a 202 Accepted response if the deletion request has been
-   * accepted and is being processed. However, the client should check the backup's details to confirm whether the 
+   * accepted and is being processed. However, the client should check the backup's details to confirm whether the
    * deletion was successful or not.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
@@ -49,7 +55,11 @@ export class BackupsTask extends TaskBase {
     TaskBase.checkEnvironmentId(environmentId);
     TaskBase.checkBackupId(backupId);
 
-    return await this.bckApi.deleteProjectsEnvironmentsBackups({projectId, environmentId, backupId});
+    return await this.bckApi.deleteProjectsEnvironmentsBackups({
+      projectId,
+      environmentId,
+      backupId,
+    });
   }
 
   /**
@@ -68,7 +78,7 @@ export class BackupsTask extends TaskBase {
   }
 
   /**
-   * List the backups for an environment. The returned list is ordered by creation date, with the most recent backup 
+   * List the backups for an environment. The returned list is ordered by creation date, with the most recent backup
    * appearing first in the list.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
@@ -82,21 +92,21 @@ export class BackupsTask extends TaskBase {
   }
 
   /**
-   * Restore an environment from a backup. The API will return a 202 Accepted response if the restoration request has 
-   * been accepted and is being processed. However, the client should check the activity's details to confirm whether 
+   * Restore an environment from a backup. The API will return a 202 Accepted response if the restoration request has
+   * been accepted and is being processed. However, the client should check the activity's details to confirm whether
    * the restoration was successful or not.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
    * @param backupId - The ID of the backup to restore from.
    * @param restoreCode - Whether to restore the code (default: true).
    * @param restoreResources - Whether to restore the resources (default: true).
-   * @param environmentName - (Optional) The name for the new environment that will be created as part of the 
+   * @param environmentName - (Optional) The name for the new environment that will be created as part of the
    *        restoration. If not provided, the restored environment will keep the same name as before.
-   * @param branchFrom - (Optional) The name of an existing branch to use as the source for the restored environment's 
-   *        code. This is only applicable if `restoreCode` is set to true. If not provided, the restored environment 
+   * @param branchFrom - (Optional) The name of an existing branch to use as the source for the restored environment's
+   *        code. This is only applicable if `restoreCode` is set to true. If not provided, the restored environment
    *        will use the code from the backup.
-   * @param init - (Optional) The initialization resources strategy in the restored environment. This is only 
-   *        applicable if `restoreResources` is set to true. If not provided, it defaults to 
+   * @param init - (Optional) The initialization resources strategy in the restored environment. This is only
+   *        applicable if `restoreResources` is set to true. If not provided, it defaults to
    *        `Resources6InitEnum.DEFAULT`.
    * @returns An AcceptedResponse indicating that the environment restoration request has been accepted.
    */
@@ -123,7 +133,7 @@ export class BackupsTask extends TaskBase {
         restoreResources,
         environmentName: environmentName || null,
         branchFrom: branchFrom || null,
-        resources: {init: init},
+        resources: { init: init },
       },
     });
   }

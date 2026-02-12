@@ -40,9 +40,9 @@ describe('VariablesTask', () => {
     (ProjectVariablesApi as jest.MockedClass<typeof ProjectVariablesApi>).mockImplementation(
       () => mockProjVarApi,
     );
-    (EnvironmentVariablesApi as jest.MockedClass<typeof EnvironmentVariablesApi>).mockImplementation(
-      () => mockEnvVarApi,
-    );
+    (
+      EnvironmentVariablesApi as jest.MockedClass<typeof EnvironmentVariablesApi>
+    ).mockImplementation(() => mockEnvVarApi);
 
     mockClient = {
       apiConfig: {
@@ -66,21 +66,21 @@ describe('VariablesTask', () => {
 
   describe('createProjectVariable', () => {
     it('should require projectId', async () => {
-      await expect(
-        variablesTask.createProjectVariable('', 'NAME', 'VALUE'),
-      ).rejects.toThrow('Project ID is required');
+      await expect(variablesTask.createProjectVariable('', 'NAME', 'VALUE')).rejects.toThrow(
+        'Project ID is required',
+      );
     });
 
     it('should require name', async () => {
-      await expect(
-        variablesTask.createProjectVariable('prj-1', '', 'VALUE'),
-      ).rejects.toThrow('Variable name is required');
+      await expect(variablesTask.createProjectVariable('prj-1', '', 'VALUE')).rejects.toThrow(
+        'Variable name is required',
+      );
     });
 
     it('should require value', async () => {
-      await expect(
-        variablesTask.createProjectVariable('prj-1', 'NAME', ''),
-      ).rejects.toThrow('Variable value is required');
+      await expect(variablesTask.createProjectVariable('prj-1', 'NAME', '')).rejects.toThrow(
+        'Variable value is required',
+      );
     });
 
     it('should call api with create payload', async () => {
@@ -118,9 +118,9 @@ describe('VariablesTask', () => {
 
   describe('deleteProjectVariable', () => {
     it('should require variableId', async () => {
-      await expect(
-        variablesTask.deleteProjectVariable('prj-1', ''),
-      ).rejects.toThrow('Variable ID is required');
+      await expect(variablesTask.deleteProjectVariable('prj-1', '')).rejects.toThrow(
+        'Variable ID is required',
+      );
     });
 
     it('should call api with delete payload', async () => {
@@ -134,9 +134,9 @@ describe('VariablesTask', () => {
 
   describe('getProjectVariable', () => {
     it('should require variableId', async () => {
-      await expect(
-        variablesTask.getProjectVariable('prj-1', ''),
-      ).rejects.toThrow('Variable ID is required');
+      await expect(variablesTask.getProjectVariable('prj-1', '')).rejects.toThrow(
+        'Variable ID is required',
+      );
     });
 
     it('should call api with get payload', async () => {
@@ -167,9 +167,9 @@ describe('VariablesTask', () => {
 
   describe('updateProjectVariable', () => {
     it('should require variableId', async () => {
-      await expect(
-        variablesTask.updateProjectVariable('prj-1', ''),
-      ).rejects.toThrow('Variable ID is required');
+      await expect(variablesTask.updateProjectVariable('prj-1', '')).rejects.toThrow(
+        'Variable ID is required',
+      );
     });
 
     it('should call api with update payload', async () => {
@@ -269,9 +269,9 @@ describe('VariablesTask', () => {
 
   describe('deleteEnvironmentVariable', () => {
     it('should require variableId', async () => {
-      await expect(
-        variablesTask.deleteEnvironmentVariable('prj-1', 'env-1', ''),
-      ).rejects.toThrow('Variable ID is required');
+      await expect(variablesTask.deleteEnvironmentVariable('prj-1', 'env-1', '')).rejects.toThrow(
+        'Variable ID is required',
+      );
     });
 
     it('should call api with delete payload', async () => {
@@ -286,9 +286,9 @@ describe('VariablesTask', () => {
 
   describe('getEnvironmentVariable', () => {
     it('should require variableId', async () => {
-      await expect(
-        variablesTask.getEnvironmentVariable('prj-1', 'env-1', ''),
-      ).rejects.toThrow('Variable ID is required');
+      await expect(variablesTask.getEnvironmentVariable('prj-1', 'env-1', '')).rejects.toThrow(
+        'Variable ID is required',
+      );
     });
 
     it('should call api with get payload', async () => {

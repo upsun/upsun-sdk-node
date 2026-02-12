@@ -1,6 +1,9 @@
 /* eslint-disable no-console */
 import { exit } from 'process';
-import { DedicatedDeploymentTargetCreateInputTypeEnum, SubscriptionStatusEnum } from './model/index.js';
+import {
+  DedicatedDeploymentTargetCreateInputTypeEnum,
+  SubscriptionStatusEnum,
+} from './model/index.js';
 import { UpsunClient, UpsunConfig } from './upsun.js';
 import dotenv from 'dotenv';
 import { ResponseError } from './index.js';
@@ -36,18 +39,23 @@ if (MODE_USE === 'API') {
 
 const me = await upsun.users.me();
 
-const list = await upsun.users.listExtendedAccess(me.id);
+const list = await upsun.users.listExtendedUserProjectAccess(me.id);
 
-exit; 
+exit();
 const variable = await upsun.projects.getVariable('irkw4aj7kw7lc', 'env:GITHUB_PRIVATE_KEY');
 
 const listgitBlob = await upsun.projects.listGitRefs(projectTestId);
-const gitBlob = await upsun.projects.getGitCommit(projectTestId, 'b2f80de1bfdd9412bb4927477d67a7ec94415240');
-const gitTree = await upsun.projects.getGitTree(projectTestId, '61b1cc5bf48ef000b165b48ccf88394615af2855');
+const gitBlob = await upsun.projects.getGitCommit(
+  projectTestId,
+  'b2f80de1bfdd9412bb4927477d67a7ec94415240',
+);
+const gitTree = await upsun.projects.getGitTree(
+  projectTestId,
+  '61b1cc5bf48ef000b165b48ccf88394615af2855',
+);
 console.log(gitBlob);
 
-
-console.log('--- it\'s me ---');
+console.log("--- it's me ---");
 // const me = await upsun.user.me();
 // console.log(me);
 
@@ -55,7 +63,6 @@ console.log('--- List Organizations ---');
 //const accessToken = await upsun.getToken();
 //console.log('Access Token:', accessToken);
 // console.log(orgs);
-
 
 // console.log(org);
 
@@ -73,12 +80,10 @@ console.log('--- Delete Project ---');
 
 if (FULL_TEST) {
   try {
-    const orgs = await upsun.organizations.list(
-      {
-        filterName: {'eq': 'florent-huck'}, // Replace with your organization name (ex: 'perso-home')
-        filterCapabilities: {'eq': 'project-create'}, // Filter organizations where the user has the 'project-create' capability
-      }
-    );
+    const orgs = await upsun.organizations.list({
+      filterName: { eq: 'florent-huck' }, // Replace with your organization name (ex: 'perso-home')
+      filterCapabilities: { eq: 'project-create' }, // Filter organizations where the user has the 'project-create' capability
+    });
 
     const orgName = 'florent-huck'; // Replace with your organization name (ex: 'perso-home')
     const org = orgs.items?.find(p => p.name === orgName) ?? null;
@@ -86,9 +91,9 @@ if (FULL_TEST) {
       // Create Project
       // console.log('--- Create Project ---');
       // const subCreated = await upsun.projects.create(
-      //   org?.id, 
-      //   'eu-5.platform.sh', 
-      //   'Demo test from sdk-node '+new Date().toISOString(), 
+      //   org?.id,
+      //   'eu-5.platform.sh',
+      //   'Demo test from sdk-node '+new Date().toISOString(),
       //   'upsun/flexible',
       //   'main'
       // );
@@ -134,31 +139,37 @@ if (FULL_TEST) {
         const envName = 'main'; // Replace with your environment name
 
         console.log('--- Get Resources ---');
-        const res = await upsun.resources.get(prj.id, prj.defaultBranch || 'main', 'workers', 'app--app-worker');
+        const res = await upsun.resources.get(
+          prj.id,
+          prj.defaultBranch || 'main',
+          'workers',
+          'app--app-worker',
+        );
         console.log(res);
 
         console.log('--- Set Resources ---');
         const response = await upsun.resources.set(
           prj.id || '',
           prj.defaultBranch || 'main',
-          { 'app': { 
+          {
+            app: {
               resources: { profileSize: '1' },
               disk: 1024,
               instanceCount: 2,
-            }
+            },
           },
           {
-            'mysql': { 
+            mysql: {
               resources: { profileSize: '1' },
               disk: 2048,
-            }
+            },
           },
           {
-            'app--app-worker': { 
+            'app--app-worker': {
               resources: { profileSize: '1' },
               instanceCount: 2,
-            }
-          }
+            },
+          },
         );
 
         // Get console URL
@@ -190,7 +201,7 @@ if (FULL_TEST) {
   } catch (error) {
     console.error(error);
   } finally {
-    if(FULL_TEST){
+    if (FULL_TEST) {
       console.log('--- Cleanup: Delete Project ---');
       try {
         // await upsun.projects.delete(prjCreatedObject?.id || '');

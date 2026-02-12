@@ -3,14 +3,13 @@ import {
   AcceptedResponse,
   Certificate,
   CertificateCollection,
-  CertificatePatch
+  CertificatePatch,
 } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { CertificateCreateParams } from '../model.js';
 import { TaskBase } from './task_base.js';
 
 export class CertificatesTask extends TaskBase {
-  
   constructor(
     protected readonly client: UpsunClient,
     private certApi: CertManagementApi,
@@ -19,8 +18,8 @@ export class CertificatesTask extends TaskBase {
   }
 
   /**
-   * Add a certificate to a project. The API will return a 202 Accepted response if the certificate creation request has 
-   * been accepted and is being processed. However, the client should check the certificate's details to confirm whether 
+   * Add a certificate to a project. The API will return a 202 Accepted response if the certificate creation request has
+   * been accepted and is being processed. However, the client should check the certificate's details to confirm whether
    * the creation was successful or not.
    * @param projectId - The ID of the project.
    * @param certificate - The certificate to add, in PEM format.
@@ -33,23 +32,23 @@ export class CertificatesTask extends TaskBase {
     projectId: string,
     certificate: string,
     key: string,
-    params?: CertificateCreateParams
+    params?: CertificateCreateParams,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
-    
+
     if (!certificate || !key) {
       throw new Error('Certificate and key are required');
     }
 
     return await this.certApi.createProjectsCertificates({
       projectId,
-      certificateCreateInput: {certificate, key, ...params},
+      certificateCreateInput: { certificate, key, ...params },
     });
   }
 
   /**
    * Delete a certificate from a project. The API will return a 202 Accepted response if the deletion request has been
-   * accepted and is being processed. However, the client should check the certificate's details to confirm whether the 
+   * accepted and is being processed. However, the client should check the certificate's details to confirm whether the
    * deletion was successful or not.
    * @param projectId - The ID of the project.
    * @param certificateId - The ID of the certificate to delete.
@@ -68,7 +67,7 @@ export class CertificatesTask extends TaskBase {
    * @param projectId - The ID of the project.
    * @param certificateId - The ID of the certificate to retrieve.
    * @returns The details of the specified certificate.
-   * @throws An error if the project ID or certificate ID is invalid, or if there is an issue retrieving the 
+   * @throws An error if the project ID or certificate ID is invalid, or if there is an issue retrieving the
    * certificate details.
    */
   async get(projectId: string, certificateId: string): Promise<Certificate> {
@@ -91,7 +90,7 @@ export class CertificatesTask extends TaskBase {
   }
 
   /**
-   * Update a certificate for a project. The API will return a 202 Accepted response if the update request has been 
+   * Update a certificate for a project. The API will return a 202 Accepted response if the update request has been
    * accepted and is being processed.
    * @param projectId - The ID of the project.
    * @param certificateId - The ID of the certificate to update.
@@ -100,13 +99,17 @@ export class CertificatesTask extends TaskBase {
    * @throws An error if the project ID or certificate ID is invalid.
    */
   async update(
-    projectId: string, 
-    certificateId: string, 
-    params?: CertificatePatch
+    projectId: string,
+    certificateId: string,
+    params?: CertificatePatch,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkCertificateId(certificateId);
 
-    return await this.certApi.updateProjectsCertificates({projectId,certificateId,certificatePatch: params || {}});
+    return await this.certApi.updateProjectsCertificates({
+      projectId,
+      certificateId,
+      certificatePatch: params || {},
+    });
   }
 }

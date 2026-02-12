@@ -4,7 +4,6 @@ import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 export class ActivitiesTask extends TaskBase {
-
   constructor(
     protected readonly client: UpsunClient,
     private prjActApi: ProjectActivityApi,
@@ -14,16 +13,20 @@ export class ActivitiesTask extends TaskBase {
   }
 
   /**
-   * Cancel an activity for a project or environment. The API will return a 202 Accepted response if the cancellation 
-   * request has been accepted, but the client should check the activity's details to confirm whether the cancellation 
+   * Cancel an activity for a project or environment. The API will return a 202 Accepted response if the cancellation
+   * request has been accepted, but the client should check the activity's details to confirm whether the cancellation
    * was successful or not.
-   * 
+   *
    * @param projectId - The ID of the project.
    * @param activityId - The ID of the activity to cancel.
    * @param environmentId - (Optional) The ID of the environment. If not provided, the activity is assumed to be a project-level activity.
    * @returns An AcceptedResponse indicating that the cancellation request has been accepted.
    */
-  async cancel( projectId: string, activityId: string, environmentId?: string ): Promise<AcceptedResponse> {
+  async cancel(
+    projectId: string,
+    activityId: string,
+    environmentId?: string,
+  ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkActivityId(activityId);
 
@@ -31,7 +34,11 @@ export class ActivitiesTask extends TaskBase {
       return await this.prjActApi.actionProjectsActivitiesCancel({ projectId, activityId });
     } else {
       TaskBase.checkEnvironmentId(environmentId);
-      return await this.envActApi.actionProjectsEnvironmentsActivitiesCancel({ projectId, environmentId, activityId });
+      return await this.envActApi.actionProjectsEnvironmentsActivitiesCancel({
+        projectId,
+        environmentId,
+        activityId,
+      });
     }
   }
 
@@ -50,7 +57,11 @@ export class ActivitiesTask extends TaskBase {
       return await this.prjActApi.getProjectsActivities({ projectId, activityId });
     } else {
       TaskBase.checkEnvironmentId(environmentId);
-      return await this.envActApi.getProjectsEnvironmentsActivities({ projectId, environmentId, activityId });
+      return await this.envActApi.getProjectsEnvironmentsActivities({
+        projectId,
+        environmentId,
+        activityId,
+      });
     }
   }
 
@@ -72,9 +83,9 @@ export class ActivitiesTask extends TaskBase {
   }
 
   /**
-   * Get the log output for an activity. 
-   * @todo clarify this message as the activity.logs contains "Log for this activity is available in the streaming 
-   * logs endpoint" 
+   * Get the log output for an activity.
+   * @todo clarify this message as the activity.logs contains "Log for this activity is available in the streaming
+   * logs endpoint"
    * @see https://linear.app/platformsh/issue/GIT-826/document-git-activity-log-endpoint-in-api-specs
    * @param projectId - The ID of the project.
    * @param activityId - The ID of the activity to retrieve logs for.
@@ -84,6 +95,6 @@ export class ActivitiesTask extends TaskBase {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkActivityId(activityId);
 
-    throw new Error('Not implemented, prefere use get() (contains log)'); 
+    throw new Error('Not implemented, prefere use get() (contains log)');
   }
 }

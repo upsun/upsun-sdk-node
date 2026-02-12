@@ -186,15 +186,15 @@ describe('EnvironmentsTask', () => {
     });
 
     it('should throw error if title is empty', async () => {
-      await expect(
-        environmentTask.branch('project-123', 'main', '', 'my-env'),
-      ).rejects.toThrow('Title must be a non-empty string');
+      await expect(environmentTask.branch('project-123', 'main', '', 'my-env')).rejects.toThrow(
+        'Title must be a non-empty string',
+      );
     });
 
     it('should throw error if name is empty', async () => {
-      await expect(
-        environmentTask.branch('project-123', 'main', 'My Title', ''),
-      ).rejects.toThrow('Name must be a non-empty string');
+      await expect(environmentTask.branch('project-123', 'main', 'My Title', '')).rejects.toThrow(
+        'Name must be a non-empty string',
+      );
     });
   });
 
@@ -530,10 +530,7 @@ describe('EnvironmentsTask', () => {
       mockVariables.listEnvironmentVariables.mockResolvedValue(response);
       const result = await environmentTask.listVariables('project-123', 'main');
       expect(result).toBe(response);
-      expect(mockVariables.listEnvironmentVariables).toHaveBeenCalledWith(
-        'project-123',
-        'main',
-      );
+      expect(mockVariables.listEnvironmentVariables).toHaveBeenCalledWith('project-123', 'main');
     });
 
     it('should update environment variable via client', async () => {
@@ -589,9 +586,9 @@ describe('EnvironmentsTask', () => {
 
   describe('domains passthrough', () => {
     it('should require domain name on create', async () => {
-      await expect(
-        environmentTask.createDomain('project-123', 'main', ''),
-      ).rejects.toThrow('Domain name must be a non-empty string');
+      await expect(environmentTask.createDomain('project-123', 'main', '')).rejects.toThrow(
+        'Domain name must be a non-empty string',
+      );
     });
 
     it('should create domain via client', async () => {
@@ -661,9 +658,9 @@ describe('EnvironmentsTask', () => {
 
   describe('deployments', () => {
     it('should require deploymentId', async () => {
-      await expect(
-        environmentTask.getDeployment('project-123', 'main', ''),
-      ).rejects.toThrow('Deployment ID must be a non-empty string');
+      await expect(environmentTask.getDeployment('project-123', 'main', '')).rejects.toThrow(
+        'Deployment ID must be a non-empty string',
+      );
     });
 
     it('should get deployment via API', async () => {

@@ -123,7 +123,7 @@ export abstract class TaskBase {
     }
   }
 
- static checkIntegrationId(integrationId: string): void {
+  static checkIntegrationId(integrationId: string): void {
     if (!integrationId) {
       throw new Error('Integration ID is required');
     }
@@ -146,7 +146,7 @@ export abstract class TaskBase {
       throw new Error('Email is required');
     }
 
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       throw new Error('Invalid email format');
     }
   }

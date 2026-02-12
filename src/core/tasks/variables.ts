@@ -1,15 +1,24 @@
 import { ProjectVariablesApi } from '../../api/ProjectVariablesApi.js';
-import { AcceptedResponse, EnvironmentVariableCreateInput, EnvironmentVariablesApi, ProjectVariable, ProjectVariableCreateInput, ProjectVariablePatch } from '../../index.js';
+import {
+  AcceptedResponse,
+  EnvironmentVariableCreateInput,
+  EnvironmentVariablesApi,
+  ProjectVariable,
+  ProjectVariableCreateInput,
+  ProjectVariablePatch,
+} from '../../index.js';
 import { EnvironmentVariable } from '../../model/EnvironmentVariable.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 
 // Type creation for request parameters that omit required fields from the original input types
 export type ProjectVariableCreateParams = Omit<ProjectVariableCreateInput, 'name' | 'value'>;
-export type EnvironmentVariableCreateParams = Omit<EnvironmentVariableCreateInput, 'name' | 'value'>;
+export type EnvironmentVariableCreateParams = Omit<
+  EnvironmentVariableCreateInput,
+  'name' | 'value'
+>;
 
 export class VariablesTask extends TaskBase {
-  
   constructor(
     protected readonly client: UpsunClient,
     private projVarApi: ProjectVariablesApi,
@@ -27,19 +36,23 @@ export class VariablesTask extends TaskBase {
    * @return A promise that resolves to an AcceptedResponse indicating that the variable creation request has been accepted. The actual creation of the variable may take some time, and you can check the status of the operation using the returned response.
    */
   async createProjectVariable(
-    projectId: string, 
+    projectId: string,
     name: string,
     value: string,
-    params?: ProjectVariableCreateParams
+    params?: ProjectVariableCreateParams,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
 
-    if (!name) { throw new Error('Variable name is required'); }
-    if (!value) { throw new Error('Variable value is required'); }
-    
+    if (!name) {
+      throw new Error('Variable name is required');
+    }
+    if (!value) {
+      throw new Error('Variable value is required');
+    }
+
     return await this.projVarApi.createProjectsVariables({
       projectId,
-      projectVariableCreateInput: {name, value, ...params},
+      projectVariableCreateInput: { name, value, ...params },
     });
   }
 
@@ -55,10 +68,10 @@ export class VariablesTask extends TaskBase {
 
   /**
    * Get a project variable by its ID.
-   * 
-   * @param projectId 
-   * @param variableId The ID of the variable to retrieve. Its name is prefixed with "env:" for environment variables 
-   *        (e.g., "env:MY_VARIABLE"). In case of a sensitive variable, the value will not be returned for security 
+   *
+   * @param projectId
+   * @param variableId The ID of the variable to retrieve. Its name is prefixed with "env:" for environment variables
+   *        (e.g., "env:MY_VARIABLE"). In case of a sensitive variable, the value will not be returned for security
    *        reasons.
    * @returns
    */
@@ -79,9 +92,9 @@ export class VariablesTask extends TaskBase {
   }
 
   async updateProjectVariable(
-    projectId: string, 
-    variableId: string, 
-    params?: ProjectVariablePatch
+    projectId: string,
+    variableId: string,
+    params?: ProjectVariablePatch,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     VariablesTask.checkVariableId(variableId);
@@ -94,8 +107,8 @@ export class VariablesTask extends TaskBase {
   }
 
   async createEnvironmentVariable(
-    projectId: string, 
-    environmentId: string, 
+    projectId: string,
+    environmentId: string,
     name: string,
     value: string,
     params?: EnvironmentVariableCreateParams,
@@ -103,17 +116,25 @@ export class VariablesTask extends TaskBase {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
-    if (!name) { throw new Error('Variable name is required'); }
-    if (!value) { throw new Error('Variable value is required'); }
+    if (!name) {
+      throw new Error('Variable name is required');
+    }
+    if (!value) {
+      throw new Error('Variable value is required');
+    }
 
     return await this.envVarApi.createProjectsEnvironmentsVariables({
       projectId: projectId,
       environmentId: environmentId,
-      environmentVariableCreateInput: {name, value, ...params},
+      environmentVariableCreateInput: { name, value, ...params },
     });
   }
 
-  async deleteEnvironmentVariable(projectId: string, environmentId: string, variableId: string): Promise<AcceptedResponse> {
+  async deleteEnvironmentVariable(
+    projectId: string,
+    environmentId: string,
+    variableId: string,
+  ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
     VariablesTask.checkVariableId(variableId);
@@ -127,15 +148,19 @@ export class VariablesTask extends TaskBase {
 
   /**
    * Get an environment variable by its ID.
-   * 
-   * @param projectId 
-   * @param environmentId 
-   * @param variableId The ID of the variable to retrieve. Its name is prefixed with "env:" for environment variables 
-   *        (e.g., "env:MY_VARIABLE"). In case of a sensitive variable, the value will not be returned for security 
+   *
+   * @param projectId
+   * @param environmentId
+   * @param variableId The ID of the variable to retrieve. Its name is prefixed with "env:" for environment variables
+   *        (e.g., "env:MY_VARIABLE"). In case of a sensitive variable, the value will not be returned for security
    *        reasons.
-   * @returns 
+   * @returns
    */
-  async getEnvironmentVariable(projectId: string, environmentId: string, variableId: string): Promise<EnvironmentVariable> {
+  async getEnvironmentVariable(
+    projectId: string,
+    environmentId: string,
+    variableId: string,
+  ): Promise<EnvironmentVariable> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
     VariablesTask.checkVariableId(variableId);
@@ -147,7 +172,10 @@ export class VariablesTask extends TaskBase {
     });
   }
 
-  async listEnvironmentVariables(projectId: string, environmentId: string): Promise<EnvironmentVariable[]> {
+  async listEnvironmentVariables(
+    projectId: string,
+    environmentId: string,
+  ): Promise<EnvironmentVariable[]> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
@@ -158,9 +186,9 @@ export class VariablesTask extends TaskBase {
   }
 
   async updateEnvironmentVariable(
-    projectId: string, 
-    environmentId: string, 
-    variableId: string, 
+    projectId: string,
+    environmentId: string,
+    variableId: string,
     name: string,
     value: string,
     params?: EnvironmentVariableCreateParams,
@@ -169,14 +197,18 @@ export class VariablesTask extends TaskBase {
     TaskBase.checkEnvironmentId(environmentId);
     VariablesTask.checkVariableId(variableId);
 
-    if (!name) { throw new Error('Variable name is required'); }
-    if (!value) { throw new Error('Variable value is required'); }
+    if (!name) {
+      throw new Error('Variable name is required');
+    }
+    if (!value) {
+      throw new Error('Variable value is required');
+    }
 
     return await this.envVarApi.updateProjectsEnvironmentsVariables({
       projectId,
       environmentId,
       variableId,
-      environmentVariablePatch: {name, value, ...params},
+      environmentVariablePatch: { name, value, ...params },
     });
   }
 

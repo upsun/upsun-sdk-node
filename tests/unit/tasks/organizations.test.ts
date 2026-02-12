@@ -86,7 +86,9 @@ describe('OrganizationsTask', () => {
     it('should handle info errors for non-existent organization', async () => {
       mockOrgApi.getOrg.mockRejectedValue(new Error('Organization not found'));
 
-      await expect(organizationsTask.info('non-existent')).rejects.toThrow('Organization not found');
+      await expect(organizationsTask.info('non-existent')).rejects.toThrow(
+        'Organization not found',
+      );
     });
   });
 
