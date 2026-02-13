@@ -14,6 +14,7 @@ describe('SshTask', () => {
   beforeEach(() => {
     mockSshApi = {
       createSshKey: jest.fn(),
+      deleteSshKey: jest.fn(),
     } as any;
 
     (SshKeysApi as jest.MockedClass<typeof SshKeysApi>).mockImplementation(() => mockSshApi);
@@ -24,7 +25,7 @@ describe('SshTask', () => {
       },
     } as any;
 
-    sshTask = new SshTask(mockClient);
+    sshTask = new SshTask(mockClient, mockSshApi);
   });
 
   afterEach(() => {
@@ -48,8 +49,8 @@ describe('SshTask', () => {
       mockSshApi.createSshKey.mockResolvedValue(mockSshKey as any);
 
       const result = await sshTask.add(
-        'user-456',
         'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB...',
+        'user-456',
         'test-key',
       );
       expect(result).toBeDefined();
@@ -66,19 +67,8 @@ describe('SshTask', () => {
       mockSshApi.createSshKey.mockRejectedValue(new Error('SSH key already exists'));
 
       await expect(
-        sshTask.add('user-456', 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB...', 'test-key'),
+        sshTask.add('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB...', 'user-456', 'test-key'),
       ).rejects.toThrow('SSH key already exists');
-    });
-  });
-
-  describe('list', () => {
-    it('should have list method defined', () => {
-      expect(sshTask.list).toBeDefined();
-      expect(typeof sshTask.list).toBe('function');
-    });
-
-    it('should throw "Method not implemented" error', () => {
-      expect(() => sshTask.list('user-456')).toThrow('Method not implemented.');
     });
   });
 
@@ -88,8 +78,11 @@ describe('SshTask', () => {
       expect(typeof sshTask.delete).toBe('function');
     });
 
-    it('should throw "Method not implemented" error', () => {
-      expect(() => sshTask.delete('user-456', 'key-123')).toThrow('Method not implemented.');
+    it('should delete an SSH key', async () => {
+      mockSshApi.deleteSshKey.mockResolvedValue(undefined as any);
+
+      await sshTask.delete(123);
+      expect(mockSshApi.deleteSshKey).toHaveBeenCalledWith({ keyId: 123 });
     });
   });
 });

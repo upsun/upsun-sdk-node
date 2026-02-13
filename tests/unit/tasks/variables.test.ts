@@ -50,7 +50,7 @@ describe('VariablesTask', () => {
       },
     } as any;
 
-    variablesTask = new VariablesTask(mockClient);
+    variablesTask = new VariablesTask(mockClient, mockProjVarApi, mockEnvVarApi);
   });
 
   afterEach(() => {
@@ -87,17 +87,14 @@ describe('VariablesTask', () => {
       const response = { ok: true } as any;
       mockProjVarApi.createProjectsVariables.mockResolvedValue(response);
 
-      const result = await variablesTask.createProjectVariable(
-        'prj-1',
-        'NAME',
-        'VALUE',
-        { env: 'true' },
-        true,
-        false,
-        true,
-        false,
-        ['app'],
-      );
+      const result = await variablesTask.createProjectVariable('prj-1', 'NAME', 'VALUE', {
+        attributes: { env: 'true' },
+        isJson: true,
+        isSensitive: false,
+        visibleBuild: true,
+        visibleRuntime: false,
+        applicationScope: ['app'],
+      });
 
       expect(result).toBe(response);
       expect(mockProjVarApi.createProjectsVariables).toHaveBeenCalledWith({
@@ -176,18 +173,16 @@ describe('VariablesTask', () => {
       const response = { ok: true } as any;
       mockProjVarApi.updateProjectsVariables.mockResolvedValue(response);
 
-      const result = await variablesTask.updateProjectVariable(
-        'prj-1',
-        'var-1',
-        'NAME',
-        'VALUE',
-        { env: 'true' },
-        true,
-        true,
-        false,
-        true,
-        ['app'],
-      );
+      const result = await variablesTask.updateProjectVariable('prj-1', 'var-1', {
+        name: 'NAME',
+        value: 'VALUE',
+        attributes: { env: 'true' },
+        isJson: true,
+        isSensitive: true,
+        visibleBuild: false,
+        visibleRuntime: true,
+        applicationScope: ['app'],
+      });
 
       expect(result).toBe(response);
       expect(mockProjVarApi.updateProjectsVariables).toHaveBeenCalledWith({
@@ -241,12 +236,14 @@ describe('VariablesTask', () => {
         'env-1',
         'NAME',
         'VALUE',
-        { env: 'true' },
-        true,
-        false,
-        true,
-        false,
-        ['app'],
+        {
+          attributes: { env: 'true' },
+          isJson: true,
+          isSensitive: false,
+          visibleBuild: true,
+          visibleRuntime: false,
+          applicationScope: ['app'],
+        },
       );
 
       expect(result).toBe(response);
@@ -336,12 +333,14 @@ describe('VariablesTask', () => {
         'var-1',
         'NAME',
         'VALUE',
-        { env: 'true' },
-        true,
-        true,
-        false,
-        true,
-        ['app'],
+        {
+          attributes: { env: 'true' },
+          isJson: true,
+          isSensitive: true,
+          visibleBuild: false,
+          visibleRuntime: true,
+          applicationScope: ['app'],
+        },
       );
 
       expect(result).toBe(response);

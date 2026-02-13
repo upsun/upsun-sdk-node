@@ -15,7 +15,10 @@ describe('TeamsTask', () => {
       },
     } as any;
 
-    teamsTask = new TeamsTask(mockClient);
+    const mockTeamsApi = {} as any;
+    const mockTeamAccessApi = {} as any;
+
+    teamsTask = new TeamsTask(mockClient, mockTeamsApi, mockTeamAccessApi);
   });
 
   afterEach(() => {

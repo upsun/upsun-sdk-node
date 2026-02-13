@@ -7,10 +7,12 @@ import {
   EnvironmentTypeApi,
 } from '../../../src/api/index.js';
 import {
+  AddressGrantsInnerPermissionEnum,
   EnvironmentPatchTypeEnum,
-  Resources2InitEnum,
+  EnvironmentBranchInputTypeEnum,
   Resources3InitEnum,
   Resources4InitEnum,
+  Resources5InitEnum,
 } from '../../../src/model/index.js';
 
 jest.mock('../../../src/upsun');
@@ -113,7 +115,12 @@ describe('EnvironmentsTask', () => {
       domains: mockDomains,
     } as any;
 
-    environmentTask = new EnvironmentsTask(mockClient);
+    environmentTask = new EnvironmentsTask(
+      mockClient,
+      mockEnvironmentApi,
+      mockEnvironmentTypeApi,
+      mockDeploymentApi,
+    );
   });
 
   afterEach(() => {
@@ -150,7 +157,7 @@ describe('EnvironmentsTask', () => {
       expect(mockEnvironmentApi.activateEnvironment).toHaveBeenCalledWith(
         expect.objectContaining({
           environmentActivateInput: expect.objectContaining({
-            resources: { init: Resources2InitEnum.DEFAULT },
+            resources: { init: undefined },
           }),
         }),
       );
@@ -168,8 +175,8 @@ describe('EnvironmentsTask', () => {
         'My Title',
         'my-env',
         true,
-        'development',
-        'INIT_VAL',
+        EnvironmentBranchInputTypeEnum.DEVELOPMENT,
+        Resources3InitEnum.PARENT,
       );
       expect(result).toBe(mockResponse);
       expect(mockEnvironmentApi.branchEnvironment).toHaveBeenCalledWith({
@@ -179,8 +186,8 @@ describe('EnvironmentsTask', () => {
           title: 'My Title',
           name: 'my-env',
           cloneParent: true,
-          type: 'development',
-          resources: { init: 'INIT_VAL' },
+          type: EnvironmentBranchInputTypeEnum.DEVELOPMENT,
+          resources: { init: Resources3InitEnum.PARENT },
         },
       });
     });
@@ -198,23 +205,23 @@ describe('EnvironmentsTask', () => {
     });
   });
 
-  describe('initialize', () => {
+  describe('init', () => {
     it('should initialize an environment', async () => {
       const mockResponse = { status: 'ok', code: 202 };
       mockEnvironmentApi.initializeEnvironment.mockResolvedValue(mockResponse as any);
-      const files: [string, number, string][] = [
-        ['file1.txt', 420, 'content1'],
-        ['file2.txt', 420, 'content2'],
+      const files = [
+        { path: 'file1.txt', mode: 420, contents: 'content1' },
+        { path: 'file2.txt', mode: 420, contents: 'content2' },
       ];
 
-      const result = await environmentTask.initialize(
+      const result = await environmentTask.init(
         'project-123',
         'main',
         'profile',
         'repo',
         files,
         'configVal',
-        'INIT_VAL',
+        Resources4InitEnum.DEFAULT,
       );
       expect(result).toBe(mockResponse);
       expect(mockEnvironmentApi.initializeEnvironment).toHaveBeenCalledWith({
@@ -224,36 +231,33 @@ describe('EnvironmentsTask', () => {
           profile: 'profile',
           repository: 'repo',
           config: 'configVal',
-          resources: { init: 'INIT_VAL' },
-          files: [
-            { path: 'file1.txt', mode: 420, contents: 'content1' },
-            { path: 'file2.txt', mode: 420, contents: 'content2' },
-          ],
+          resources: { init: Resources4InitEnum.DEFAULT },
+          files: files,
         },
       });
     });
 
     it('should throw error if profile is empty', async () => {
       await expect(
-        environmentTask.initialize('project-123', 'main', '', 'repo', [['f', 420, 'c']]),
+        environmentTask.init('project-123', 'main', '', 'repo', [{ path: 'f', mode: 420, contents: 'c' }]),
       ).rejects.toThrow('Profile must be a non-empty string');
     });
 
     it('should throw error if repository is empty', async () => {
       await expect(
-        environmentTask.initialize('project-123', 'main', 'profile', '', [['f', 420, 'c']]),
+        environmentTask.init('project-123', 'main', 'profile', '', [{ path: 'f', mode: 420, contents: 'c' }]),
       ).rejects.toThrow('Repository must be a non-empty string');
     });
 
     it('should throw error if files is empty', async () => {
       await expect(
-        environmentTask.initialize('project-123', 'main', 'profile', 'repo', []),
+        environmentTask.init('project-123', 'main', 'profile', 'repo', []),
       ).rejects.toThrow('Files must be a non-empty array of [filePath, fileMode, fileContents]');
     });
 
     it('should use default init if not provided', async () => {
       mockEnvironmentApi.initializeEnvironment.mockResolvedValue({} as any);
-      await environmentTask.initialize('project-123', 'main', 'profile', 'repo', [['f', 420, 'c']]);
+      await environmentTask.init('project-123', 'main', 'profile', 'repo', [{ path: 'f', mode: 420, contents: 'c' }]);
       expect(mockEnvironmentApi.initializeEnvironment).toHaveBeenCalledWith(
         expect.objectContaining({
           environmentInitializeInput: expect.objectContaining({
@@ -341,12 +345,12 @@ describe('EnvironmentsTask', () => {
   describe('merge', () => {
     it('should merge an environment', async () => {
       mockEnvironmentApi.mergeEnvironment.mockResolvedValue({} as any);
-      await environmentTask.merge('project-123', 'main', 'INIT_VAL');
+      await environmentTask.merge('project-123', 'main', Resources5InitEnum.CHILD);
       expect(mockEnvironmentApi.mergeEnvironment).toHaveBeenCalledWith({
         projectId: 'project-123',
         environmentId: 'main',
         environmentMergeInput: {
-          resources: { init: 'INIT_VAL' },
+          resources: { init: Resources5InitEnum.CHILD },
         },
       });
     });
@@ -357,7 +361,7 @@ describe('EnvironmentsTask', () => {
       expect(mockEnvironmentApi.mergeEnvironment).toHaveBeenCalledWith(
         expect.objectContaining({
           environmentMergeInput: expect.objectContaining({
-            resources: { init: Resources3InitEnum.DEFAULT },
+            resources: { init: Resources5InitEnum.DEFAULT },
           }),
         }),
       );
@@ -417,42 +421,28 @@ describe('EnvironmentsTask', () => {
   describe('update', () => {
     it('should update an environment', async () => {
       mockEnvironmentApi.updateEnvironment.mockResolvedValue({} as any);
-      await environmentTask.update(
-        'project-123',
-        'main',
-        'parent',
-        'name',
-        'title',
-        { key: 'value' },
-        'DEVELOPMENT',
-        true,
-        {
+      const params = {
+        parent: 'parent',
+        name: 'name',
+        title: 'title',
+        attributes: { key: 'value' },
+        type: EnvironmentPatchTypeEnum.DEVELOPMENT,
+        cloneParentOnCreate: true,
+        httpAccess: {
           isEnabled: true,
-          addresses: [{ address: '1.2.3.4', permission: 'ALLOW' }],
+          addresses: [{ address: '1.2.3.4', permission: AddressGrantsInnerPermissionEnum.ALLOW }],
           basicAuth: { username: 'user', password: 'pass' },
         },
-        true,
-        false,
-      );
+        enableSmtp: true,
+        restrictRobots: false,
+      };
+
+      await environmentTask.update('project-123', 'main', params);
 
       expect(mockEnvironmentApi.updateEnvironment).toHaveBeenCalledWith({
         projectId: 'project-123',
         environmentId: 'main',
-        environmentPatch: {
-          name: 'name',
-          title: 'title',
-          parent: 'parent',
-          attributes: { key: 'value' },
-          type: EnvironmentPatchTypeEnum.DEVELOPMENT,
-          cloneParentOnCreate: true,
-          httpAccess: {
-            isEnabled: true,
-            addresses: [{ address: '1.2.3.4', permission: 'allow' }],
-            basicAuth: { username: 'user', password: 'pass' },
-          },
-          enableSmtp: true,
-          restrictRobots: false,
-        },
+        environmentPatch: params,
       });
     });
   });
@@ -481,12 +471,7 @@ describe('EnvironmentsTask', () => {
         'main',
         'NAME',
         'VALUE',
-        { env: 'true' },
-        true,
-        false,
-        true,
-        false,
-        ['app'],
+        { attributes: { env: 'true' }, isJson: true },
       );
       expect(result).toBe(response);
       expect(mockVariables.createEnvironmentVariable).toHaveBeenCalledWith(
@@ -494,12 +479,7 @@ describe('EnvironmentsTask', () => {
         'main',
         'NAME',
         'VALUE',
-        { env: 'true' },
-        true,
-        false,
-        true,
-        false,
-        ['app'],
+        { attributes: { env: 'true' }, isJson: true },
       );
     });
 
@@ -542,12 +522,7 @@ describe('EnvironmentsTask', () => {
         'var-1',
         'NAME',
         'VALUE',
-        { env: 'true' },
-        true,
-        false,
-        true,
-        false,
-        ['app'],
+        { attributes: { env: 'true' }, isJson: true },
       );
       expect(result).toBe(response);
       expect(mockVariables.updateEnvironmentVariable).toHaveBeenCalledWith(
@@ -556,12 +531,7 @@ describe('EnvironmentsTask', () => {
         'var-1',
         'NAME',
         'VALUE',
-        { env: 'true' },
-        true,
-        false,
-        true,
-        false,
-        ['app'],
+        { attributes: { env: 'true' }, isJson: true },
       );
     });
   });
@@ -585,9 +555,16 @@ describe('EnvironmentsTask', () => {
   });
 
   describe('domains passthrough', () => {
-    it('should require domain name on create', async () => {
-      await expect(environmentTask.createDomain('project-123', 'main', '')).rejects.toThrow(
-        'Domain name must be a non-empty string',
+    it('should pass domain creation to client', async () => {
+      mockDomains.add.mockResolvedValue({} as any);
+      await environmentTask.createDomain('project-123', 'main', '');
+      expect(mockDomains.add).toHaveBeenCalledWith(
+        'project-123',
+        '',
+        undefined,
+        undefined,
+        undefined,
+        'main',
       );
     });
 
@@ -642,15 +619,13 @@ describe('EnvironmentsTask', () => {
         'project-123',
         'main',
         'domain-1',
-        { env: 'true' },
-        true,
+        { attributes: { env: 'true' }, isDefault: true },
       );
       expect(result).toBe(response);
       expect(mockDomains.update).toHaveBeenCalledWith(
         'project-123',
         'domain-1',
-        { env: 'true' },
-        true,
+        { attributes: { env: 'true' }, isDefault: true },
         'main',
       );
     });
@@ -659,7 +634,7 @@ describe('EnvironmentsTask', () => {
   describe('deployments', () => {
     it('should require deploymentId', async () => {
       await expect(environmentTask.getDeployment('project-123', 'main', '')).rejects.toThrow(
-        'Deployment ID must be a non-empty string',
+        'Deployment ID is required',
       );
     });
 
@@ -690,14 +665,18 @@ describe('EnvironmentsTask', () => {
   describe('logs/relationships', () => {
     it('should throw not implemented for logs', async () => {
       await expect(environmentTask.logs('project-123', 'main', 'app')).rejects.toThrow(
-        'Not implemented',
+        'Not implemented yet',
       );
     });
 
-    it('should throw not implemented for relationships', async () => {
-      await expect(environmentTask.relationships('project-123', 'main')).rejects.toThrow(
-        'Not implemented',
-      );
+    it('should return relationships for an app', async () => {
+      const relationships = { db: { host: 'db', port: 5432 } } as any;
+      mockClient.applications = {
+        configGet: jest.fn().mockResolvedValue({ relationships }),
+      } as any;
+
+      const result = await environmentTask.relationships('project-123', 'main', 'app-1');
+      expect(result).toEqual(relationships);
     });
   });
 });

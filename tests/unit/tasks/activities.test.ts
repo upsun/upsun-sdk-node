@@ -38,7 +38,11 @@ describe('ActivitiesTask', () => {
       },
     } as any;
 
-    activitiesTask = new ActivitiesTask(mockClient);
+    activitiesTask = new ActivitiesTask(
+      mockClient,
+      mockProjectActivityApi,
+      mockEnvironmentActivityApi
+    );
   });
 
   afterEach(() => {

@@ -24,7 +24,17 @@ describe('UsersTask', () => {
       },
     } as any;
 
-    usersTask = new UsersTask(mockClient);
+    usersTask = new UsersTask(
+      mockClient,
+      mockUsersApi,
+      {} as any, // userProfilesApi
+      {} as any, // userAccessApi
+      {} as any, // apiTokensApi
+      {} as any, // connectionsApi
+      {} as any, // grantsApi
+      {} as any, // mfaApi
+      {} as any  // phoneNumberApi
+    );
   });
 
   afterEach(() => {

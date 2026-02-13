@@ -25,7 +25,7 @@ describe('RoutesTask', () => {
       },
     } as any;
 
-    routesTask = new RoutesTask(mockClient);
+    routesTask = new RoutesTask(mockClient, mockRoutingApi);
   });
 
   afterEach(() => {

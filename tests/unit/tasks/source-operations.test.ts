@@ -7,15 +7,22 @@ jest.mock('../../../src/upsun');
 describe('SourceOperationsTask', () => {
   let sourceOperationTask: SourceOperationsTask;
   let mockClient: jest.Mocked<UpsunClient>;
+  let mockSourceOperationsApi: any;
 
   beforeEach(() => {
+    mockSourceOperationsApi = {
+      listProjectsEnvironmentsSourceOperations: jest.fn(),
+      getProjectsEnvironmentsSourceOperations: jest.fn(),
+      actionProjectsEnvironmentsSourceOperations: jest.fn(),
+    };
+
     mockClient = {
       apiConfig: {
         basePath: 'https://api.upsun.com',
       },
     } as any;
 
-    sourceOperationTask = new SourceOperationsTask(mockClient);
+    sourceOperationTask = new SourceOperationsTask(mockClient, mockSourceOperationsApi);
   });
 
   afterEach(() => {
