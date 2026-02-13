@@ -3,9 +3,9 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "./dist-tests",
-    "noEmit": true
+    "noEmit": true,
+    "isolatedModules": true
   },
   "include": ["src/**/*", "tests/**/*"],
-  "exclude": ["node_modules", "dist", "dist-tests"],
-  "isolatedModules": true
+  "exclude": ["node_modules", "dist", "dist-tests"]
 }
