@@ -10,6 +10,7 @@ export default {
         useESM: true,
         tsconfig: {
           moduleResolution: 'node',
+          isolatedModules: true,
         },
       },
     ],
