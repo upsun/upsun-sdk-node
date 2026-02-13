@@ -19,4 +19,7 @@ export default {
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/apis-gen/**'],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
+  tsconfig: {
+    moduleResolution: 'node',  // Override bundler pour les tests
+  },
 };
