@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - uses: ./.github/actions/doc
+        if: false
         with:
           default-runtime-version: ${{ env.PRIMARY_NODE_VERSION }}
 
