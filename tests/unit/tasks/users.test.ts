@@ -4,7 +4,7 @@ import { UsersApi } from '../../../src/api/index.js';
 
 // Mock the UpsunClient and UsersApi
 jest.mock('../../../src/upsun');
-jest.mock('../../../src/api/index');
+jest.mock('../../../src/api');
 
 describe('UsersTask', () => {
   let usersTask: UsersTask;
