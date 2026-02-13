@@ -9,6 +9,7 @@
     "dist"
   ],
   "scripts": {
+    "help": "bash ./scripts/help.sh",
     "clean": "rm -rf dist",
     "run": "node dist/app.js",
     "build": "tsc -p tsconfig.json",
