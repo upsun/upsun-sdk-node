@@ -9,9 +9,14 @@ export default {
       {
         useESM: true,
         tsconfig: {
-          module: 'ES2022',
-          moduleResolution: 'node',
-          isolatedModules: true,
+          "extends": "./tsconfig.json",
+          "compilerOptions": {
+            "rootDir": ".",              // Change from ./src to . pour inclure tests/
+            "outDir": "./dist-tests",    // Différent output pour ne pas polluer dist/
+            "noEmit": true               // On ne veut pas émettre de fichiers pour les tests
+          },
+          "include": ["src/**/*", "tests/**/*"],  // Inclut à la fois src/ et tests/
+          "exclude": ["node_modules", "dist", "dist-tests"]
         },
       },
     ],
