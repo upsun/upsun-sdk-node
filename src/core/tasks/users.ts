@@ -2,8 +2,6 @@ import {
   ApiTokensApi,
   ConnectionsApi,
   GrantsApi,
-  ListProjectUserAccessRequest,
-  ListUserExtendedAccessRequest,
   MfaApi,
   PhoneNumberApi,
   UserAccessApi,
@@ -33,12 +31,8 @@ import {
   VerifyPhoneNumberRequestChannelEnum,
 } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
+import { FilterListProjectUserAccess, FilterListUserExtendedAccess } from '../model.js';
 import { TaskBase } from './task_base.js';
-
-// Type creation for request parameters that omit required fields from the original input types
-export type FilterListProjectUserAccess = Omit<ListProjectUserAccessRequest, 'projectId'>;
-export type FilterListUserProjectAccess = Omit<ListProjectUserAccessRequest, 'userId'>;
-export type FilterListUserExtendedAccess = Omit<ListUserExtendedAccessRequest, 'userId'>;
 
 export class UsersTask extends TaskBase {
   constructor(
@@ -57,6 +51,12 @@ export class UsersTask extends TaskBase {
 
   /**
    * Retrieves information about the currently authenticated user.
+   * @return The details of the currently authenticated user, including their user ID, email address, full name, and
+   * other relevant information. This method is useful for retrieving information about the user who is currently logged
+   * in and authenticated with the system, allowing you to access their details and use that information for various
+   * purposes.
+   * @throws An error if there is an issue with the API request to retrieve the current user's information, or if the
+   * user is not authenticated.
    */
   async me(): Promise<UserModel> {
     return await this.usersApi.getCurrentUser();

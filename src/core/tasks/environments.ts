@@ -1,14 +1,8 @@
 import { UpsunClient } from '../../upsun.js';
-import {
-  AutoscalingApi,
-  DeploymentApi,
-  EnvironmentApi,
-  EnvironmentTypeApi,
-} from '../../api/index.js';
+import { DeploymentApi, EnvironmentApi, EnvironmentTypeApi } from '../../api/index.js';
 import {
   AcceptedResponse,
   Activity,
-  AutoscalerSettings,
   Backup,
   Deployment,
   Domain,
@@ -30,7 +24,7 @@ import {
   ServiceRelationshipsValue,
 } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
-import { EnvironmentVariableCreateParams } from '../index.js';
+import { EnvironmentVariableCreateParams } from '../model.js';
 
 export class EnvironmentsTask extends TaskBase {
   constructor(

@@ -1,9 +1,4 @@
-import {
-  ListTeamMembersRequest,
-  ListTeamsRequest,
-  ListUserTeamsRequest,
-  TeamsApi,
-} from '../../api/TeamsApi.js';
+import { ListTeamsRequest, TeamsApi } from '../../api/TeamsApi.js';
 import {
   GrantProjectTeamAccessRequestInner,
   GrantTeamProjectAccessRequestInner,

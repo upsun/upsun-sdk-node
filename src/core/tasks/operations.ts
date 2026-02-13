@@ -1,4 +1,4 @@
-import { AcceptedResponse, EnvironmentOperationInput, RuntimeOperationsApi } from '../../index.js';
+import { AcceptedResponse, RuntimeOperationsApi } from '../../index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 

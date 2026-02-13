@@ -8,7 +8,6 @@ import {
   RepositoryApi,
   SubscriptionsApi,
   SystemInformationApi,
-  ThirdPartyIntegrationsApi,
 } from '../../api/index.js';
 import {
   AcceptedResponse,
@@ -45,9 +44,10 @@ import {
   CertificateCreateParams,
   CreateProjectInvite,
   FilterListOrgProjects,
+  FilterListProjectUserAccess,
+  FilterListUserProjectAccess,
   ProjectCreateRequest,
 } from '../model.js';
-import { FilterListProjectUserAccess } from '../index.js';
 
 export class ProjectsTask extends TaskBase {
   constructor(
@@ -995,7 +995,7 @@ export class ProjectsTask extends TaskBase {
    */
   async listUserProjectAccessByUser(
     userId: string,
-    filters?: FilterListProjectUserAccess,
+    filters?: FilterListUserProjectAccess,
   ): Promise<ListProjectUserAccess200Response> {
     return await this.client.users.listUserProjectAccessByUser(userId, filters);
   }

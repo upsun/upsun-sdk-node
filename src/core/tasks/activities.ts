@@ -16,7 +16,6 @@ export class ActivitiesTask extends TaskBase {
    * Cancel an activity for a project or environment. The API will return a 202 Accepted response if the cancellation
    * request has been accepted, but the client should check the activity's details to confirm whether the cancellation
    * was successful or not.
-   *
    * @param projectId - The ID of the project.
    * @param activityId - The ID of the activity to cancel.
    * @param environmentId - (Optional) The ID of the environment. If not provided, the activity is assumed to be a project-level activity.

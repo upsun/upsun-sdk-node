@@ -1,4 +1,4 @@
-import { DeploymentApi, WorkersValue } from '../../index.js';
+import { WorkersValue } from '../../index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 

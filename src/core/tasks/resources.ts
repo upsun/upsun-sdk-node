@@ -9,12 +9,11 @@ import {
   UpdateProjectsEnvironmentsDeploymentsNextRequestWebappsValue,
   UpdateProjectsEnvironmentsDeploymentsNextRequestWorkersValue,
 } from '../../index.js';
+import { DeploymentResourceGroup } from '../model.js';
 
 interface ResourceApiPlaceholder {
   getNextDeployement: (params: { projectId: string; environmentId: string }) => Promise<unknown>;
 }
-
-type DeploymentResourceGroup = 'webapps' | 'services' | 'workers';
 
 export class ResourcesTask extends TaskBase {
   constructor(
@@ -44,7 +43,7 @@ export class ResourcesTask extends TaskBase {
   async get(
     projectId: string,
     environmentId: string,
-    type: DeploymentResourceGroup = 'webapps',
+    type: DeploymentResourceGroup = DeploymentResourceGroup.webapps,
     app: string = 'app',
   ): Promise<Resources> {
     const currentDeployment = await this.client.environments.getDeployment(
@@ -92,9 +91,9 @@ export class ResourcesTask extends TaskBase {
       projectId,
       environmentId,
       updateProjectsEnvironmentsDeploymentsNextRequest: {
-        webapps: webapps,
-        services: services,
-        workers: workers,
+        webapps,
+        services,
+        workers,
       },
     });
   }

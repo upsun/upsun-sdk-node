@@ -1,22 +1,14 @@
 import { ProjectVariablesApi } from '../../api/ProjectVariablesApi.js';
 import {
   AcceptedResponse,
-  EnvironmentVariableCreateInput,
   EnvironmentVariablesApi,
   ProjectVariable,
-  ProjectVariableCreateInput,
   ProjectVariablePatch,
 } from '../../index.js';
 import { EnvironmentVariable } from '../../model/EnvironmentVariable.js';
 import { UpsunClient } from '../../upsun.js';
+import { EnvironmentVariableCreateParams, ProjectVariableCreateParams } from '../model.js';
 import { TaskBase } from './task_base.js';
-
-// Type creation for request parameters that omit required fields from the original input types
-export type ProjectVariableCreateParams = Omit<ProjectVariableCreateInput, 'name' | 'value'>;
-export type EnvironmentVariableCreateParams = Omit<
-  EnvironmentVariableCreateInput,
-  'name' | 'value'
->;
 
 export class VariablesTask extends TaskBase {
   constructor(

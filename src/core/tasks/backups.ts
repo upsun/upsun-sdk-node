@@ -1,5 +1,5 @@
 import { EnvironmentBackupsApi } from '../../api/index.js';
-import { AcceptedResponse, Backup, Resources6, Resources6InitEnum } from '../../model/index.js';
+import { AcceptedResponse, Backup, Resources6InitEnum } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
 

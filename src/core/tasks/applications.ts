@@ -1,4 +1,3 @@
-import { DeploymentApi } from '../../api/index.js';
 import { WebApplicationsValue } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';

@@ -1,11 +1,5 @@
+import { OrganizationInvitationsApi, ProjectInvitationsApi } from '../../api/index.js';
 import {
-  ListOrgInvitesRequest,
-  ListProjectInvitesRequest,
-  OrganizationInvitationsApi,
-  ProjectInvitationsApi,
-} from '../../api/index.js';
-import {
-  CreateProjectInviteRequest,
   OrganizationInvitation,
   OrganizationPermissions,
   ProjectInvitation,
