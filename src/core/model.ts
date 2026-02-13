@@ -15,7 +15,7 @@ import {
   ListUserOrgsRequest,
   ListUserProjectAccessRequest,
   ListUserTeamsRequest,
-} from '../api';
+} from '../api/index.js';
 import {
   CertificateCreateInput,
   CreateOrgSubscriptionRequest,
@@ -23,7 +23,7 @@ import {
   EnvironmentVariableCreateInput,
   IntegrationCreateInput,
   ProjectVariableCreateInput,
-} from '../model';
+} from '../model/index.js';
 
 // Type creation for request parameters that omit required fields from the original input types
 export type CertificateCreateParams = Omit<CertificateCreateInput, 'certificate' | 'key'>;
