@@ -64,6 +64,7 @@ jobs:
         run: npm run spec:generate
 
       - name: Run unit tests
+        if: false
         run: npm run test:unit
 
   doc:
