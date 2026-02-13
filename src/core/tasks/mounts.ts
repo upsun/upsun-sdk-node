@@ -15,7 +15,7 @@ export class MountsTask extends TaskBase {
    * with each application.
    * @param projectId - The ID of the project to list mounts for.
    * @param environmentId - The ID of the environment to list mounts for. This defaults to 'main' if not provided.
-   * @param type - The type of resource to list mounts for. This can be 'webapps', 'services', or 'workers'. If not
+   * @param filterType - The type of resource to list mounts for. This can be 'webapps', 'services', or 'workers'. If not
    * provided, mounts for all resource types will be listed.
    * @return A record where the keys are application names and the values are mount definitions associated with each
    * application. If there are no mounts for the specified project and resource type, an empty record is returned.

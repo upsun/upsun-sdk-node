@@ -28,6 +28,7 @@ import {
   WorkersTask,
 } from './core/index.js';
 import { IntegrationsTask } from './core/tasks/integrations.js';
+import { RepositoriesTask } from './core/tasks/repositories.js';
 import { UsersInvitationsTask } from './core/tasks/users-invitations.js';
 import {
   AddOnsApi,
@@ -138,6 +139,8 @@ export class UpsunClient {
   public operations: OperationsTask;
   public organizations: OrganizationsTask;
   public projects: ProjectsTask;
+  public repositories: RepositoriesTask;
+  public resources: ResourcesTask;
   public routes: RoutesTask;
   public services: ServicesTask;
   public sourceOperations: SourceOperationsTask;
@@ -146,8 +149,6 @@ export class UpsunClient {
   public users: UsersTask;
   public variables: VariablesTask;
   public workers: WorkersTask;
-
-  public resources: ResourcesTask;
 
   private authMiddleware: Middleware;
 
@@ -186,7 +187,6 @@ export class UpsunClient {
     const certManagementApi = new CertManagementApi(this.apiConfig);
     const connectionsApi = new ConnectionsApi(this.apiConfig);
     const deploymentApi = new DeploymentApi(this.apiConfig);
-    const deploymentTargetApi = new DeploymentTargetApi(this.apiConfig);
     const domainManagementApi = new DomainManagementApi(this.apiConfig);
     const environmentApi = new EnvironmentApi(this.apiConfig);
     const environmentBackupsApi = new EnvironmentBackupsApi(this.apiConfig);
@@ -270,6 +270,7 @@ export class UpsunClient {
       systemInformationApi,
     );
     this.resources = new ResourcesTask(this, deploymentApi, autoscalingApi);
+    this.repositories = new RepositoriesTask(this, repositoryApi, systemInformationApi);
     this.routes = new RoutesTask(this, routingApi);
     this.services = new ServicesTask(this);
     this.sourceOperations = new SourceOperationsTask(this, sourceOperationsApi);

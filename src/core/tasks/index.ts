@@ -10,6 +10,7 @@ export * from './mounts.js';
 export * from './operations.js';
 export * from './organizations.js';
 export * from './projects.js';
+export * from './repositories.js';
 export * from './resources.js';
 export * from './routes.js';
 export * from './services.js';
