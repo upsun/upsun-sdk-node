@@ -41,7 +41,7 @@ describe('ActivitiesTask', () => {
     activitiesTask = new ActivitiesTask(
       mockClient,
       mockProjectActivityApi,
-      mockEnvironmentActivityApi
+      mockEnvironmentActivityApi,
     );
   });
 

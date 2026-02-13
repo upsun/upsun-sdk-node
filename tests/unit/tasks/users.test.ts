@@ -33,7 +33,7 @@ describe('UsersTask', () => {
       {} as any, // connectionsApi
       {} as any, // grantsApi
       {} as any, // mfaApi
-      {} as any  // phoneNumberApi
+      {} as any, // phoneNumberApi
     );
   });
 

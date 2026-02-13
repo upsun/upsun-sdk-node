@@ -239,13 +239,17 @@ describe('EnvironmentsTask', () => {
 
     it('should throw error if profile is empty', async () => {
       await expect(
-        environmentTask.init('project-123', 'main', '', 'repo', [{ path: 'f', mode: 420, contents: 'c' }]),
+        environmentTask.init('project-123', 'main', '', 'repo', [
+          { path: 'f', mode: 420, contents: 'c' },
+        ]),
       ).rejects.toThrow('Profile must be a non-empty string');
     });
 
     it('should throw error if repository is empty', async () => {
       await expect(
-        environmentTask.init('project-123', 'main', 'profile', '', [{ path: 'f', mode: 420, contents: 'c' }]),
+        environmentTask.init('project-123', 'main', 'profile', '', [
+          { path: 'f', mode: 420, contents: 'c' },
+        ]),
       ).rejects.toThrow('Repository must be a non-empty string');
     });
 
@@ -257,7 +261,9 @@ describe('EnvironmentsTask', () => {
 
     it('should use default init if not provided', async () => {
       mockEnvironmentApi.initializeEnvironment.mockResolvedValue({} as any);
-      await environmentTask.init('project-123', 'main', 'profile', 'repo', [{ path: 'f', mode: 420, contents: 'c' }]);
+      await environmentTask.init('project-123', 'main', 'profile', 'repo', [
+        { path: 'f', mode: 420, contents: 'c' },
+      ]);
       expect(mockEnvironmentApi.initializeEnvironment).toHaveBeenCalledWith(
         expect.objectContaining({
           environmentInitializeInput: expect.objectContaining({
@@ -466,13 +472,10 @@ describe('EnvironmentsTask', () => {
       const response = { ok: true } as any;
       mockVariables.createEnvironmentVariable.mockResolvedValue(response);
 
-      const result = await environmentTask.createVariables(
-        'project-123',
-        'main',
-        'NAME',
-        'VALUE',
-        { attributes: { env: 'true' }, isJson: true },
-      );
+      const result = await environmentTask.createVariables('project-123', 'main', 'NAME', 'VALUE', {
+        attributes: { env: 'true' },
+        isJson: true,
+      });
       expect(result).toBe(response);
       expect(mockVariables.createEnvironmentVariable).toHaveBeenCalledWith(
         'project-123',
@@ -615,12 +618,10 @@ describe('EnvironmentsTask', () => {
     it('should update domain via client', async () => {
       const response = { ok: true } as any;
       mockDomains.update.mockResolvedValue(response);
-      const result = await environmentTask.updateDomain(
-        'project-123',
-        'main',
-        'domain-1',
-        { attributes: { env: 'true' }, isDefault: true },
-      );
+      const result = await environmentTask.updateDomain('project-123', 'main', 'domain-1', {
+        attributes: { env: 'true' },
+        isDefault: true,
+      });
       expect(result).toBe(response);
       expect(mockDomains.update).toHaveBeenCalledWith(
         'project-123',

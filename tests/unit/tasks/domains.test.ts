@@ -341,10 +341,15 @@ describe('DomainsTask', () => {
       mockDomainApi.updateProjectsEnvironmentsDomains.mockResolvedValue(mockActivity as any);
 
       const attributes = { ssl: 'auto' };
-      const result = await domainsTask.update('project-123', 'domain-456', {
-        attributes: attributes,
-        isDefault: false,
-      }, 'env-789');
+      const result = await domainsTask.update(
+        'project-123',
+        'domain-456',
+        {
+          attributes: attributes,
+          isDefault: false,
+        },
+        'env-789',
+      );
 
       expect(result).toBeDefined();
       expect(result).toEqual(mockActivity);
