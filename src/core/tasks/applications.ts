@@ -1,6 +1,6 @@
-import { WebApplicationsValue } from '../../model/index.js';
-import { UpsunClient } from '../../upsun.js';
-import { TaskBase } from './task_base.js';
+import { WebApplicationsValue } from '../../model';
+import { UpsunClient } from '../../upsun';
+import { TaskBase } from './task_base';
 
 export class ApplicationsTask extends TaskBase {
   constructor(protected readonly client: UpsunClient) {
