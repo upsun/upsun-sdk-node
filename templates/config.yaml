@@ -1,0 +1,67 @@
+generatorName: typescript-fetch
+inputSpec: ./schema/openapispec-upsun.json
+outputDir: src
+packageName: upsun-client
+templateDir: ./templates/node
+generateSupportingFiles: true
+verbose: false
+generateAliasAsModel: true
+apiTests: true
+modelTests: true
+apiDocs: false
+modelDocs: false
+authMethods:
+isOAuth: true
+
+additionalProperties:
+  isApiKey: true
+  sdkName: upsun-sdk-node
+  sdkVersion: 0.1.0
+  sdkDescription: The official Upsun SDK for Node.js
+  licenseName: MIT
+  artifactUrl: https://github.com/upsun/upsun-sdk-node
+  authorName: Upsun Advocacy Team
+  contributors: |
+        [
+            {
+                "name": "Florent HUCK",
+                "email": "florent.huck@upsun.com"
+            },
+            {
+                "name": "Mickael GAILLARD",
+                "email": "mickael.gaillard@upsun.com"
+            },
+            {
+                "name": "Upsun Advocacy Team",
+                "homepage": "https://www.upsun.com"
+            }
+        ],
+  importFileExtension: .js
+  #Bug on OpenApiGenerator => fileNaming: kebab-case
+  enumPropertyNaming: UPPERCASE
+  modelPropertyNaming: camelCase
+  paramNaming: camelCase
+  supportsES6: true
+  withInterfaces: true
+
+files:
+  apis.mustache:
+    templateType: API
+    destinationFilename: .ts
+    folder: api
+  apis.index.mustache:
+    templateType: SupportingFiles
+    destinationFilename: index.ts
+    folder: api
+  models.mustache:
+    templateType: Model
+    destinationFilename: .ts
+    folder: model
+  models.index.mustache:
+    templateType: SupportingFiles
+    destinationFilename: index.ts
+    folder: model
+  runtime.mustache:
+    templateType: SupportingFiles
+    destinationFilename: runtime.ts
+    folder: core

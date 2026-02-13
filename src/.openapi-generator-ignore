@@ -1,0 +1,5 @@
+# OpenAPI Generator Ignore
+
+apis/index.ts
+models/index.ts
+index.ts

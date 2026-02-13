@@ -1,33 +1,85 @@
-import { Configuration, ConfigurationParameters } from "./apis-gen/index.js";
-import { OAuth2Client } from "./core/index.js";
-
-import { ActivityTask } from "./core/tasks/activity.js";
-import { ApplicationTask } from "./core/tasks/application.js";
-import { BackupTask } from "./core/tasks/backup.js";
-import { CertificateTask } from "./core/tasks/certificate.js";
-import { DomainTask } from "./core/tasks/domain.js";
-import { EnvironementTask } from "./core/tasks/environment.js";
-import { MetricsTask } from "./core/tasks/metrics.js";
-import { MountTask } from "./core/tasks/mount.js";
-import { OperationTask } from "./core/tasks/operation.js";
-import { OrganizationTask } from "./core/tasks/organization.js";
-import { ProjectTask } from "./core/tasks/project.js";
-import { ResourcesTask } from "./core/tasks/resources.js";
-import { RouteTask } from "./core/tasks/route.js";
-import { ServiceTask } from "./core/tasks/service.js";
-import { SourceOperationTask } from "./core/tasks/source-operation.js";
-import { SshTask } from "./core/tasks/ssh.js";
-import { TeamTask } from "./core/tasks/team.js";
-import { UserTask } from "./core/tasks/user.js";
-import { VariableTask } from "./core/tasks/variable.js";
-import { WorkerTask } from "./core/tasks/worker.js";
-
+import {
+  // Common
+  Configuration,
+  ConfigurationParameters,
+  HTTPHeaders,
+  Middleware,
+  OAuth2Client,
+  // Tasks
+  ActivitiesTask,
+  ApplicationsTask,
+  BackupsTask,
+  CertificatesTask,
+  DomainsTask,
+  EnvironmentsTask,
+  MetricsTask,
+  MountsTask,
+  OperationsTask,
+  OrganizationsTask,
+  ProjectsTask,
+  ResourcesTask,
+  RoutesTask,
+  ServicesTask,
+  SourceOperationsTask,
+  SshTask,
+  TeamsTask,
+  UsersTask,
+  VariablesTask,
+  WorkersTask,
+} from './core/index.js';
+import { IntegrationsTask } from './core/tasks/integrations.js';
+import { RepositoriesTask } from './core/tasks/repositories.js';
+import { UsersInvitationsTask } from './core/tasks/users-invitations.js';
+import {
+  AddOnsApi,
+  ApiTokensApi,
+  AutoscalingApi,
+  CertManagementApi,
+  ConnectionsApi,
+  DeploymentApi,
+  DomainManagementApi,
+  EnvironmentActivityApi,
+  EnvironmentApi,
+  EnvironmentBackupsApi,
+  EnvironmentTypeApi,
+  EnvironmentVariablesApi,
+  GrantsApi,
+  InvoicesApi,
+  MfaApi,
+  OrdersApi,
+  OrganizationInvitationsApi,
+  OrganizationMembersApi,
+  OrganizationProjectsApi,
+  OrganizationsApi,
+  PhoneNumberApi,
+  ProfilesApi,
+  ProjectActivityApi,
+  ProjectApi,
+  ProjectInvitationsApi,
+  ProjectSettingsApi,
+  ProjectVariablesApi,
+  RecordsApi,
+  RepositoryApi,
+  RoutingApi,
+  RuntimeOperationsApi,
+  SourceOperationsApi,
+  SshKeysApi,
+  SubscriptionsApi,
+  SystemInformationApi,
+  TeamAccessApi,
+  TeamsApi,
+  ThirdPartyIntegrationsApi,
+  UserAccessApi,
+  UserProfilesApi,
+  UsersApi,
+  VouchersApi,
+} from './index.js';
 
 /**
  * Configuration interface for the Upsun API client.
  * This interface defines the structure of the configuration object
  * that is used to initialize the UpsunClient.
- * 
+ *
  * @interface UpsunConfig
  * @property {string} base_url - The base URL for the Upsun API.
  * @property {string} auth_url - The authentication URL for the Upsun API.
@@ -51,12 +103,12 @@ export interface UpsunConfig {
  * defined in the UpsunConfig interface.
  */
 export const DEFAULT_UPSUN_CONFIG: UpsunConfig = {
-  base_url: "https://api.upsun.com", // Default base URL for the Upsun API
-  auth_url: "https://auth.upsun.com", // Default authentication URL for the Upsun API
-  token_endpoint: "oauth2/token",
-  refresh_endpoint: "oauth2/token",
-  clientId: "sdk-node-client-id",
-}
+  base_url: 'https://api.upsun.com', // Default base URL for the Upsun API
+  auth_url: 'https://auth.upsun.com', // Default authentication URL for the Upsun API
+  token_endpoint: 'oauth2/token',
+  refresh_endpoint: 'oauth2/token',
+  clientId: 'sdk-node-client-id',
+};
 
 /**
  * UpsunClient class for interacting with the Upsun API.
@@ -64,7 +116,6 @@ export const DEFAULT_UPSUN_CONFIG: UpsunConfig = {
  * It uses the OAuth2Client for handling authentication.
  */
 export class UpsunClient {
-
   // Configuration for the Upsun API client.
   protected upsunConfig: UpsunConfig;
   public apiConfig: Configuration;
@@ -73,31 +124,35 @@ export class UpsunClient {
   protected userId!: string;
 
   // Facades - Tasks.
-  public activity: ActivityTask;
-  public application: ApplicationTask;
-  public backup: BackupTask;
-  public certificate: CertificateTask;
-  public domain: DomainTask;
-  public environment: EnvironementTask;
+  public activities: ActivitiesTask;
+  public applications: ApplicationsTask;
+  public backups: BackupsTask;
+  public certificates: CertificatesTask;
+  public domains: DomainsTask;
+  public environments: EnvironmentsTask;
+  public integrations: IntegrationsTask;
+  public invitations: UsersInvitationsTask;
   public metrics: MetricsTask;
-  public mount: MountTask;
-  public operation: OperationTask;
-  public organization: OrganizationTask;
-  public project: ProjectTask;
-  public route: RouteTask;
-  public service: ServiceTask;
-  public sourceOperation: SourceOperationTask;
+  public mounts: MountsTask;
+  public operations: OperationsTask;
+  public organizations: OrganizationsTask;
+  public projects: ProjectsTask;
+  public repositories: RepositoriesTask;
+  public resources: ResourcesTask;
+  public routes: RoutesTask;
+  public services: ServicesTask;
+  public sourceOperations: SourceOperationsTask;
   public ssh: SshTask;
-  public team: TeamTask;
-  public user: UserTask;
-  public variable: VariableTask;
-  public worker: WorkerTask
+  public teams: TeamsTask;
+  public users: UsersTask;
+  public variables: VariablesTask;
+  public workers: WorkersTask;
 
-  public resource: ResourcesTask;
+  private authMiddleware: Middleware;
 
   /**
    * Constructor for the UpsunClient class.
-   * 
+   *
    * @param config - Configuration object for the Upsun API client.
    */
   constructor(config: UpsunConfig = DEFAULT_UPSUN_CONFIG) {
@@ -106,19 +161,7 @@ export class UpsunClient {
       ...config,
     };
 
-    // Initialize the API configuration with the base URL and access token.
-    // The access token is obtained through the getToken method.
-    // The getToken method is bound to the current instance of the UpsunClient.
-    const param: ConfigurationParameters = {
-      basePath: this.upsunConfig.base_url,
-      accessToken: this.getToken.bind(this),
-    };
-    this.apiConfig = new Configuration(param);
-
     if (this.upsunConfig.apiKey) {
-      // Initialize the OAuth2Client with the authentication URL, client ID, and API key.
-      // The OAuth2Client is responsible for handling the OAuth2 authentication flow.
-      // The auth_url is used to obtain the access token, and the clientId and apiKey are used for authentication.
       this.auth = new OAuth2Client(
         `${this.upsunConfig.auth_url}/${this.upsunConfig.token_endpoint}`,
         this.upsunConfig.clientId,
@@ -126,71 +169,212 @@ export class UpsunClient {
       );
     }
 
-    // Initialize the commands tasks.
-    this.activity = new ActivityTask(this);
-    this.application = new ApplicationTask(this);
-    this.backup = new BackupTask(this);
-    this.certificate = new CertificateTask(this);
-    this.domain = new DomainTask(this);
-    this.environment = new EnvironementTask(this);
-    this.metrics = new MetricsTask(this);
-    this.mount = new MountTask(this);
-    this.operation = new OperationTask(this);
-    this.organization = new OrganizationTask(this);
-    this.project = new ProjectTask(this);
-    this.route = new RouteTask(this);
-    this.service = new ServiceTask(this);
-    this.sourceOperation = new SourceOperationTask(this);
-    this.ssh = new SshTask(this);
-    this.team = new TeamTask(this);
-    this.user = new UserTask(this);
-    this.variable = new VariableTask(this);
-    this.worker = new WorkerTask(this);
+    this.authMiddleware = this.createAuthRetryMiddleware();
 
-    this.resource = new ResourcesTask(this);
+    const param: ConfigurationParameters = {
+      basePath: this.upsunConfig.base_url,
+      accessToken: this.getToken.bind(this),
+      middleware: [this.authMiddleware],
+    };
+    this.apiConfig = new Configuration(param);
+
+    // Init API classes only once
+    const addOnsApi = new AddOnsApi(this.apiConfig);
+    const autoscalingApi = new AutoscalingApi(this.apiConfig);
+    const apiTokensApi = new ApiTokensApi(this.apiConfig);
+    const certManagementApi = new CertManagementApi(this.apiConfig);
+    const connectionsApi = new ConnectionsApi(this.apiConfig);
+    const deploymentApi = new DeploymentApi(this.apiConfig);
+    const domainManagementApi = new DomainManagementApi(this.apiConfig);
+    const environmentApi = new EnvironmentApi(this.apiConfig);
+    const environmentBackupsApi = new EnvironmentBackupsApi(this.apiConfig);
+    const environmentTypeApi = new EnvironmentTypeApi(this.apiConfig);
+    const environmentVariablesApi = new EnvironmentVariablesApi(this.apiConfig);
+    const grantsApi = new GrantsApi(this.apiConfig);
+    const invoicesApi = new InvoicesApi(this.apiConfig);
+    const mfaApi = new MfaApi(this.apiConfig);
+    const ordersApi = new OrdersApi(this.apiConfig);
+    const organizationInvitationsApi = new OrganizationInvitationsApi(this.apiConfig);
+    const organizationMembersApi = new OrganizationMembersApi(this.apiConfig);
+    const organizationProjectsApi = new OrganizationProjectsApi(this.apiConfig);
+    const organizationsApi = new OrganizationsApi(this.apiConfig);
+    const phoneNumberApi = new PhoneNumberApi(this.apiConfig);
+    const profilesApi = new ProfilesApi(this.apiConfig);
+    const projectApi = new ProjectApi(this.apiConfig);
+    const projectInvitationsApi = new ProjectInvitationsApi(this.apiConfig);
+    const projectSettingsApi = new ProjectSettingsApi(this.apiConfig);
+    const projectVariablesApi = new ProjectVariablesApi(this.apiConfig);
+    const recordsApi = new RecordsApi(this.apiConfig);
+    const repositoryApi = new RepositoryApi(this.apiConfig);
+    const routingApi = new RoutingApi(this.apiConfig);
+    const runtimeOperationsApi = new RuntimeOperationsApi(this.apiConfig);
+    const sourceOperationsApi = new SourceOperationsApi(this.apiConfig);
+    const subscriptionsApi = new SubscriptionsApi(this.apiConfig);
+    const sshKeysApi = new SshKeysApi(this.apiConfig);
+    const systemInformationApi = new SystemInformationApi(this.apiConfig);
+    const teamAccessApi = new TeamAccessApi(this.apiConfig);
+    const teamsApi = new TeamsApi(this.apiConfig);
+    const thirdPartyIntegrationsApi = new ThirdPartyIntegrationsApi(this.apiConfig);
+    const userAccessApi = new UserAccessApi(this.apiConfig);
+    const userProfilesApi = new UserProfilesApi(this.apiConfig);
+    const usersApi = new UsersApi(this.apiConfig);
+    const vouchersApi = new VouchersApi(this.apiConfig);
+
+    // Initialize the commands tasks.
+    this.activities = new ActivitiesTask(
+      this,
+      new ProjectActivityApi(this.apiConfig),
+      new EnvironmentActivityApi(this.apiConfig),
+    );
+    this.applications = new ApplicationsTask(this);
+    this.backups = new BackupsTask(this, environmentBackupsApi);
+    this.certificates = new CertificatesTask(this, certManagementApi);
+    this.domains = new DomainsTask(this, domainManagementApi);
+    this.environments = new EnvironmentsTask(
+      this,
+      environmentApi,
+      environmentTypeApi,
+      deploymentApi,
+    );
+    this.integrations = new IntegrationsTask(this, thirdPartyIntegrationsApi);
+    this.invitations = new UsersInvitationsTask(
+      this,
+      organizationInvitationsApi,
+      projectInvitationsApi,
+    );
+    this.metrics = new MetricsTask(this);
+    this.mounts = new MountsTask(this);
+    this.operations = new OperationsTask(this, runtimeOperationsApi);
+    this.organizations = new OrganizationsTask(
+      this,
+      organizationsApi,
+      organizationMembersApi,
+      subscriptionsApi,
+      invoicesApi,
+      mfaApi,
+      ordersApi,
+      profilesApi,
+      recordsApi,
+      vouchersApi,
+      addOnsApi,
+    );
+    this.projects = new ProjectsTask(
+      this,
+      projectApi,
+      organizationProjectsApi,
+      subscriptionsApi,
+      projectSettingsApi,
+    );
+    this.resources = new ResourcesTask(this, deploymentApi, autoscalingApi);
+    this.repositories = new RepositoriesTask(this, repositoryApi, systemInformationApi);
+    this.routes = new RoutesTask(this, routingApi);
+    this.services = new ServicesTask(this);
+    this.sourceOperations = new SourceOperationsTask(this, sourceOperationsApi);
+    this.ssh = new SshTask(this, sshKeysApi);
+    this.teams = new TeamsTask(this, teamsApi, teamAccessApi);
+    this.users = new UsersTask(
+      this,
+      usersApi,
+      userProfilesApi,
+      userAccessApi,
+      apiTokensApi,
+      connectionsApi,
+      grantsApi,
+      mfaApi,
+      phoneNumberApi,
+    );
+    this.variables = new VariablesTask(this, projectVariablesApi, environmentVariablesApi);
+    this.workers = new WorkersTask(this);
+  }
+
+  private createAuthRetryMiddleware(): Middleware {
+    type RetryableInit = RequestInit & { __upsunRetry?: boolean };
+
+    return {
+      post: async ({ fetch, url, init, response }): Promise<Response> => {
+        if (response.status !== 401) {
+          return response;
+        }
+        const retryInit: RetryableInit = {
+          ...(init || {}),
+          __upsunRetry: (init as RetryableInit)?.__upsunRetry,
+        };
+        if (retryInit.__upsunRetry) {
+          return response;
+        }
+        retryInit.__upsunRetry = true;
+        if (!this.auth) {
+          return response;
+        }
+        await this.auth.exchangeCodeForToken();
+        const token = await this.getToken();
+        retryInit.headers = {
+          ...this.cloneHeaders(init.headers),
+          Authorization: `Bearer ${token}`,
+        };
+        return fetch(url, retryInit);
+      },
+    };
+  }
+
+  private cloneHeaders(headers?: HeadersInit): HTTPHeaders {
+    const normalized: HTTPHeaders = {};
+    if (!headers) {
+      return normalized;
+    }
+    if (headers instanceof Headers) {
+      headers.forEach((value, key) => {
+        normalized[key] = value;
+      });
+    } else if (Array.isArray(headers)) {
+      headers.forEach(([key, value]) => {
+        normalized[key] = value;
+      });
+    } else {
+      Object.assign(normalized, headers);
+    }
+    return normalized;
   }
 
   /**
    * Authenticate the client using OAuth2.
-   * 
+   *
    * This method exchanges the authorization code for an access token.
    * It uses the OAuth2Client to handle the authentication flow.
    * The access token is then used to authenticate API requests.
    * @returns {Promise<boolean>} - Returns true if authentication is successful, false otherwise.
    */
   async authenticate(): Promise<boolean> {
-
-    if (this.auth) {
-      return await this.auth.exchangeCodeForToken();
-    } else {
-      console.log("API Key is not defined !");
-      return false;
+    if (!this.auth) {
+      throw new Error('API Key is not defined. Cannot authenticate.');
     }
+    return await this.auth.exchangeCodeForToken();
   }
 
-  async getUserId(): Promise<any> {
+  async getUserId(): Promise<string | undefined> {
     if (this.userId == null) {
-      this.userId = (await this.user.me()).id;
+      this.userId = (await this.users.me()).id;
     }
 
     return this.userId;
   }
 
-  setBearerToken(token: string) {
+  setBearerToken(token: string): void {
     this.accessToken = token;
   }
 
   /**
    * Get the access token for authentication.
    */
-  protected async getToken(name?: string, scopes?: string[]): Promise<string> {
+  public async getToken(name?: string, scopes?: string[]): Promise<string> {
     if (this.auth) {
-      return await this.auth.getAuthorization()
+      return await this.auth.getAuthorization();
     } else if (this.accessToken) {
-      return `Bearer ${this.accessToken}`;
+      return `${this.accessToken}`;
     } else {
-      throw new Error("No authentication method available. Please provide an API key or set a bearer token.");
+      throw new Error(
+        'No authentication method available. Please provide an API key or set a bearer token.',
+      );
     }
   }
-
 }

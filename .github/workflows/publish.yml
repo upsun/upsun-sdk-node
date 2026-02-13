@@ -1,35 +1,78 @@
-name: Publish Package to npmjs
+name: Publish Release
 
 on:
   release:
     types: [published]
 
+env:
+  # Define the primary Node.js version for release, build, coverage uploads and badge generation
+  PRIMARY_NODE_VERSION: '22'
+
 jobs:
-  build:
+  doc:
+    name: Generate Documentation
     runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/doc
+        with:
+          default-runtime-version: ${{ env.PRIMARY_NODE_VERSION }}
+
+  coverage:
+    name: Code Coverage Report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/coverage
+        if: false
+        with:
+          default-runtime-version: ${{ env.PRIMARY_NODE_VERSION }}
+          codecov-secret: ${{ secrets.CODECOV_TOKEN || 'Please define a CODECOV_TOKEN in your GitHub envVars' }}
+
+  publish:
+    name: Publish release to NPM
+    runs-on: ubuntu-latest
+    needs: [ doc, coverage ]
     permissions:
       contents: read
       id-token: write
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up runtime - Node.js ${{  env.PRIMARY_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.PRIMARY_NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-      - run: npm run gen-client
-      - run: npm run build
-      - run: npm publish
+
+      - name: Install OpenAPI Generator CLI
+        run: npm run spec:generate:install
+
+      - name: Generate OpenAPI client
+        run: npm run spec:generate
+
+      - name: Build project
+        run: npm run build
+
+      - name: Publish package
+        if: success()
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      #TODO --access public --provenance when repo is public
-      # - uses: actions/setup-node@v4
-      #   with:
-      #     registry-url: 'https://npm.pkg.github.com'
-      # - run: npm publish
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

@@ -1,6 +1,6 @@
 import nock from 'nock';
 
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 
 dotenv.config();
 
