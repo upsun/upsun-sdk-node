@@ -16,7 +16,15 @@ describe('ProjectsTask', () => {
       },
     } as any;
 
-    projectsTask = new ProjectsTask(mockClient);
+    projectsTask = new ProjectsTask(
+      mockClient,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+    );
   });
 
   afterEach(() => {

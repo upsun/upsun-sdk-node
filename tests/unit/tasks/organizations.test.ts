@@ -38,7 +38,19 @@ describe('OrganizationsTask', () => {
       getUserId: jest.fn().mockResolvedValue('user-123'),
     } as any;
 
-    organizationsTask = new OrganizationsTask(mockClient);
+    organizationsTask = new OrganizationsTask(
+      mockClient,
+      mockOrgApi,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+    );
   });
 
   afterEach(() => {
@@ -86,7 +98,9 @@ describe('OrganizationsTask', () => {
     it('should handle info errors for non-existent organization', async () => {
       mockOrgApi.getOrg.mockRejectedValue(new Error('Organization not found'));
 
-      await expect(organizationsTask.info('non-existent')).rejects.toThrow('Organization not found');
+      await expect(organizationsTask.info('non-existent')).rejects.toThrow(
+        'Organization not found',
+      );
     });
   });
 

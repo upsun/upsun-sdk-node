@@ -1,5 +1,6 @@
 import { OperationsTask } from '../../../src/core/tasks/operations.js';
 import { UpsunClient } from '../../../src/upsun.js';
+import { RuntimeOperationsApi } from '../../../src/api/index.js';
 
 // Mock the UpsunClient
 jest.mock('../../../src/upsun');
@@ -7,6 +8,7 @@ jest.mock('../../../src/upsun');
 describe('OperationsTask', () => {
   let operationsTask: OperationsTask;
   let mockClient: jest.Mocked<UpsunClient>;
+  let mockRuntimeOperationsApi: jest.Mocked<RuntimeOperationsApi>;
 
   beforeEach(() => {
     mockClient = {
@@ -15,7 +17,11 @@ describe('OperationsTask', () => {
       },
     } as any;
 
-    operationsTask = new OperationsTask(mockClient);
+    mockRuntimeOperationsApi = {
+      runOperation: jest.fn(),
+    } as any;
+
+    operationsTask = new OperationsTask(mockClient, mockRuntimeOperationsApi);
   });
 
   afterEach(() => {

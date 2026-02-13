@@ -17,6 +17,7 @@ describe('CertificatesTask', () => {
       deleteProjectsCertificates: jest.fn(),
       getProjectsCertificates: jest.fn(),
       listProjectsCertificates: jest.fn(),
+      updateProjectsCertificates: jest.fn(),
     } as any;
 
     (CertManagementApi as jest.MockedClass<typeof CertManagementApi>).mockImplementation(
@@ -29,7 +30,7 @@ describe('CertificatesTask', () => {
       },
     } as any;
 
-    certificatesTask = new CertificatesTask(mockClient);
+    certificatesTask = new CertificatesTask(mockClient, mockCertApi);
   });
 
   afterEach(() => {
@@ -62,7 +63,6 @@ describe('CertificatesTask', () => {
         certificateCreateInput: {
           certificate: cert,
           key: key,
-          chain: [],
         },
       });
     });
@@ -80,7 +80,7 @@ describe('CertificatesTask', () => {
       const key = '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----';
       const chain = ['-----BEGIN CERTIFICATE-----\nchain\n-----END CERTIFICATE-----'];
 
-      const result = await certificatesTask.add('project-123', cert, key, chain);
+      const result = await certificatesTask.add('project-123', cert, key, { chain });
       expect(result).toBeDefined();
       expect(mockCertApi.createProjectsCertificates).toHaveBeenCalledWith({
         projectId: 'project-123',
@@ -214,7 +214,10 @@ describe('CertificatesTask', () => {
       const isInvalid = false;
       const chain = ['-----BEGIN CERTIFICATE-----\nchain\n-----END CERTIFICATE-----'];
 
-      const result = await certificatesTask.update('project-123', 'cert-456', chain, isInvalid);
+      const result = await certificatesTask.update('project-123', 'cert-456', {
+        chain,
+        isInvalid,
+      });
       expect(result).toBe(mockResponse);
       expect(mockCertApi.updateProjectsCertificates).toHaveBeenCalledWith({
         projectId: 'project-123',
@@ -224,12 +227,14 @@ describe('CertificatesTask', () => {
     });
 
     it('should handle update errors', async () => {
-      mockCertApi.updateProjectsCertificates = jest.fn().mockRejectedValue(new Error('Update failed'));
+      mockCertApi.updateProjectsCertificates = jest
+        .fn()
+        .mockRejectedValue(new Error('Update failed'));
       const chain = ['-----BEGIN CERTIFICATE-----\nchain\n-----END CERTIFICATE-----'];
       const isInvalid = false;
-      await expect(certificatesTask.update('project-123', 'cert-456', chain, isInvalid)).rejects.toThrow('Update failed');
+      await expect(
+        certificatesTask.update('project-123', 'cert-456', { chain, isInvalid }),
+      ).rejects.toThrow('Update failed');
     });
   });
-
-  
 });

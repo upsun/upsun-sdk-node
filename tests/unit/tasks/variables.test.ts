@@ -40,9 +40,9 @@ describe('VariablesTask', () => {
     (ProjectVariablesApi as jest.MockedClass<typeof ProjectVariablesApi>).mockImplementation(
       () => mockProjVarApi,
     );
-    (EnvironmentVariablesApi as jest.MockedClass<typeof EnvironmentVariablesApi>).mockImplementation(
-      () => mockEnvVarApi,
-    );
+    (
+      EnvironmentVariablesApi as jest.MockedClass<typeof EnvironmentVariablesApi>
+    ).mockImplementation(() => mockEnvVarApi);
 
     mockClient = {
       apiConfig: {
@@ -50,7 +50,7 @@ describe('VariablesTask', () => {
       },
     } as any;
 
-    variablesTask = new VariablesTask(mockClient);
+    variablesTask = new VariablesTask(mockClient, mockProjVarApi, mockEnvVarApi);
   });
 
   afterEach(() => {
@@ -66,38 +66,35 @@ describe('VariablesTask', () => {
 
   describe('createProjectVariable', () => {
     it('should require projectId', async () => {
-      await expect(
-        variablesTask.createProjectVariable('', 'NAME', 'VALUE'),
-      ).rejects.toThrow('Project ID is required');
+      await expect(variablesTask.createProjectVariable('', 'NAME', 'VALUE')).rejects.toThrow(
+        'Project ID is required',
+      );
     });
 
     it('should require name', async () => {
-      await expect(
-        variablesTask.createProjectVariable('prj-1', '', 'VALUE'),
-      ).rejects.toThrow('Variable name is required');
+      await expect(variablesTask.createProjectVariable('prj-1', '', 'VALUE')).rejects.toThrow(
+        'Variable name is required',
+      );
     });
 
     it('should require value', async () => {
-      await expect(
-        variablesTask.createProjectVariable('prj-1', 'NAME', ''),
-      ).rejects.toThrow('Variable value is required');
+      await expect(variablesTask.createProjectVariable('prj-1', 'NAME', '')).rejects.toThrow(
+        'Variable value is required',
+      );
     });
 
     it('should call api with create payload', async () => {
       const response = { ok: true } as any;
       mockProjVarApi.createProjectsVariables.mockResolvedValue(response);
 
-      const result = await variablesTask.createProjectVariable(
-        'prj-1',
-        'NAME',
-        'VALUE',
-        { env: 'true' },
-        true,
-        false,
-        true,
-        false,
-        ['app'],
-      );
+      const result = await variablesTask.createProjectVariable('prj-1', 'NAME', 'VALUE', {
+        attributes: { env: 'true' },
+        isJson: true,
+        isSensitive: false,
+        visibleBuild: true,
+        visibleRuntime: false,
+        applicationScope: ['app'],
+      });
 
       expect(result).toBe(response);
       expect(mockProjVarApi.createProjectsVariables).toHaveBeenCalledWith({
@@ -118,9 +115,9 @@ describe('VariablesTask', () => {
 
   describe('deleteProjectVariable', () => {
     it('should require variableId', async () => {
-      await expect(
-        variablesTask.deleteProjectVariable('prj-1', ''),
-      ).rejects.toThrow('Variable ID is required');
+      await expect(variablesTask.deleteProjectVariable('prj-1', '')).rejects.toThrow(
+        'Variable ID is required',
+      );
     });
 
     it('should call api with delete payload', async () => {
@@ -134,9 +131,9 @@ describe('VariablesTask', () => {
 
   describe('getProjectVariable', () => {
     it('should require variableId', async () => {
-      await expect(
-        variablesTask.getProjectVariable('prj-1', ''),
-      ).rejects.toThrow('Variable ID is required');
+      await expect(variablesTask.getProjectVariable('prj-1', '')).rejects.toThrow(
+        'Variable ID is required',
+      );
     });
 
     it('should call api with get payload', async () => {
@@ -167,27 +164,25 @@ describe('VariablesTask', () => {
 
   describe('updateProjectVariable', () => {
     it('should require variableId', async () => {
-      await expect(
-        variablesTask.updateProjectVariable('prj-1', ''),
-      ).rejects.toThrow('Variable ID is required');
+      await expect(variablesTask.updateProjectVariable('prj-1', '')).rejects.toThrow(
+        'Variable ID is required',
+      );
     });
 
     it('should call api with update payload', async () => {
       const response = { ok: true } as any;
       mockProjVarApi.updateProjectsVariables.mockResolvedValue(response);
 
-      const result = await variablesTask.updateProjectVariable(
-        'prj-1',
-        'var-1',
-        'NAME',
-        'VALUE',
-        { env: 'true' },
-        true,
-        true,
-        false,
-        true,
-        ['app'],
-      );
+      const result = await variablesTask.updateProjectVariable('prj-1', 'var-1', {
+        name: 'NAME',
+        value: 'VALUE',
+        attributes: { env: 'true' },
+        isJson: true,
+        isSensitive: true,
+        visibleBuild: false,
+        visibleRuntime: true,
+        applicationScope: ['app'],
+      });
 
       expect(result).toBe(response);
       expect(mockProjVarApi.updateProjectsVariables).toHaveBeenCalledWith({
@@ -241,12 +236,14 @@ describe('VariablesTask', () => {
         'env-1',
         'NAME',
         'VALUE',
-        { env: 'true' },
-        true,
-        false,
-        true,
-        false,
-        ['app'],
+        {
+          attributes: { env: 'true' },
+          isJson: true,
+          isSensitive: false,
+          visibleBuild: true,
+          visibleRuntime: false,
+          applicationScope: ['app'],
+        },
       );
 
       expect(result).toBe(response);
@@ -269,9 +266,9 @@ describe('VariablesTask', () => {
 
   describe('deleteEnvironmentVariable', () => {
     it('should require variableId', async () => {
-      await expect(
-        variablesTask.deleteEnvironmentVariable('prj-1', 'env-1', ''),
-      ).rejects.toThrow('Variable ID is required');
+      await expect(variablesTask.deleteEnvironmentVariable('prj-1', 'env-1', '')).rejects.toThrow(
+        'Variable ID is required',
+      );
     });
 
     it('should call api with delete payload', async () => {
@@ -286,9 +283,9 @@ describe('VariablesTask', () => {
 
   describe('getEnvironmentVariable', () => {
     it('should require variableId', async () => {
-      await expect(
-        variablesTask.getEnvironmentVariable('prj-1', 'env-1', ''),
-      ).rejects.toThrow('Variable ID is required');
+      await expect(variablesTask.getEnvironmentVariable('prj-1', 'env-1', '')).rejects.toThrow(
+        'Variable ID is required',
+      );
     });
 
     it('should call api with get payload', async () => {
@@ -336,12 +333,14 @@ describe('VariablesTask', () => {
         'var-1',
         'NAME',
         'VALUE',
-        { env: 'true' },
-        true,
-        true,
-        false,
-        true,
-        ['app'],
+        {
+          attributes: { env: 'true' },
+          isJson: true,
+          isSensitive: true,
+          visibleBuild: false,
+          visibleRuntime: true,
+          applicationScope: ['app'],
+        },
       );
 
       expect(result).toBe(response);

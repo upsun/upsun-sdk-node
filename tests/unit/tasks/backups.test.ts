@@ -1,6 +1,7 @@
 import { BackupsTask } from '../../../src/core/tasks/backups.js';
 import { UpsunClient } from '../../../src/upsun.js';
 import { EnvironmentBackupsApi } from '../../../src/api/index.js';
+import { Resources6InitEnum } from '../../../src/model/index.js';
 
 // Mock the UpsunClient and EnvironmentBackupsApi
 jest.mock('../../../src/upsun');
@@ -30,7 +31,7 @@ describe('BackupsTask', () => {
       },
     } as any;
 
-    backupsTask = new BackupsTask(mockClient);
+    backupsTask = new BackupsTask(mockClient, mockBackupsApi);
   });
 
   afterEach(() => {
@@ -133,11 +134,11 @@ describe('BackupsTask', () => {
         environmentId: 'main',
         backupId: 'backup-1',
         environmentRestoreInput: {
-          environmentName: 'main',
+          environmentName: null,
           branchFrom: null,
           restoreCode: true,
           restoreResources: true,
-          resources: null,
+          resources: { init: Resources6InitEnum.DEFAULT },
         },
       });
     });

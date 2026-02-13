@@ -27,6 +27,55 @@ import {
   VariablesTask,
   WorkersTask,
 } from './core/index.js';
+import { IntegrationsTask } from './core/tasks/integrations.js';
+import { RepositoriesTask } from './core/tasks/repositories.js';
+import { UsersInvitationsTask } from './core/tasks/users-invitations.js';
+import {
+  AddOnsApi,
+  ApiTokensApi,
+  AutoscalingApi,
+  CertManagementApi,
+  ConnectionsApi,
+  DeploymentApi,
+  DeploymentTargetApi,
+  DomainManagementApi,
+  EnvironmentActivityApi,
+  EnvironmentApi,
+  EnvironmentBackupsApi,
+  EnvironmentTypeApi,
+  EnvironmentVariablesApi,
+  GrantsApi,
+  Integrations,
+  InvoicesApi,
+  MfaApi,
+  OrdersApi,
+  OrganizationInvitationsApi,
+  OrganizationMembersApi,
+  OrganizationProjectsApi,
+  OrganizationsApi,
+  PhoneNumberApi,
+  ProfilesApi,
+  ProjectActivityApi,
+  ProjectApi,
+  ProjectInvitationsApi,
+  ProjectSettingsApi,
+  ProjectVariablesApi,
+  RecordsApi,
+  RepositoryApi,
+  RoutingApi,
+  RuntimeOperationsApi,
+  SourceOperationsApi,
+  SshKeysApi,
+  SubscriptionsApi,
+  SystemInformationApi,
+  TeamAccessApi,
+  TeamsApi,
+  ThirdPartyIntegrationsApi,
+  UserAccessApi,
+  UserProfilesApi,
+  UsersApi,
+  VouchersApi,
+} from './index.js';
 
 /**
  * Configuration interface for the Upsun API client.
@@ -83,11 +132,15 @@ export class UpsunClient {
   public certificates: CertificatesTask;
   public domains: DomainsTask;
   public environments: EnvironmentsTask;
+  public integrations: IntegrationsTask;
+  public invitations: UsersInvitationsTask;
   public metrics: MetricsTask;
   public mounts: MountsTask;
   public operations: OperationsTask;
   public organizations: OrganizationsTask;
   public projects: ProjectsTask;
+  public repositories: RepositoriesTask;
+  public resources: ResourcesTask;
   public routes: RoutesTask;
   public services: ServicesTask;
   public sourceOperations: SourceOperationsTask;
@@ -96,8 +149,6 @@ export class UpsunClient {
   public users: UsersTask;
   public variables: VariablesTask;
   public workers: WorkersTask;
-
-  public resources: ResourcesTask;
 
   private authMiddleware: Middleware;
 
@@ -129,28 +180,115 @@ export class UpsunClient {
     };
     this.apiConfig = new Configuration(param);
 
+    // Init API classes only once
+    const addOnsApi = new AddOnsApi(this.apiConfig);
+    const autoscalingApi = new AutoscalingApi(this.apiConfig);
+    const apiTokensApi = new ApiTokensApi(this.apiConfig);
+    const certManagementApi = new CertManagementApi(this.apiConfig);
+    const connectionsApi = new ConnectionsApi(this.apiConfig);
+    const deploymentApi = new DeploymentApi(this.apiConfig);
+    const domainManagementApi = new DomainManagementApi(this.apiConfig);
+    const environmentApi = new EnvironmentApi(this.apiConfig);
+    const environmentBackupsApi = new EnvironmentBackupsApi(this.apiConfig);
+    const environmentTypeApi = new EnvironmentTypeApi(this.apiConfig);
+    const environmentVariablesApi = new EnvironmentVariablesApi(this.apiConfig);
+    const grantsApi = new GrantsApi(this.apiConfig);
+    const invoicesApi = new InvoicesApi(this.apiConfig);
+    const mfaApi = new MfaApi(this.apiConfig);
+    const ordersApi = new OrdersApi(this.apiConfig);
+    const organizationInvitationsApi = new OrganizationInvitationsApi(this.apiConfig);
+    const organizationMembersApi = new OrganizationMembersApi(this.apiConfig);
+    const organizationProjectsApi = new OrganizationProjectsApi(this.apiConfig);
+    const organizationsApi = new OrganizationsApi(this.apiConfig);
+    const phoneNumberApi = new PhoneNumberApi(this.apiConfig);
+    const profilesApi = new ProfilesApi(this.apiConfig);
+    const projectApi = new ProjectApi(this.apiConfig);
+    const projectInvitationsApi = new ProjectInvitationsApi(this.apiConfig);
+    const projectSettingsApi = new ProjectSettingsApi(this.apiConfig);
+    const projectVariablesApi = new ProjectVariablesApi(this.apiConfig);
+    const recordsApi = new RecordsApi(this.apiConfig);
+    const repositoryApi = new RepositoryApi(this.apiConfig);
+    const routingApi = new RoutingApi(this.apiConfig);
+    const runtimeOperationsApi = new RuntimeOperationsApi(this.apiConfig);
+    const sourceOperationsApi = new SourceOperationsApi(this.apiConfig);
+    const subscriptionsApi = new SubscriptionsApi(this.apiConfig);
+    const sshKeysApi = new SshKeysApi(this.apiConfig);
+    const systemInformationApi = new SystemInformationApi(this.apiConfig);
+    const teamAccessApi = new TeamAccessApi(this.apiConfig);
+    const teamsApi = new TeamsApi(this.apiConfig);
+    const thirdPartyIntegrationsApi = new ThirdPartyIntegrationsApi(this.apiConfig);
+    const userAccessApi = new UserAccessApi(this.apiConfig);
+    const userProfilesApi = new UserProfilesApi(this.apiConfig);
+    const usersApi = new UsersApi(this.apiConfig);
+    const vouchersApi = new VouchersApi(this.apiConfig);
+
     // Initialize the commands tasks.
-    this.activities = new ActivitiesTask(this);
+    this.activities = new ActivitiesTask(
+      this,
+      new ProjectActivityApi(this.apiConfig),
+      new EnvironmentActivityApi(this.apiConfig),
+    );
     this.applications = new ApplicationsTask(this);
-    this.backups = new BackupsTask(this);
-    this.certificates = new CertificatesTask(this);
-    this.domains = new DomainsTask(this);
-    this.environments = new EnvironmentsTask(this);
+    this.backups = new BackupsTask(this, environmentBackupsApi);
+    this.certificates = new CertificatesTask(this, certManagementApi);
+    this.domains = new DomainsTask(this, domainManagementApi);
+    this.environments = new EnvironmentsTask(
+      this,
+      environmentApi,
+      environmentTypeApi,
+      deploymentApi,
+    );
+    this.integrations = new IntegrationsTask(this, thirdPartyIntegrationsApi);
+    this.invitations = new UsersInvitationsTask(
+      this,
+      organizationInvitationsApi,
+      projectInvitationsApi,
+    );
     this.metrics = new MetricsTask(this);
     this.mounts = new MountsTask(this);
-    this.operations = new OperationsTask(this);
-    this.organizations = new OrganizationsTask(this);
-    this.projects = new ProjectsTask(this);
-    this.routes = new RoutesTask(this);
+    this.operations = new OperationsTask(this, runtimeOperationsApi);
+    this.organizations = new OrganizationsTask(
+      this,
+      organizationsApi,
+      organizationMembersApi,
+      subscriptionsApi,
+      invoicesApi,
+      mfaApi,
+      ordersApi,
+      profilesApi,
+      recordsApi,
+      vouchersApi,
+      addOnsApi,
+    );
+    this.projects = new ProjectsTask(
+      this,
+      projectApi,
+      organizationProjectsApi,
+      subscriptionsApi,
+      projectSettingsApi,
+      repositoryApi,
+      systemInformationApi,
+    );
+    this.resources = new ResourcesTask(this, deploymentApi, autoscalingApi);
+    this.repositories = new RepositoriesTask(this, repositoryApi, systemInformationApi);
+    this.routes = new RoutesTask(this, routingApi);
     this.services = new ServicesTask(this);
-    this.sourceOperations = new SourceOperationsTask(this);
-    this.ssh = new SshTask(this);
-    this.teams = new TeamsTask(this);
-    this.users = new UsersTask(this);
-    this.variables = new VariablesTask(this);
+    this.sourceOperations = new SourceOperationsTask(this, sourceOperationsApi);
+    this.ssh = new SshTask(this, sshKeysApi);
+    this.teams = new TeamsTask(this, teamsApi, teamAccessApi);
+    this.users = new UsersTask(
+      this,
+      usersApi,
+      userProfilesApi,
+      userAccessApi,
+      apiTokensApi,
+      connectionsApi,
+      grantsApi,
+      mfaApi,
+      phoneNumberApi,
+    );
+    this.variables = new VariablesTask(this, projectVariablesApi, environmentVariablesApi);
     this.workers = new WorkersTask(this);
-
-    this.resources = new ResourcesTask(this);
   }
 
   private createAuthRetryMiddleware(): Middleware {

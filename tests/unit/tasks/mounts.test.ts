@@ -13,6 +13,13 @@ describe('MountsTask', () => {
       apiConfig: {
         basePath: 'https://api.upsun.com',
       },
+      environments: {
+        getDeployment: jest.fn().mockResolvedValue({
+          webapps: {},
+          services: {},
+          workers: {},
+        }),
+      },
     } as any;
 
     mountTask = new MountsTask(mockClient);
@@ -41,8 +48,9 @@ describe('MountsTask', () => {
       expect(typeof mountTask.list).toBe('function');
     });
 
-    it('should throw "Cannot be implemented" error', async () => {
-      await expect(mountTask.list('project-123')).rejects.toThrow('Cannot be implemented');
+    it('should list mounts from deployment', async () => {
+      const result = await mountTask.list('project-123');
+      expect(result).toEqual({});
     });
   });
 
@@ -53,7 +61,7 @@ describe('MountsTask', () => {
     });
 
     it('should throw "Cannot be implemented" error', async () => {
-      await expect(mountTask.upload('project-123', 'mount-456')).rejects.toThrow(
+      await expect(mountTask.upload('project-123', 'mount-456', [])).rejects.toThrow(
         'Cannot be implemented',
       );
     });

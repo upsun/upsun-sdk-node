@@ -63,6 +63,112 @@ export abstract class TaskBase {
     }
   }
 
+  static checkDeploymentId(deploymentId: string): void {
+    if (!deploymentId) {
+      throw new Error('Deployment ID is required');
+    }
+  }
+
+  static checkInvoiceId(invoiceId: string): void {
+    if (!invoiceId) {
+      throw new Error('Invoice ID is required');
+    }
+  }
+
+  static checkOrderId(orderId: string): void {
+    if (!orderId) {
+      throw new Error('Order ID is required');
+    }
+  }
+
+  static checkVoucherCode(code: string): void {
+    if (!code) {
+      throw new Error('Voucher code is required');
+    }
+  }
+
+  static checkProjectRegion(region: string): void {
+    if (!region) {
+      throw new Error('Project region is required');
+    }
+  }
+
+  static checkVariableId(variableId: string): void {
+    if (!variableId) {
+      throw new Error('Variable ID is required');
+    }
+  }
+
+  static checkRepositoryBlobId(repositoryBlobId: string): void {
+    if (!repositoryBlobId) {
+      throw new Error('Repository Blob ID is required');
+    }
+  }
+
+  static checkRepositoryCommitId(repositoryCommitId: string): void {
+    if (!repositoryCommitId) {
+      throw new Error('Repository Commit ID is required');
+    }
+  }
+
+  static checkRepositoryRefId(repositoryRefId: string): void {
+    if (!repositoryRefId) {
+      throw new Error('Repository Ref ID is required');
+    }
+  }
+
+  static checkRepositoryTreeId(repositoryTreeId: string): void {
+    if (!repositoryTreeId) {
+      throw new Error('Repository Tree ID is required');
+    }
+  }
+
+  static checkIntegrationId(integrationId: string): void {
+    if (!integrationId) {
+      throw new Error('Integration ID is required');
+    }
+  }
+
+  static checkDomainId(domainId: string): void {
+    if (!domainId) {
+      throw new Error('Domain ID is required');
+    }
+  }
+
+  static checkApiTokenId(tokenId: string): void {
+    if (!tokenId) {
+      throw new Error('API Token ID is required');
+    }
+  }
+
+  static checkEmail(email: string): void {
+    if (!email) {
+      throw new Error('Email is required');
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new Error('Invalid email format');
+    }
+  }
+
+  static checkInviteId(inviteId: string): void {
+    if (!inviteId) {
+      throw new Error('Invite ID is required');
+    }
+  }
+
+  static checkUsername(username: string): void {
+    if (!username) {
+      throw new Error('Username is required');
+    }
+  }
+
+  static checkSshKeyId(keyId: number): void {
+    if (!keyId || keyId <= 0) {
+      throw new Error('Key ID must be a positive integer');
+    }
+  }
+
   // works for URIs like /subscriptions/{subscriptionId} to extract subscriptionId
   // as the subscriptionId is not returned directly in the project object (emty field)
   // e.g. /subscriptions/abc123
