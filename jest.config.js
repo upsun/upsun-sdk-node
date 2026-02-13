@@ -9,6 +9,7 @@ export default {
       {
         useESM: true,
         tsconfig: {
+          module: 'ES2022',
           moduleResolution: 'node',
           isolatedModules: true,
         },
