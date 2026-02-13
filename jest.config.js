@@ -8,13 +8,6 @@ export default {
       'ts-jest',
       {
         useESM: true,
-        tsconfig: {
-          "extends": "./tsconfig.json",
-          "compilerOptions": {
-            "rootDir": ".",
-            "isolatedModules": true
-          },
-        },
       },
     ],
   },
