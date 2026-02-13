@@ -28,7 +28,9 @@ export class SshTask extends TaskBase {
   async add(value: string, userId: string, title?: string): Promise<SshKey> {
     TaskBase.checkUserId(userId);
 
-    if (!value) { throw new Error('SSH key value is required'); }
+    if (!value) {
+      throw new Error('SSH key value is required');
+    }
 
     return await this.sshKeysApi.createSshKey({
       createSshKeyRequest: { uuid: userId, value, title },

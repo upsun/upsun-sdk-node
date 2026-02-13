@@ -6,12 +6,10 @@ import { RepositoryApi, SystemInformationApi } from '../../index.js';
 // Si fetch n'est pas disponible nativement, utiliser node-fetch ou globalThis.fetch
 
 export class RepositoriesTask extends TaskBase {
-
   constructor(
     protected readonly client: UpsunClient,
     private repositoryApi: RepositoryApi,
     private systemInfoApi: SystemInformationApi,
-
   ) {
     super(client);
   }
