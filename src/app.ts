@@ -7,6 +7,7 @@ import {
 import { UpsunClient, UpsunConfig } from './upsun.js';
 import dotenv from 'dotenv';
 import { ResponseError } from './index.js';
+import { DeploymentResourceGroup } from './core/model.js';
 
 dotenv.config();
 
@@ -37,19 +38,24 @@ if (MODE_USE === 'API') {
   throw new Error('Invalid MODE_USE value. Use API or BEARER.');
 }
 
-const me = await upsun.users.me();
+const relationships = await upsun.environments.getDeployment(projectTestId, 'main', 'current');
 
-const list = await upsun.users.listExtendedUserProjectAccess(me.id);
-
+const mountsWebapps = await upsun.mounts.list(
+  projectTestId,
+  'main',
+  DeploymentResourceGroup.webapps,
+);
+const mounts = await upsun.mounts.list(projectTestId, 'main');
+const mountsWithoutEnv = await upsun.mounts.list(projectTestId);
 exit();
 const variable = await upsun.projects.getVariable('irkw4aj7kw7lc', 'env:GITHUB_PRIVATE_KEY');
 
-const listgitBlob = await upsun.projects.listGitRefs(projectTestId);
-const gitBlob = await upsun.projects.getGitCommit(
+const listgitBlob = await upsun.repositories.listGitRefs(projectTestId);
+const gitBlob = await upsun.repositories.getGitCommit(
   projectTestId,
   'b2f80de1bfdd9412bb4927477d67a7ec94415240',
 );
-const gitTree = await upsun.projects.getGitTree(
+const gitTree = await upsun.repositories.getGitTree(
   projectTestId,
   '61b1cc5bf48ef000b165b48ccf88394615af2855',
 );
@@ -129,7 +135,7 @@ if (FULL_TEST) {
       // console.log(prjCreatedObject);
 
       // Wait 15 minutes before redeploying (test renew access token)
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+
       //DISABLED || (await delay(6000 * 15));
 
       // Work with project
@@ -142,7 +148,7 @@ if (FULL_TEST) {
         const res = await upsun.resources.get(
           prj.id,
           prj.defaultBranch || 'main',
-          'workers',
+          DeploymentResourceGroup.webapps,
           'app--app-worker',
         );
         console.log(res);
