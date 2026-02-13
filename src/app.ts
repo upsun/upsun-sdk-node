@@ -38,51 +38,13 @@ if (MODE_USE === 'API') {
   throw new Error('Invalid MODE_USE value. Use API or BEARER.');
 }
 
-const relationships = await upsun.environments.getDeployment(projectTestId, 'main', 'current');
-
-const mountsWebapps = await upsun.mounts.list(
-  projectTestId,
-  'main',
-  DeploymentResourceGroup.webapps,
-);
-const mounts = await upsun.mounts.list(projectTestId, 'main');
-const mountsWithoutEnv = await upsun.mounts.list(projectTestId);
-exit();
-const variable = await upsun.projects.getVariable('irkw4aj7kw7lc', 'env:GITHUB_PRIVATE_KEY');
-
-const listgitBlob = await upsun.repositories.listGitRefs(projectTestId);
-const gitBlob = await upsun.repositories.getGitCommit(
-  projectTestId,
-  'b2f80de1bfdd9412bb4927477d67a7ec94415240',
-);
-const gitTree = await upsun.repositories.getGitTree(
-  projectTestId,
-  '61b1cc5bf48ef000b165b48ccf88394615af2855',
-);
-console.log(gitBlob);
-
 console.log("--- it's me ---");
-// const me = await upsun.user.me();
-// console.log(me);
+const me = await upsun.users.me();
+console.log(me);
 
 console.log('--- List Organizations ---');
-//const accessToken = await upsun.getToken();
-//console.log('Access Token:', accessToken);
-// console.log(orgs);
-
-// console.log(org);
-
-//const tt = await upsun.metrics.fetchMetrics("a6gx2dq4x235u", "master", "eu-3");
-// const tt = await upsun.metrics.fetchMetrics('3byyvv7dtvdye', 'master', 'ch-1');
-// console.log(tt);
-
-console.log('--- Delete Project ---');
-/* upsun.project.delete('y4q5rwg4uzv5g').then(() => {
-  console.log('Project deleted successfully');
-}).catch((error) => {
-  console.error('Error deleting project:', error);
-}); */
-//let prjCreatedObject = null;
+const orgs = await upsun.organizations.list();
+console.log(orgs);
 
 if (FULL_TEST) {
   try {

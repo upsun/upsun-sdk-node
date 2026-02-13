@@ -60,11 +60,13 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Install OpenAPI Generator CLI
+        run: npm run spec:generate:install
+
       - name: Generate OpenAPI client
         run: npm run spec:generate
 
       - name: Run unit tests
-        if: false
         run: npm run test:unit
 
   doc:
@@ -117,6 +119,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+
+      - name: Install OpenAPI Generator CLI
+        run: npm run spec:generate:install
 
       - name: Generate OpenAPI client
         run: npm run spec:generate

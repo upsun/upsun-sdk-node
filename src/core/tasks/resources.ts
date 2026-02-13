@@ -11,10 +11,6 @@ import {
 } from '../../index.js';
 import { DeploymentResourceGroup } from '../model.js';
 
-interface ResourceApiPlaceholder {
-  getNextDeployement: (params: { projectId: string; environmentId: string }) => Promise<unknown>;
-}
-
 export class ResourcesTask extends TaskBase {
   constructor(
     protected readonly client: UpsunClient,

@@ -1,9 +1,7 @@
 import { UpsunClient } from '../../upsun.js';
-import { Blob, Commit, Metrics, Ref, SystemInformation, Tree } from '../../model/index.js';
+import { Blob, Commit, Ref, SystemInformation, Tree } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
 import { RepositoryApi, SystemInformationApi } from '../../index.js';
-
-// Si fetch n'est pas disponible nativement, utiliser node-fetch ou globalThis.fetch
 
 export class RepositoriesTask extends TaskBase {
   constructor(

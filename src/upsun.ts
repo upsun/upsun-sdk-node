@@ -37,7 +37,6 @@ import {
   CertManagementApi,
   ConnectionsApi,
   DeploymentApi,
-  DeploymentTargetApi,
   DomainManagementApi,
   EnvironmentActivityApi,
   EnvironmentApi,
@@ -45,7 +44,6 @@ import {
   EnvironmentTypeApi,
   EnvironmentVariablesApi,
   GrantsApi,
-  Integrations,
   InvoicesApi,
   MfaApi,
   OrdersApi,
@@ -266,8 +264,6 @@ export class UpsunClient {
       organizationProjectsApi,
       subscriptionsApi,
       projectSettingsApi,
-      repositoryApi,
-      systemInformationApi,
     );
     this.resources = new ResourcesTask(this, deploymentApi, autoscalingApi);
     this.repositories = new RepositoriesTask(this, repositoryApi, systemInformationApi);

@@ -52,7 +52,6 @@ export class OAuth2Client {
 
     if (!response.ok) {
       throw new Error('Token exchange failed');
-      return false;
     }
 
     const data: TokenResponse = await response.json();

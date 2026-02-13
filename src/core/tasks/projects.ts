@@ -20,11 +20,6 @@ import {
   ProjectSettings,
   ProjectVariable,
   Subscription,
-  Blob,
-  Commit,
-  Ref,
-  Tree,
-  SystemInformation,
   Domain,
   Certificate,
   TeamProjectAccess,
@@ -56,8 +51,6 @@ export class ProjectsTask extends TaskBase {
     private orgPrjApi: OrganizationProjectsApi,
     private subApi: SubscriptionsApi,
     private settingsApi: ProjectSettingsApi,
-    private repositoryApi: RepositoryApi,
-    private systemInfoApi: SystemInformationApi,
   ) {
     super(client);
   }
