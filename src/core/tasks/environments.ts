@@ -551,6 +551,7 @@ export class EnvironmentsTask extends TaskBase {
   async getBackup(projectId: string, environmentId: string, backupId: string): Promise<Backup> {
     return await this.client.backups.get(projectId, environmentId, backupId);
   }
+
   /**
    * Restore the environment from a specific backup.
    * @param projectId - The ID of the project.
@@ -627,7 +628,7 @@ export class EnvironmentsTask extends TaskBase {
    * @throws An error if the project ID or environment ID is invalid, if the name is missing or invalid, if a variable
    * with the same name already exists in the environment, or if there is an issue with the API request.
    */
-  async createVariables(
+  async createVariable(
     projectId: string,
     environmentId: string,
     name: string,

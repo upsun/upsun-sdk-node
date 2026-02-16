@@ -472,7 +472,7 @@ describe('EnvironmentsTask', () => {
       const response = { ok: true } as any;
       mockVariables.createEnvironmentVariable.mockResolvedValue(response);
 
-      const result = await environmentTask.createVariables('project-123', 'main', 'NAME', 'VALUE', {
+      const result = await environmentTask.createVariable('project-123', 'main', 'NAME', 'VALUE', {
         attributes: { env: 'true' },
         isJson: true,
       });

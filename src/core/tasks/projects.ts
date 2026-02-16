@@ -5,9 +5,7 @@ import {
   OrganizationProjectsApi,
   ProjectApi,
   ProjectSettingsApi,
-  RepositoryApi,
   SubscriptionsApi,
-  SystemInformationApi,
 } from '../../api/index.js';
 import {
   AcceptedResponse,
