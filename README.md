@@ -21,7 +21,6 @@ npm install upsun-sdk-node
 To use the Upsun SDK, you need to initialize the `Upsun` class with your API key and connection URL. Here's an example:
 
 ```TypeScript
-
 import { UpsunClient, UpsunConfig } from "upsun-sdk-node";
 
 const upsun = new UpsunClient({ apiKey: process.env.UPSUN_CLI_TOKEN || "" } as UpsunConfig);
