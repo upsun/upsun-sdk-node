@@ -117,7 +117,7 @@ export class TeamsTask extends TaskBase {
    * returned.
    * @throws An error if there is an issue with the API request to list the teams.
    */
-  async list(filters: ListTeamsRequest): Promise<ListTeams200Response> {
+  async list(filters?: ListTeamsRequest): Promise<ListTeams200Response> {
     return await this.teamsApi.listTeams(filters);
   }
 
@@ -215,7 +215,7 @@ export class TeamsTask extends TaskBase {
    */
   async listMembers(
     teamId: string,
-    filters: FilterListTeamMembers,
+    filters?: FilterListTeamMembers,
   ): Promise<ListTeamMembers200Response> {
     TaskBase.checkTeamId(teamId);
 
@@ -333,7 +333,7 @@ export class TeamsTask extends TaskBase {
    */
   async listTeamProjectAccessByProject(
     projectId: string,
-    filters: FilterListProjectTeamAccess,
+    filters?: FilterListProjectTeamAccess,
   ): Promise<ListProjectTeamAccess200Response> {
     TaskBase.checkProjectId(projectId);
 
@@ -353,7 +353,7 @@ export class TeamsTask extends TaskBase {
    */
   async listTeamProjectAccessByTeam(
     teamId: string,
-    filters: FilterListTeamProjectAccess,
+    filters?: FilterListTeamProjectAccess,
   ): Promise<ListProjectTeamAccess200Response> {
     TaskBase.checkTeamId(teamId);
 

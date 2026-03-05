@@ -151,7 +151,7 @@ export class EnvironmentsTask extends TaskBase {
   async httpAccess(
     projectId: string,
     environmentId: string,
-    httpAccess: HttpAccessPermissions2,
+    httpAccess?: HttpAccessPermissions2,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -268,7 +268,7 @@ export class EnvironmentsTask extends TaskBase {
   }
 
   //TODO implement logs streaming?
-  async logs(projectId: string, environmentId: string, app_name: string): Promise<never> {
+  async logs(projectId: string, environmentId: string, appName: string): Promise<never> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
@@ -349,12 +349,12 @@ export class EnvironmentsTask extends TaskBase {
   async relationships(
     projectId: string,
     environmentId: string,
-    appId: string,
+    applicationId: string,
   ): Promise<{ [key: string]: ServiceRelationshipsValue }> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
-    const appConfig = await this.client.applications.configGet(projectId, environmentId, appId);
+    const appConfig = await this.client.applications.configGet(projectId, environmentId, applicationId);
 
     return appConfig.relationships;
   }
@@ -605,12 +605,25 @@ export class EnvironmentsTask extends TaskBase {
    */
   async getType(projectId: string, environmentTypeId: string): Promise<EnvironmentType> {
     TaskBase.checkProjectId(projectId);
-    TaskBase.checkEnvironmentId(environmentTypeId);
+    TaskBase.checkEnvironmentTypeId(environmentTypeId);
 
     return await this.envTypeApi.getEnvironmentType({
       projectId: projectId,
       environmentTypeId: environmentTypeId,
     });
+  }
+
+  /**
+   * List all environment types available in the project. Environment types represent different categories or 
+   * classifications of environments, such as development, staging, production, etc. Each environment type may have 
+   * specific characteristics or configurations that differentiate it from other types.
+   * @param projectId - The ID of the project.
+   * @returns A list of environment types available in the project.
+   */
+  async listTypes(projectId: string): Promise<EnvironmentType[]> {
+    TaskBase.checkProjectId(projectId);
+    
+    return await this.envTypeApi.listProjectsEnvironmentTypes({ projectId: projectId });
   }
 
   /**
@@ -764,7 +777,7 @@ export class EnvironmentsTask extends TaskBase {
    * @throws An error if the project ID or environment ID is invalid, if the path or destination is missing or invalid,
    * if a route with the same path already exists in the environment, or if there is an issue with the API request.
    */
-  async createDomain(
+  async addDomain(
     projectId: string,
     environmentId: string,
     domainName: string,
@@ -828,7 +841,7 @@ export class EnvironmentsTask extends TaskBase {
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to update the domain in.
    * @param domainId - The ID of the domain to update.
-   * @param params - The parameters to update for the domain, such as the domain's attributes, whether it is the default
+   * @param domainPatch - The parameters to update for the domain, such as the domain's attributes, whether it is the default
    * domain, etc.
    * @return An AcceptedResponse indicating that the update domain request has been accepted.
    * @throws An error if the project ID, environment ID, or domain ID is invalid, if the domain to update does not exist
@@ -838,9 +851,9 @@ export class EnvironmentsTask extends TaskBase {
     projectId: string,
     environmentId: string,
     domainId: string,
-    params?: DomainPatch,
+    domainPatch: DomainPatch,
   ): Promise<AcceptedResponse> {
-    return await this.client.domains.update(projectId, domainId, params, environmentId);
+    return await this.client.domains.update(projectId, domainId, domainPatch, environmentId);
   }
 
   /**

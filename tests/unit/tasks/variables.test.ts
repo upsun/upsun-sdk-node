@@ -200,6 +200,18 @@ describe('VariablesTask', () => {
         },
       });
     });
+
+    it('should send empty patch when params are omitted', async () => {
+      const response = { ok: true } as any;
+      mockProjVarApi.updateProjectsVariables.mockResolvedValue(response);
+
+      await variablesTask.updateProjectVariable('prj-1', 'var-1');
+      expect(mockProjVarApi.updateProjectsVariables).toHaveBeenCalledWith({
+        projectId: 'prj-1',
+        projectVariableId: 'var-1',
+        projectVariablePatch: {},
+      });
+    });
   });
 
   describe('createEnvironmentVariable', () => {
@@ -321,6 +333,18 @@ describe('VariablesTask', () => {
       await expect(
         variablesTask.updateEnvironmentVariable('prj-1', 'env-1', '', 'NAME', 'VALUE'),
       ).rejects.toThrow('Variable ID is required');
+    });
+
+    it('should require name', async () => {
+      await expect(
+        variablesTask.updateEnvironmentVariable('prj-1', 'env-1', 'var-1', '', 'VALUE'),
+      ).rejects.toThrow('Variable name is required');
+    });
+
+    it('should require value', async () => {
+      await expect(
+        variablesTask.updateEnvironmentVariable('prj-1', 'env-1', 'var-1', 'NAME', ''),
+      ).rejects.toThrow('Variable value is required');
     });
 
     it('should call api with update payload', async () => {

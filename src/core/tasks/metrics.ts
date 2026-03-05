@@ -118,7 +118,7 @@ export class MetricsTask extends TaskBase {
         }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('Error parsing response:', error);
+        // console.error('Error parsing response:', error);
       }
     });
 

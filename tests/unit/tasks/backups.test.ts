@@ -111,6 +111,36 @@ describe('BackupsTask', () => {
     });
   });
 
+  describe('delete', () => {
+    it('should delete a backup', async () => {
+      const accepted = { status: 'ok' } as any;
+      mockBackupsApi.deleteProjectsEnvironmentsBackups.mockResolvedValue(accepted);
+
+      const result = await backupsTask.delete('project-123', 'main', 'backup-1');
+      expect(result).toBe(accepted);
+      expect(mockBackupsApi.deleteProjectsEnvironmentsBackups).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+        backupId: 'backup-1',
+      });
+    });
+  });
+
+  describe('get', () => {
+    it('should get a backup by id', async () => {
+      const backup = { id: 'backup-1' } as any;
+      mockBackupsApi.getProjectsEnvironmentsBackups.mockResolvedValue(backup);
+
+      const result = await backupsTask.get('project-123', 'main', 'backup-1');
+      expect(result).toBe(backup);
+      expect(mockBackupsApi.getProjectsEnvironmentsBackups).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+        backupId: 'backup-1',
+      });
+    });
+  });
+
   describe('restore', () => {
     it('should have restore method defined', () => {
       expect(backupsTask.restore).toBeDefined();

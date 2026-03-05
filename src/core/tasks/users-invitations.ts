@@ -105,7 +105,7 @@ export class UsersInvitationsTask extends TaskBase {
   async createProjectInvite(
     projectId: string,
     email: string,
-    params: CreateProjectInvite,
+    params?: CreateProjectInvite,
   ): Promise<ProjectInvitation> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEmail(email);

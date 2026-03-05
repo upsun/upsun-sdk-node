@@ -53,7 +53,7 @@ export class MountsTask extends TaskBase {
     throw new Error('Cannot be implemented');
   }
 
-  async upload(projectId: string, mountId: string, params: []): Promise<never> {
+  async upload(projectId: string, mountId: string, params?: []): Promise<never> {
     throw new Error('Cannot be implemented');
   }
 }

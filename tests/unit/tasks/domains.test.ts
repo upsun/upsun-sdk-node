@@ -364,6 +364,19 @@ describe('DomainsTask', () => {
       });
     });
 
+    it('should update an environment domain with default patch when params are omitted', async () => {
+      const mockActivity = { id: 'activity-update-457', type: 'domain.update' };
+      mockDomainApi.updateProjectsEnvironmentsDomains.mockResolvedValue(mockActivity as any);
+
+      await domainsTask.update('project-123', 'domain-456', undefined, 'env-789');
+      expect(mockDomainApi.updateProjectsEnvironmentsDomains).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'env-789',
+        domainId: 'domain-456',
+        domainPatch: {},
+      });
+    });
+
     it('should update domain with default parameters', async () => {
       const mockActivity = {
         id: 'activity-update-789',

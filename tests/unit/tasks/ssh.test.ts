@@ -14,6 +14,7 @@ describe('SshTask', () => {
   beforeEach(() => {
     mockSshApi = {
       createSshKey: jest.fn(),
+      getSshKey: jest.fn(),
       deleteSshKey: jest.fn(),
     } as any;
 
@@ -30,6 +31,14 @@ describe('SshTask', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe('constructor', () => {
+    it('should instantiate with default SshKeysApi when API is not provided', () => {
+      const task = new SshTask(mockClient);
+      expect(task).toBeDefined();
+      expect(SshKeysApi).toHaveBeenCalled();
+    });
   });
 
   describe('add', () => {
@@ -69,6 +78,23 @@ describe('SshTask', () => {
       await expect(
         sshTask.add('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB...', 'user-456', 'test-key'),
       ).rejects.toThrow('SSH key already exists');
+    });
+
+    it('should require key value', async () => {
+      await expect(sshTask.add('', 'user-456', 'test-key')).rejects.toThrow(
+        'SSH key value is required',
+      );
+    });
+  });
+
+  describe('get', () => {
+    it('should get an SSH key', async () => {
+      const sshKey = { id: 123, title: 'k' } as any;
+      mockSshApi.getSshKey.mockResolvedValue(sshKey);
+
+      const result = await sshTask.get(123);
+      expect(result).toBe(sshKey);
+      expect(mockSshApi.getSshKey).toHaveBeenCalledWith({ keyId: 123 });
     });
   });
 

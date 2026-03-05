@@ -52,7 +52,8 @@ export class SourceOperationsTask extends TaskBase {
   async run(
     projectId: string,
     environmentId: string,
-    params: EnvironmentSourceOperationInput,
+    operation: string,
+    variables: EnvironmentSourceOperationInput['variables'],
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -60,7 +61,10 @@ export class SourceOperationsTask extends TaskBase {
     return await this.sourceOperationsApi.runSourceOperation({
       projectId,
       environmentId,
-      environmentSourceOperationInput: params,
+      environmentSourceOperationInput: {
+        operation,
+        variables,
+      },
     });
   }
 }

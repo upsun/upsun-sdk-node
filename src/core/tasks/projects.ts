@@ -31,6 +31,7 @@ import {
   Environment,
   ProjectInvitation,
   ListOrgProjects200Response,
+  CertificatePatch,
 } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
 import {
@@ -39,6 +40,7 @@ import {
   FilterListOrgProjects,
   FilterListProjectUserAccess,
   FilterListUserProjectAccess,
+  ListProjectInvites,
   ProjectCreateRequest,
 } from '../model.js';
 
@@ -54,7 +56,7 @@ export class ProjectsTask extends TaskBase {
   }
 
   /**
-   * Clears the build cache for a project.
+   * Clear the build cache for a project.
    * @param projectId - The ID of the project to clear the build cache for.
    * @return An AcceptedResponse indicating that the request to clear the build cache has been accepted.
    * The client should check the status of the operation through the activity details to confirm whether it was executed
@@ -68,7 +70,7 @@ export class ProjectsTask extends TaskBase {
   }
 
   /**
-   * Creates a new project subscription under the specified organization with the given parameters.
+   * Create a new project subscription under the specified organization with the given parameters.
    * @param organizationId - The ID of the organization to create the project subscription under.
    * @param projectRegion - The region where the project will be created. This should be a valid region identifier
    * where the project will be hosted.
@@ -108,8 +110,7 @@ export class ProjectsTask extends TaskBase {
   }
 
   /**
-   * Deletes a project subscription. This will effectively delete the project associated with the subscription, along
-   * with any related resources and data.
+   * Deletes a project. This will effectively delete the project, along with any related resources and data.
    * @param projectId - The ID of the project to delete.
    * @return A promise that resolves when the project deletion request has been accepted. The client should check the
    * status of the operation through the activity details to confirm whether the deletion was executed successfully or
@@ -200,7 +201,7 @@ export class ProjectsTask extends TaskBase {
     return await this.orgPrjApi.listOrgProjects({ organizationId, ...filters });
   }
 
-  // Add more project-related methods as needed
+  // more project-related methods
 
   /**
    * Get the subscription details for a project. This method retrieves the subscription information associated with the
@@ -210,11 +211,19 @@ export class ProjectsTask extends TaskBase {
    * @return The subscription details associated with the specified project.
    * @throws An error if the project ID is invalid, or if there is an issue with the API request.
    */
-  async getSubscription(organizationId: string, subscriptionId: string): Promise<Subscription> {
-    TaskBase.checkOrganizationId(organizationId);
-    TaskBase.checkSubscriptionId(subscriptionId);
+  async getSubscription(projectId: string): Promise<Subscription> {
+    TaskBase.checkProjectId(projectId);
 
-    return await this.subApi.getOrgSubscription({ organizationId, subscriptionId });
+    const project = await this.prjApi.getProjects({ projectId });
+    const subscriptionId = TaskBase.extractSubscriptionId(project?.subscription?.licenseUri);
+    
+    TaskBase.checkSubscriptionId(subscriptionId);
+    TaskBase.checkOrganizationId(project.organization || '');
+
+    return await this.subApi.getOrgSubscription({
+      organizationId: project.organization as string,
+      subscriptionId,
+    });
   }
 
   /**
@@ -237,11 +246,8 @@ export class ProjectsTask extends TaskBase {
    * @return A promise that resolves when the invitation has been canceled.
    * @throws An error if the project ID or invitation ID is invalid, or if there is an issue with the API request.
    */
-  async cancelInvite(projectId: string, inviteId: string): Promise<void> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkInviteId(inviteId);
-
-    await this.client.invitations.cancelProjectInvite(projectId, inviteId);
+  async cancelInvite(projectId: string, invitationId: string): Promise<void> {
+    await this.client.invitations.cancelProjectInvite(projectId, invitationId);
   }
 
   /**
@@ -259,22 +265,22 @@ export class ProjectsTask extends TaskBase {
     email: string,
     params: CreateProjectInvite,
   ): Promise<ProjectInvitation> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkEmail(email);
-
     return await this.client.invitations.createProjectInvite(projectId, email, params);
   }
 
   /**
-   * List all invitations for a project.
+   * List all pending invitations for a project, with optional filtering.
+   * 
    * @param projectId - The ID of the project to list invitations for.
+   * @param filters - Optional filters to apply to the list of invitations.
    * @return A list of project invitations.
    * @throws An error if the project ID is invalid, or if there is an issue with the API request.
    */
-  async listInvites(projectId: string): Promise<ProjectInvitation[]> {
-    TaskBase.checkProjectId(projectId);
-
-    return await this.client.invitations.listProjectInvites(projectId);
+  async listInvites(
+    projectId: string,
+    filters?: ListProjectInvites,
+  ): Promise<ProjectInvitation[]> {
+    return await this.client.invitations.listProjectInvites(projectId, filters);
   }
 
   /**
@@ -330,8 +336,6 @@ export class ProjectsTask extends TaskBase {
     value: string,
     params?: EnvironmentVariableCreateInput,
   ): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
-
     return await this.client.variables.createProjectVariable(projectId, name, value, params);
   }
 
@@ -343,9 +347,6 @@ export class ProjectsTask extends TaskBase {
    * @throws An error if the project ID or variable ID is invalid, or if there is an issue with the API request.
    */
   async getVariable(projectId: string, variableId: string): Promise<ProjectVariable> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkVariableId(variableId);
-
     return await this.client.variables.getProjectVariable(projectId, variableId);
   }
 
@@ -361,9 +362,6 @@ export class ProjectsTask extends TaskBase {
    * @throws An error if the project ID or variable ID is invalid, or if there is an issue with the API request.
    */
   async deleteVariable(projectId: string, variableId: string): Promise<void> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkVariableId(variableId);
-
     return await this.client.variables.deleteProjectVariable(projectId, variableId);
   }
 
@@ -376,8 +374,6 @@ export class ProjectsTask extends TaskBase {
    * @throws An error if the project ID is invalid, or if there is an issue with the API request.
    */
   async listVariables(projectId: string): Promise<ProjectVariable[]> {
-    TaskBase.checkProjectId(projectId);
-
     return await this.client.variables.listProjectVariables(projectId);
   }
 
@@ -399,9 +395,6 @@ export class ProjectsTask extends TaskBase {
     variableId: string,
     params?: EnvironmentVariableCreateInput,
   ): Promise<AcceptedResponse> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkVariableId(variableId);
-
     return await this.client.variables.updateProjectVariable(projectId, variableId, params);
   }
 
@@ -414,8 +407,6 @@ export class ProjectsTask extends TaskBase {
    * @throws An error if the project ID is invalid, or if there is an issue with the API request.
    */
   async listActivities(projectId: string): Promise<Activity[]> {
-    TaskBase.checkProjectId(projectId);
-
     return await this.client.activities.list(projectId);
   }
 
@@ -429,10 +420,20 @@ export class ProjectsTask extends TaskBase {
    * @throws An error if the project ID or activity ID is invalid, or if there is an issue with the API request.
    */
   async getActivity(projectId: string, activityId: string): Promise<Activity> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkActivityId(activityId);
-
     return await this.client.activities.get(projectId, activityId);
+  }
+
+  /**
+   * Cancel an ongoing activity within a project. This method allows you to stop an activity that is currently in 
+   * progress within the specified project. The method will return a promise that resolves when the cancellation request 
+   * has been successfully submitted.
+   * @param projectId - The ID of the project containing the activity to cancel.
+   * @param activityId - The ID of the activity to cancel.
+   * @returns A promise that resolves when the cancellation request has been successfully submitted.
+   * @throws An error if the project ID or activity ID is invalid, or if there is an issue with the API request.
+   */
+  async cancelActivity(projectId: string, activityId: string): Promise<AcceptedResponse> {
+    return await this.client.activities.cancel(projectId, activityId);
   }
 
   // //TODO(@micka) do we expose it? seems that it's not public endpoint
@@ -646,6 +647,26 @@ export class ProjectsTask extends TaskBase {
   }
 
   /**
+   * Update the details of a custom SSL certificate associated with a project. This allows you to modify the attributes
+   * or settings of an existing SSL certificate that is linked to the project.
+   * @param projectId - The ID of the project to update the certificate in.
+   * @param certificateId - The ID of the certificate to update. This should be a valid identifier for a certificate
+   * that is associated with the project.
+   * @param params - The parameters to update the certificate with. This should include the attributes or settings
+   * that you want to modify for the certificate.
+   * @returns A promise that resolves when the certificate update request has been accepted. The client should check
+   * the status of the operation to confirm when the certificate has been updated and the changes have been applied.
+   * @throws An error if the project ID or certificate ID is invalid, or if there is an issue with the API request.
+   */
+  async updateCertificate(
+    projectId: string,
+    certificateId: string,
+    params?: CertificatePatch,
+  ): Promise<AcceptedResponse> {
+    return await this.client.certificates.update(projectId, certificateId, params);
+  }
+
+  /**
    * Get the access details of a team to a project. This method retrieves the access information for a specific team in
    * relation to a project, including the level of access granted to the team, the permissions they have, and any
    * relevant metadata about the team's access to the project.
@@ -730,9 +751,9 @@ export class ProjectsTask extends TaskBase {
    */
   async listTeamProjectAccessByProject(
     projectId: string,
-    params: ListProjectTeamAccessRequest,
+    filters?: ListProjectTeamAccessRequest,
   ): Promise<ListProjectTeamAccess200Response> {
-    return await this.client.teams.listTeamProjectAccessByProject(projectId, params);
+    return await this.client.teams.listTeamProjectAccessByProject(projectId, filters);
   }
 
   /**
@@ -747,9 +768,9 @@ export class ProjectsTask extends TaskBase {
    */
   async listTeamProjectAccessByTeam(
     teamId: string,
-    params: ListTeamProjectAccessRequest,
+    filters?: ListTeamProjectAccessRequest,
   ): Promise<ListProjectTeamAccess200Response> {
-    return await this.client.teams.listTeamProjectAccessByTeam(teamId, params);
+    return await this.client.teams.listTeamProjectAccessByTeam(teamId, filters);
   }
 
   /**
@@ -816,7 +837,7 @@ export class ProjectsTask extends TaskBase {
     projectId: string,
     access: GrantProjectUserAccessRequestInner[],
   ): Promise<void> {
-    return await this.client.users.grantUserProjectAccessByProject(projectId, access);
+    return await this.client.users.addToProject(projectId, access);
   }
 
   /**
@@ -829,7 +850,7 @@ export class ProjectsTask extends TaskBase {
    * @throws An error if the project ID or user ID is invalid, or if there is an issue with the API request.
    */
   async revokeUserProjectAccessByProject(projectId: string, userId: string): Promise<void> {
-    return await this.client.users.revokeUserProjectAccessByProject(projectId, userId);
+    return await this.client.users.removeFromProject(userId, projectId);
   }
 
   /**
@@ -865,7 +886,7 @@ export class ProjectsTask extends TaskBase {
     projectId: string,
     filters?: FilterListProjectUserAccess,
   ): Promise<ListProjectUserAccess200Response> {
-    return await this.client.users.listUserProjectAccessByProject(projectId, filters);
+    return await this.client.users.listProjectUserAccesses(projectId, filters);
   }
 
   /**
@@ -893,7 +914,7 @@ export class ProjectsTask extends TaskBase {
    * environment name, ID, and other relevant metadata.
    * @throws An error if the project ID is invalid, or if there is an issue with the API request.
    */
-  async listEnvironments(projectId: string): Promise<Environment[]> {
+  async listEnvironments(projectId: string): Promise<Environment[]> {    
     return await this.client.environments.list(projectId);
   }
 }

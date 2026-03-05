@@ -171,7 +171,7 @@ export class OrganizationsTask extends TaskBase {
    * updated.
    * @returns The details of the updated organization.
    */
-  async update(organizationId: string, updateOrgRequest: UpdateOrgRequest): Promise<Organization> {
+  async update(organizationId: string, updateOrgRequest?: UpdateOrgRequest): Promise<Organization> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.orgApi.updateOrg({
@@ -362,6 +362,8 @@ export class OrganizationsTask extends TaskBase {
    * @throws An error if the project ID is invalid, or if there is an issue with the API request.
    */
   async getProject(projectId: string): Promise<Project> {
+    TaskBase.checkProjectId(projectId);
+    
     return await this.client.projects.get(projectId);
   }
 
@@ -440,7 +442,6 @@ export class OrganizationsTask extends TaskBase {
     storage: number = 500,
     userLicenses: number = 1,
     format?: EstimateNewOrgSubscriptionFormatEnum,
-    plan: string = 'upsun/flexible',
   ): Promise<EstimationObject> {
     TaskBase.checkOrganizationId(organizationId);
 
@@ -450,7 +451,7 @@ export class OrganizationsTask extends TaskBase {
       storage,
       userLicenses,
       format,
-      plan: plan,
+      plan: 'upsun/flexible',
     });
   }
 
@@ -476,7 +477,6 @@ export class OrganizationsTask extends TaskBase {
     storage: number = 500,
     userLicenses: number = 1,
     format?: EstimateNewOrgSubscriptionFormatEnum,
-    plan: string = 'upsun/flexible',
   ): Promise<EstimationObject> {
     TaskBase.checkOrganizationId(organizationId);
     TaskBase.checkProjectId(projectId);
@@ -488,7 +488,7 @@ export class OrganizationsTask extends TaskBase {
     return await this.subApi.estimateOrgSubscription({
       organizationId,
       subscriptionId,
-      plan: plan,
+      plan: 'upsun/flexible',
       environments,
       storage,
       userLicenses,
@@ -580,7 +580,7 @@ export class OrganizationsTask extends TaskBase {
    * @throws An error if the organization ID is invalid, if the user IDs are invalid, or if there is an issue with the
    * API request.
    */
-  async sendMfaReminders(organizationId: string, userIds: string[]): Promise<void> {
+  async sendMfaReminders(organizationId: string, userIds?: string[]): Promise<void> {
     TaskBase.checkOrganizationId(organizationId);
 
     await this.mfaApi.sendOrgMfaReminders({
@@ -718,7 +718,7 @@ export class OrganizationsTask extends TaskBase {
    */
   async listOrders(
     organizationId: string,
-    filters: FilterListOrders,
+    filters?: FilterListOrders,
   ): Promise<ListOrgOrders200Response> {
     TaskBase.checkOrganizationId(organizationId);
 
@@ -761,7 +761,7 @@ export class OrganizationsTask extends TaskBase {
    * @throws An error if the organization ID is invalid, if the address details are invalid, or if there is an issue
    * with the API request.
    */
-  async updateAddress(organizationId: string, address: Address): Promise<Address> {
+  async updateAddress(organizationId: string, address?: Address): Promise<Address> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.profApi.updateOrgAddress({ organizationId, address });
@@ -799,7 +799,7 @@ export class OrganizationsTask extends TaskBase {
    */
   async listRecords(
     organizationId: string,
-    filters: FilterListPlanRecords,
+    filters?: FilterListPlanRecords,
   ): Promise<ListOrgPlanRecords200Response> {
     TaskBase.checkOrganizationId(organizationId);
 
@@ -819,7 +819,7 @@ export class OrganizationsTask extends TaskBase {
    */
   async listUsageRecords(
     organizationId: string,
-    filters: FilterListUsageRecords,
+    filters?: FilterListUsageRecords,
   ): Promise<ListOrgPlanRecords200Response> {
     TaskBase.checkOrganizationId(organizationId);
 
@@ -888,10 +888,10 @@ export class OrganizationsTask extends TaskBase {
    */
   async updateAddons(
     organizationId: string,
-    addons: UpdateOrgAddonsRequest,
+    addons?: UpdateOrgAddonsRequest,
   ): Promise<OrganizationAddonsObject> {
     TaskBase.checkOrganizationId(organizationId);
 
-    return await this.addOnsApi.updateOrgAddons({ organizationId, updateOrgAddonsRequest: addons });
+    return await this.addOnsApi.updateOrgAddons({ organizationId, updateOrgAddonsRequest: addons || {} });
   }
 }

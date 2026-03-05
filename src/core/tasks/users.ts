@@ -31,7 +31,7 @@ import {
   VerifyPhoneNumberRequestChannelEnum,
 } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
-import { FilterListProjectUserAccess, FilterListUserExtendedAccess } from '../model.js';
+import { FilterListProjectUserAccess, FilterListUserExtendedAccess, FilterProjectUserAccesses } from '../model.js';
 import { TaskBase } from './task_base.js';
 
 export class UsersTask extends TaskBase {
@@ -144,10 +144,13 @@ export class UsersTask extends TaskBase {
    * @throws An error if the project ID is invalid or if there is an issue with the API request to list user access for
    * the project.
    */
-  async listProjectUserAccesses(projectId: string): Promise<ListProjectUserAccess200Response> {
+  async listProjectUserAccesses(
+    projectId: string, 
+    filters?: FilterProjectUserAccesses
+  ): Promise<ListProjectUserAccess200Response> {
     TaskBase.checkProjectId(projectId);
 
-    return await this.userAccessApi.listProjectUserAccess({ projectId });
+    return await this.userAccessApi.listProjectUserAccess({ projectId, ...filters });
   }
 
   /**
@@ -160,7 +163,7 @@ export class UsersTask extends TaskBase {
    * @throws An error if the user ID is invalid, if the parameters are invalid, or if there is an issue with the API
    * request to update the user's information.
    */
-  async update(userId: string, params: UpdateUserRequest): Promise<void> {
+  async update(userId: string, params?: UpdateUserRequest): Promise<void> {
     TaskBase.checkUserId(userId);
 
     await this.usersApi.updateUser({
@@ -312,31 +315,6 @@ export class UsersTask extends TaskBase {
   }
 
   /**
-   * Retrieves a list of all projects that a user has access to, along with their access levels and permissions for each
-   * project.
-   * @param projectId - The ID of the project to grant access for.
-   * @param access - An array of access details specifying the user IDs and access levels to grant for the user. Each
-   * item in the array should include a user ID and the access level to grant for that project.
-   * @throws An error if the project ID is invalid, if the access level is invalid, or if there is an issue with the API
-   * request to list the user's project access information.
-   */
-  async grantUserProjectAccessByProject(
-    projectId: string,
-    access: GrantProjectUserAccessRequestInner[],
-  ): Promise<void> {
-    TaskBase.checkProjectId(projectId);
-
-    if (!access || access.length === 0) {
-      throw new Error('At least one user ID is required to grant access');
-    }
-
-    await this.userAccessApi.grantProjectUserAccess({
-      projectId,
-      grantProjectUserAccessRequestInner: access,
-    });
-  }
-
-  /**
    * Grants a user access to a project with specified permissions. This method allows you to add a user to a project and
    * define their access levels and permissions within that project. By granting a user access to a project, you enable
    * them to collaborate and contribute to the project according to the permissions you have set.
@@ -360,28 +338,6 @@ export class UsersTask extends TaskBase {
     await this.userAccessApi.grantUserProjectAccess({
       userId,
       grantUserProjectAccessRequestInner: access,
-    });
-  }
-
-  /**
-   * Lists all users who have access to a specific project, along with their access levels and permissions.
-   * @param projectId - The ID of the project to list user access for.
-   * @param filters - Optional filters to apply to the list of user access, such as filtering by user ID or access
-   * level.
-   * @return A list of users who have access to the specified project, along with their access levels and permissions.
-   * Each entry in the list provides details about a user's access to the project.
-   * @throws An error if the project ID is invalid or if there is an issue with the API request to list user access for
-   * the project.
-   */
-  async listUserProjectAccessByProject(
-    projectId: string,
-    filters?: FilterListProjectUserAccess,
-  ): Promise<ListProjectUserAccess200Response> {
-    TaskBase.checkProjectId(projectId);
-
-    return await this.userAccessApi.listProjectUserAccess({
-      projectId,
-      ...filters,
     });
   }
 
@@ -430,24 +386,6 @@ export class UsersTask extends TaskBase {
     TaskBase.checkUserId(userId);
 
     return await this.grantsApi.listUserExtendedAccess({ userId, ...filters });
-  }
-
-  /**
-   * Revokes a user's access to a project. This method revokes the user's permissions for the specified project,
-   * effectively preventing them from accessing or collaborating on the project. Note that this does not delete the user
-   * from the system, but simply removes their access to the specified project.
-   * @param projectId - The ID of the project to revoke access from. This should be a valid project ID that exists
-   * within the system.
-   * @param userId - The ID of the user to revoke access for. This should be a valid user ID that exists within the
-   * system.
-   * @throws An error if the project ID or user ID is invalid, or if there is an issue with the API request to revoke
-   * the user's project access.
-   */
-  async revokeUserProjectAccessByProject(projectId: string, userId: string): Promise<void> {
-    TaskBase.checkProjectId(projectId);
-    TaskBase.checkUserId(userId);
-
-    await this.userAccessApi.removeProjectUserAccess({ projectId, userId });
   }
 
   /**
@@ -537,15 +475,15 @@ export class UsersTask extends TaskBase {
   /**
    * Deletes a user's profile picture. This method removes the profile picture associated with the user's account,
    * which may be useful for privacy reasons or if the user wants to update their profile picture.
-   * @param uuid - The UUID of the user whose profile picture is to be deleted. This should be a valid user UUID that
+   * @param userId - The ID of the user whose profile picture is to be deleted. This should be a valid user ID that
    * exists within the system.
-   * @throws An error if the user UUID is invalid or if there is an issue with the API request to delete the user's
+   * @throws An error if the user ID is invalid or if there is an issue with the API request to delete the user's
    * profile picture.
    */
-  async deleteProfilePicture(uuid: string): Promise<void> {
-    TaskBase.checkUserId(uuid);
+  async deleteProfilePicture(userId: string): Promise<void> {
+    TaskBase.checkUserId(userId);
 
-    await this.userProfilesApi.deleteProfilePicture({ uuid });
+    await this.userProfilesApi.deleteProfilePicture({ uuid: userId });
   }
 
   /**
@@ -618,10 +556,10 @@ export class UsersTask extends TaskBase {
    * @throws An error if the user ID is invalid, if the profile information is invalid, or if there is an issue with the
    * API request.
    */
-  async updateProfile(userId: string, profile?: UpdateProfileRequest): Promise<void> {
+  async updateProfile(userId: string, profile?: UpdateProfileRequest): Promise<Profile> {
     TaskBase.checkUserId(userId);
 
-    await this.userProfilesApi.updateProfile({
+    return await this.userProfilesApi.updateProfile({
       userId,
       updateProfileRequest: profile,
     });
@@ -759,6 +697,22 @@ export class UsersTask extends TaskBase {
   }
 
   /**
+   * Lists all of a user's login connections. This method retrieves a list of all authentication connections that a 
+   * user has established with various login providers.
+   * @param userId - The ID of the user to list login connections for. This should be a valid user ID that exists
+   * within the system.
+   * @returns List of all login connections associated with the specified user, which may include details such as the 
+   * provider name, connection status, and other relevant metadata for each connection.
+   * @throws An error if the user ID is invalid or if there is an issue with the API request to list the user's login
+   * connections.
+   */
+  async listLoginConnections(userId: string): Promise<Connection[]> {
+    TaskBase.checkUserId(userId);
+
+    return await this.connectionsApi.listLoginConnections({ userId });
+  }
+
+  /**
    * Confirms a user's TOTP enrollment by verifying the provided TOTP secret and pass code. This method is used to
    * complete the TOTP enrollment process for a user, ensuring that they have successfully set up their TOTP
    * authentication method. By confirming the TOTP enrollment, the user can then use TOTP for
@@ -784,14 +738,8 @@ export class UsersTask extends TaskBase {
     passCode: string,
   ): Promise<ConfirmTotpEnrollment200Response> {
     TaskBase.checkUserId(userId);
-
-    if (!secret) {
-      throw new Error('TOTP secret is required');
-    }
-
-    if (!passCode) {
-      throw new Error('TOTP pass code is required');
-    }
+    if (!secret) { throw new Error('TOTP secret is required'); }
+    if (!passCode) { throw new Error('TOTP pass code is required'); }
 
     return await this.mfaApi.confirmTotpEnrollment({
       userId,
