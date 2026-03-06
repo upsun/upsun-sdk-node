@@ -22,7 +22,7 @@ export class WorkersTask extends TaskBase {
   async list(projectId: string, environmentId: string): Promise<{ [key: string]: WorkersValue }> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
-    
+
     const currentDeployment = await this.client.environments.getDeployment(
       projectId,
       environmentId,

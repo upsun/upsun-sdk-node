@@ -216,7 +216,7 @@ export class ProjectsTask extends TaskBase {
 
     const project = await this.prjApi.getProjects({ projectId });
     const subscriptionId = TaskBase.extractSubscriptionId(project?.subscription?.licenseUri);
-    
+
     TaskBase.checkSubscriptionId(subscriptionId);
     TaskBase.checkOrganizationId(project.organization || '');
 
@@ -270,16 +270,13 @@ export class ProjectsTask extends TaskBase {
 
   /**
    * List all pending invitations for a project, with optional filtering.
-   * 
+   *
    * @param projectId - The ID of the project to list invitations for.
    * @param filters - Optional filters to apply to the list of invitations.
    * @return A list of project invitations.
    * @throws An error if the project ID is invalid, or if there is an issue with the API request.
    */
-  async listInvites(
-    projectId: string,
-    filters?: ListProjectInvites,
-  ): Promise<ProjectInvitation[]> {
+  async listInvites(projectId: string, filters?: ListProjectInvites): Promise<ProjectInvitation[]> {
     return await this.client.invitations.listProjectInvites(projectId, filters);
   }
 
@@ -424,8 +421,8 @@ export class ProjectsTask extends TaskBase {
   }
 
   /**
-   * Cancel an ongoing activity within a project. This method allows you to stop an activity that is currently in 
-   * progress within the specified project. The method will return a promise that resolves when the cancellation request 
+   * Cancel an ongoing activity within a project. This method allows you to stop an activity that is currently in
+   * progress within the specified project. The method will return a promise that resolves when the cancellation request
    * has been successfully submitted.
    * @param projectId - The ID of the project containing the activity to cancel.
    * @param activityId - The ID of the activity to cancel.
@@ -914,7 +911,7 @@ export class ProjectsTask extends TaskBase {
    * environment name, ID, and other relevant metadata.
    * @throws An error if the project ID is invalid, or if there is an issue with the API request.
    */
-  async listEnvironments(projectId: string): Promise<Environment[]> {    
+  async listEnvironments(projectId: string): Promise<Environment[]> {
     return await this.client.environments.list(projectId);
   }
 }

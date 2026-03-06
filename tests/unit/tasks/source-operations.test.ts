@@ -59,15 +59,13 @@ describe('SourceOperationsTask', () => {
 
       const result = await sourceOperationTask.list('proj-1', 'main');
       expect(result).toBeDefined();
-      expect(
-        mockSourceOperationsApi.listProjectsEnvironmentsSourceOperations,
-      ).toHaveBeenCalledWith({ projectId: 'proj-1', environmentId: 'main' });
+      expect(mockSourceOperationsApi.listProjectsEnvironmentsSourceOperations).toHaveBeenCalledWith(
+        { projectId: 'proj-1', environmentId: 'main' },
+      );
     });
 
     it('should throw when project ID is empty', async () => {
-      await expect(sourceOperationTask.list('', 'main')).rejects.toThrow(
-        'Project ID is required',
-      );
+      await expect(sourceOperationTask.list('', 'main')).rejects.toThrow('Project ID is required');
     });
 
     it('should throw when environment ID is empty', async () => {
@@ -108,22 +106,22 @@ describe('SourceOperationsTask', () => {
     });
 
     it('should throw when project ID is empty', async () => {
-      await expect(
-        sourceOperationTask.run('', 'main', 'rebuild', {}),
-      ).rejects.toThrow('Project ID is required');
+      await expect(sourceOperationTask.run('', 'main', 'rebuild', {})).rejects.toThrow(
+        'Project ID is required',
+      );
     });
 
     it('should throw when environment ID is empty', async () => {
-      await expect(
-        sourceOperationTask.run('proj-1', '', 'rebuild', {}),
-      ).rejects.toThrow('Environment ID is required');
+      await expect(sourceOperationTask.run('proj-1', '', 'rebuild', {})).rejects.toThrow(
+        'Environment ID is required',
+      );
     });
 
     it('should handle API error', async () => {
       mockSourceOperationsApi.runSourceOperation.mockRejectedValue(new Error('Run failed'));
-      await expect(
-        sourceOperationTask.run('proj-1', 'main', 'rebuild', {}),
-      ).rejects.toThrow('Run failed');
+      await expect(sourceOperationTask.run('proj-1', 'main', 'rebuild', {})).rejects.toThrow(
+        'Run failed',
+      );
     });
   });
 });

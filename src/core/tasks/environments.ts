@@ -354,7 +354,11 @@ export class EnvironmentsTask extends TaskBase {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
-    const appConfig = await this.client.applications.configGet(projectId, environmentId, applicationId);
+    const appConfig = await this.client.applications.configGet(
+      projectId,
+      environmentId,
+      applicationId,
+    );
 
     return appConfig.relationships;
   }
@@ -614,15 +618,15 @@ export class EnvironmentsTask extends TaskBase {
   }
 
   /**
-   * List all environment types available in the project. Environment types represent different categories or 
-   * classifications of environments, such as development, staging, production, etc. Each environment type may have 
+   * List all environment types available in the project. Environment types represent different categories or
+   * classifications of environments, such as development, staging, production, etc. Each environment type may have
    * specific characteristics or configurations that differentiate it from other types.
    * @param projectId - The ID of the project.
    * @returns A list of environment types available in the project.
    */
   async listTypes(projectId: string): Promise<EnvironmentType[]> {
     TaskBase.checkProjectId(projectId);
-    
+
     return await this.envTypeApi.listProjectsEnvironmentTypes({ projectId: projectId });
   }
 

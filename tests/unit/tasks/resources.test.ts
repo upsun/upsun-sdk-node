@@ -136,9 +136,7 @@ describe('ResourcesTask', () => {
 
       const result = await resourcesTask.set('proj-1', 'main', webapps, services, workers);
       expect(result).toBeDefined();
-      expect(
-        mockDeploymentApi.updateProjectsEnvironmentsDeploymentsNext,
-      ).toHaveBeenCalledWith({
+      expect(mockDeploymentApi.updateProjectsEnvironmentsDeploymentsNext).toHaveBeenCalledWith({
         projectId: 'proj-1',
         environmentId: 'main',
         updateProjectsEnvironmentsDeploymentsNextRequest: {
@@ -154,9 +152,7 @@ describe('ResourcesTask', () => {
     });
 
     it('should throw when environment ID is empty', async () => {
-      await expect(resourcesTask.set('proj-1', '')).rejects.toThrow(
-        'Environment ID is required',
-      );
+      await expect(resourcesTask.set('proj-1', '')).rejects.toThrow('Environment ID is required');
     });
 
     it('should handle API error', async () => {
@@ -227,15 +223,15 @@ describe('ResourcesTask', () => {
     });
 
     it('should throw when project ID is empty', async () => {
-      await expect(
-        resourcesTask.updateAutoscalerSettings('', 'main', {} as any),
-      ).rejects.toThrow('Project ID is required');
+      await expect(resourcesTask.updateAutoscalerSettings('', 'main', {} as any)).rejects.toThrow(
+        'Project ID is required',
+      );
     });
 
     it('should throw when environment ID is empty', async () => {
-      await expect(
-        resourcesTask.updateAutoscalerSettings('proj-1', '', {} as any),
-      ).rejects.toThrow('Environment ID is required');
+      await expect(resourcesTask.updateAutoscalerSettings('proj-1', '', {} as any)).rejects.toThrow(
+        'Environment ID is required',
+      );
     });
 
     it('should handle API error', async () => {

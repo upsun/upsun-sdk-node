@@ -24,9 +24,9 @@ describe('UsersInvitationsTask', () => {
       listProjectInvites: jest.fn(),
     } as any;
 
-    (OrganizationInvitationsApi as jest.MockedClass<typeof OrganizationInvitationsApi>).mockImplementation(
-      () => mockOrgInvitationsApi,
-    );
+    (
+      OrganizationInvitationsApi as jest.MockedClass<typeof OrganizationInvitationsApi>
+    ).mockImplementation(() => mockOrgInvitationsApi);
     (ProjectInvitationsApi as jest.MockedClass<typeof ProjectInvitationsApi>).mockImplementation(
       () => mockProjectInvitationsApi,
     );
@@ -163,13 +163,18 @@ describe('UsersInvitationsTask', () => {
     });
 
     it('should list org invitations', async () => {
-      const mockInvites = [{ id: 'inv-1', email: 'a@b.com' }, { id: 'inv-2', email: 'c@d.com' }];
+      const mockInvites = [
+        { id: 'inv-1', email: 'a@b.com' },
+        { id: 'inv-2', email: 'c@d.com' },
+      ];
       mockOrgInvitationsApi.listOrgInvites.mockResolvedValue(mockInvites as any);
 
       const result = await usersInvitationsTask.listOrgInvites('org-1');
       expect(result).toBeDefined();
       expect(result).toHaveLength(2);
-      expect(mockOrgInvitationsApi.listOrgInvites).toHaveBeenCalledWith({ organizationId: 'org-1' });
+      expect(mockOrgInvitationsApi.listOrgInvites).toHaveBeenCalledWith({
+        organizationId: 'org-1',
+      });
     });
 
     it('should pass filters to the API', async () => {
@@ -226,9 +231,9 @@ describe('UsersInvitationsTask', () => {
 
     it('should handle API error', async () => {
       mockProjectInvitationsApi.cancelProjectInvite.mockRejectedValue(new Error('Not found'));
-      await expect(
-        usersInvitationsTask.cancelProjectInvite('proj-1', 'inv-1'),
-      ).rejects.toThrow('Not found');
+      await expect(usersInvitationsTask.cancelProjectInvite('proj-1', 'inv-1')).rejects.toThrow(
+        'Not found',
+      );
     });
   });
 
@@ -241,10 +246,7 @@ describe('UsersInvitationsTask', () => {
       const mockInvite = { id: 'inv-1', email: 'dev@example.com' };
       mockProjectInvitationsApi.createProjectInvite.mockResolvedValue(mockInvite as any);
 
-      const result = await usersInvitationsTask.createProjectInvite(
-        'proj-1',
-        'dev@example.com',
-      );
+      const result = await usersInvitationsTask.createProjectInvite('proj-1', 'dev@example.com');
       expect(result).toBeDefined();
       expect(mockProjectInvitationsApi.createProjectInvite).toHaveBeenCalledWith({
         projectId: 'proj-1',
@@ -266,15 +268,15 @@ describe('UsersInvitationsTask', () => {
     });
 
     it('should throw when project ID is empty', async () => {
-      await expect(
-        usersInvitationsTask.createProjectInvite('', 'dev@example.com'),
-      ).rejects.toThrow('Project ID is required');
+      await expect(usersInvitationsTask.createProjectInvite('', 'dev@example.com')).rejects.toThrow(
+        'Project ID is required',
+      );
     });
 
     it('should throw when email is empty', async () => {
-      await expect(
-        usersInvitationsTask.createProjectInvite('proj-1', ''),
-      ).rejects.toThrow('Email is required');
+      await expect(usersInvitationsTask.createProjectInvite('proj-1', '')).rejects.toThrow(
+        'Email is required',
+      );
     });
 
     it('should handle API error', async () => {

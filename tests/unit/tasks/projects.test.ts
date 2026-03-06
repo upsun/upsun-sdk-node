@@ -43,12 +43,10 @@ describe('ProjectsTask', () => {
       updateProjectsSettings: jest.fn(),
     } as any;
 
-    (ProjectApi as jest.MockedClass<typeof ProjectApi>).mockImplementation(
-      () => mockProjectApi,
-    );
-    (OrganizationProjectsApi as jest.MockedClass<typeof OrganizationProjectsApi>).mockImplementation(
-      () => mockOrgProjectsApi,
-    );
+    (ProjectApi as jest.MockedClass<typeof ProjectApi>).mockImplementation(() => mockProjectApi);
+    (
+      OrganizationProjectsApi as jest.MockedClass<typeof OrganizationProjectsApi>
+    ).mockImplementation(() => mockOrgProjectsApi);
     (SubscriptionsApi as jest.MockedClass<typeof SubscriptionsApi>).mockImplementation(
       () => mockSubscriptionsApi,
     );
@@ -209,9 +207,7 @@ describe('ProjectsTask', () => {
     });
 
     it('should throw when project region is empty', async () => {
-      await expect(projectsTask.create('org-1', '')).rejects.toThrow(
-        'Project region is required',
-      );
+      await expect(projectsTask.create('org-1', '')).rejects.toThrow('Project region is required');
     });
 
     it('should handle API error', async () => {
@@ -229,7 +225,9 @@ describe('ProjectsTask', () => {
 
       const result = await projectsTask.canCreate('org-1');
       expect(result).toEqual(response);
-      expect(mockSubscriptionsApi.canCreateNewOrgSubscription).toHaveBeenCalledWith({ organizationId: 'org-1' });
+      expect(mockSubscriptionsApi.canCreateNewOrgSubscription).toHaveBeenCalledWith({
+        organizationId: 'org-1',
+      });
     });
 
     it('should validate organization id', async () => {
@@ -402,10 +400,7 @@ describe('ProjectsTask', () => {
 
       const result = await projectsTask.listInvites('proj-1');
       expect(result).toBeDefined();
-      expect(mockClient.invitations.listProjectInvites).toHaveBeenCalledWith(
-        'proj-1',
-        undefined,
-      );
+      expect(mockClient.invitations.listProjectInvites).toHaveBeenCalledWith('proj-1', undefined);
     });
   });
 
@@ -433,7 +428,9 @@ describe('ProjectsTask', () => {
         subscription: { licenseUri: 'https://api.upsun.com/subscriptions/sub-123' },
       } as any);
 
-      await expect(projectsTask.getSubscription('proj-1')).rejects.toThrow('Organization ID is required');
+      await expect(projectsTask.getSubscription('proj-1')).rejects.toThrow(
+        'Organization ID is required',
+      );
       expect(mockSubscriptionsApi.getOrgSubscription).not.toHaveBeenCalled();
     });
 
@@ -462,11 +459,18 @@ describe('ProjectsTask', () => {
       await projectsTask.listVariables('proj-1');
       await projectsTask.updateVariable('proj-1', 'var-1', { isSensitive: true } as any);
 
-      expect(mockClient.variables.createProjectVariable).toHaveBeenCalledWith('proj-1', 'NAME', 'VALUE', { isJson: false });
+      expect(mockClient.variables.createProjectVariable).toHaveBeenCalledWith(
+        'proj-1',
+        'NAME',
+        'VALUE',
+        { isJson: false },
+      );
       expect(mockClient.variables.getProjectVariable).toHaveBeenCalledWith('proj-1', 'var-1');
       expect(mockClient.variables.deleteProjectVariable).toHaveBeenCalledWith('proj-1', 'var-1');
       expect(mockClient.variables.listProjectVariables).toHaveBeenCalledWith('proj-1');
-      expect(mockClient.variables.updateProjectVariable).toHaveBeenCalledWith('proj-1', 'var-1', { isSensitive: true });
+      expect(mockClient.variables.updateProjectVariable).toHaveBeenCalledWith('proj-1', 'var-1', {
+        isSensitive: true,
+      });
     });
 
     it('should delegate activities operations', async () => {
@@ -496,7 +500,13 @@ describe('ProjectsTask', () => {
       await projectsTask.listDomains('proj-1');
       await projectsTask.updateDomain('proj-1', 'dom-1', { default: true } as any);
 
-      expect(mockClient.domains.add).toHaveBeenCalledWith('proj-1', 'example.com', { env: 'main' }, true, 'old-dom');
+      expect(mockClient.domains.add).toHaveBeenCalledWith(
+        'proj-1',
+        'example.com',
+        { env: 'main' },
+        true,
+        'old-dom',
+      );
       expect(mockClient.domains.delete).toHaveBeenCalledWith('proj-1', 'dom-1');
       expect(mockClient.domains.get).toHaveBeenCalledWith('proj-1', 'dom-1');
       expect(mockClient.domains.list).toHaveBeenCalledWith('proj-1');
@@ -516,7 +526,9 @@ describe('ProjectsTask', () => {
       await projectsTask.listCertificates('proj-1');
       await projectsTask.updateCertificate('proj-1', 'crt-1', { id: 'x' } as any);
 
-      expect(mockClient.certificates.add).toHaveBeenCalledWith('proj-1', 'cert', 'key', { csr: 'x' });
+      expect(mockClient.certificates.add).toHaveBeenCalledWith('proj-1', 'cert', 'key', {
+        csr: 'x',
+      });
       expect(mockClient.certificates.delete).toHaveBeenCalledWith('proj-1', 'crt-1');
       expect(mockClient.certificates.get).toHaveBeenCalledWith('proj-1', 'crt-1');
       expect(mockClient.certificates.list).toHaveBeenCalledWith('proj-1');
@@ -528,7 +540,9 @@ describe('ProjectsTask', () => {
       (mockClient.teams.getTeamProjectAccessByTeam as jest.Mock).mockResolvedValue({});
       (mockClient.teams.grantTeamProjectAccessToProject as jest.Mock).mockResolvedValue(undefined);
       (mockClient.teams.grantTeamProjectAccessToTeam as jest.Mock).mockResolvedValue(undefined);
-      (mockClient.teams.listTeamProjectAccessByProject as jest.Mock).mockResolvedValue({ items: [] });
+      (mockClient.teams.listTeamProjectAccessByProject as jest.Mock).mockResolvedValue({
+        items: [],
+      });
       (mockClient.teams.listTeamProjectAccessByTeam as jest.Mock).mockResolvedValue({ items: [] });
       (mockClient.teams.revokeTeamProjectAccessByProject as jest.Mock).mockResolvedValue(undefined);
       (mockClient.teams.revokeTeamProjectAccessByTeam as jest.Mock).mockResolvedValue(undefined);
@@ -542,14 +556,31 @@ describe('ProjectsTask', () => {
       await projectsTask.revokeTeamProjectAccessByProject('proj-1', 'team-1');
       await projectsTask.revokeTeamProjectAccessByTeam('team-1', 'proj-1');
 
-      expect(mockClient.teams.getTeamProjectAccessByProject).toHaveBeenCalledWith('proj-1', 'team-1');
+      expect(mockClient.teams.getTeamProjectAccessByProject).toHaveBeenCalledWith(
+        'proj-1',
+        'team-1',
+      );
       expect(mockClient.teams.getTeamProjectAccessByTeam).toHaveBeenCalledWith('team-1', 'proj-1');
-      expect(mockClient.teams.grantTeamProjectAccessToProject).toHaveBeenCalledWith('proj-1', [{ teamId: 'team-1' }]);
-      expect(mockClient.teams.grantTeamProjectAccessToTeam).toHaveBeenCalledWith('team-1', [{ projectId: 'proj-1' }]);
-      expect(mockClient.teams.listTeamProjectAccessByProject).toHaveBeenCalledWith('proj-1', { page: 1 });
-      expect(mockClient.teams.listTeamProjectAccessByTeam).toHaveBeenCalledWith('team-1', { page: 2 });
-      expect(mockClient.teams.revokeTeamProjectAccessByProject).toHaveBeenCalledWith('proj-1', 'team-1');
-      expect(mockClient.teams.revokeTeamProjectAccessByTeam).toHaveBeenCalledWith('team-1', 'proj-1');
+      expect(mockClient.teams.grantTeamProjectAccessToProject).toHaveBeenCalledWith('proj-1', [
+        { teamId: 'team-1' },
+      ]);
+      expect(mockClient.teams.grantTeamProjectAccessToTeam).toHaveBeenCalledWith('team-1', [
+        { projectId: 'proj-1' },
+      ]);
+      expect(mockClient.teams.listTeamProjectAccessByProject).toHaveBeenCalledWith('proj-1', {
+        page: 1,
+      });
+      expect(mockClient.teams.listTeamProjectAccessByTeam).toHaveBeenCalledWith('team-1', {
+        page: 2,
+      });
+      expect(mockClient.teams.revokeTeamProjectAccessByProject).toHaveBeenCalledWith(
+        'proj-1',
+        'team-1',
+      );
+      expect(mockClient.teams.revokeTeamProjectAccessByTeam).toHaveBeenCalledWith(
+        'team-1',
+        'proj-1',
+      );
     });
 
     it('should delegate user access and environments operations', async () => {
@@ -564,17 +595,28 @@ describe('ProjectsTask', () => {
       await projectsTask.getUserProjectAccessByProject('proj-1', 'user-1');
       await projectsTask.grantUserProjectAccessByProject('proj-1', [{ userId: 'user-1' }] as any);
       await projectsTask.revokeUserProjectAccessByProject('proj-1', 'user-1');
-      await projectsTask.updateUserProjectAccessByProject('proj-1', 'user-1', { permissions: ['admin'] } as any);
+      await projectsTask.updateUserProjectAccessByProject('proj-1', 'user-1', {
+        permissions: ['admin'],
+      } as any);
       await projectsTask.listUserProjectAccessByProject('proj-1', { page: 1 } as any);
       await projectsTask.listUserProjectAccessByUser('user-1', { page: 2 } as any);
       await projectsTask.listEnvironments('proj-1');
 
-      expect(mockClient.users.getUserProjectAccessByProject).toHaveBeenCalledWith('proj-1', 'user-1');
+      expect(mockClient.users.getUserProjectAccessByProject).toHaveBeenCalledWith(
+        'proj-1',
+        'user-1',
+      );
       expect(mockClient.users.addToProject).toHaveBeenCalledWith('proj-1', [{ userId: 'user-1' }]);
       expect(mockClient.users.removeFromProject).toHaveBeenCalledWith('user-1', 'proj-1');
-      expect(mockClient.users.updateUserProjectAccessByProject).toHaveBeenCalledWith('proj-1', 'user-1', { permissions: ['admin'] });
+      expect(mockClient.users.updateUserProjectAccessByProject).toHaveBeenCalledWith(
+        'proj-1',
+        'user-1',
+        { permissions: ['admin'] },
+      );
       expect(mockClient.users.listProjectUserAccesses).toHaveBeenCalledWith('proj-1', { page: 1 });
-      expect(mockClient.users.listUserProjectAccessByUser).toHaveBeenCalledWith('user-1', { page: 2 });
+      expect(mockClient.users.listUserProjectAccessByUser).toHaveBeenCalledWith('user-1', {
+        page: 2,
+      });
       expect(mockClient.environments.list).toHaveBeenCalledWith('proj-1');
     });
   });

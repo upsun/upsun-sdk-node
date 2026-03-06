@@ -19,9 +19,9 @@ describe('IntegrationsTask', () => {
       updateProjectsIntegrations: jest.fn(),
     } as any;
 
-    (ThirdPartyIntegrationsApi as jest.MockedClass<typeof ThirdPartyIntegrationsApi>).mockImplementation(
-      () => mockApi,
-    );
+    (
+      ThirdPartyIntegrationsApi as jest.MockedClass<typeof ThirdPartyIntegrationsApi>
+    ).mockImplementation(() => mockApi);
 
     mockClient = {
       apiConfig: { basePath: 'https://api.upsun.com' },
@@ -56,15 +56,15 @@ describe('IntegrationsTask', () => {
     });
 
     it('should throw when project ID is empty', async () => {
-      await expect(
-        integrationsTask.createIntegration('', 'github', {} as any),
-      ).rejects.toThrow('Project ID is required');
+      await expect(integrationsTask.createIntegration('', 'github', {} as any)).rejects.toThrow(
+        'Project ID is required',
+      );
     });
 
     it('should throw when type is empty', async () => {
-      await expect(
-        integrationsTask.createIntegration('proj-1', '', {} as any),
-      ).rejects.toThrow('Integration type is required');
+      await expect(integrationsTask.createIntegration('proj-1', '', {} as any)).rejects.toThrow(
+        'Integration type is required',
+      );
     });
 
     it('should handle API error', async () => {
@@ -119,7 +119,10 @@ describe('IntegrationsTask', () => {
     });
 
     it('should list integrations for a project', async () => {
-      const mockList = [{ id: 'int-1', type: 'github' }, { id: 'int-2', type: 'gitlab' }];
+      const mockList = [
+        { id: 'int-1', type: 'github' },
+        { id: 'int-2', type: 'gitlab' },
+      ];
       mockApi.listProjectsIntegrations.mockResolvedValue(mockList as any);
 
       const result = await integrationsTask.listIntegrations('proj-1');
@@ -128,9 +131,7 @@ describe('IntegrationsTask', () => {
     });
 
     it('should throw when project ID is empty', async () => {
-      await expect(integrationsTask.listIntegrations('')).rejects.toThrow(
-        'Project ID is required',
-      );
+      await expect(integrationsTask.listIntegrations('')).rejects.toThrow('Project ID is required');
     });
 
     it('should handle API error', async () => {
@@ -171,9 +172,7 @@ describe('IntegrationsTask', () => {
 
     it('should handle API error', async () => {
       mockApi.getProjectsIntegrations.mockRejectedValue(new Error('Not found'));
-      await expect(integrationsTask.getIntegration('proj-1', 'int-1')).rejects.toThrow(
-        'Not found',
-      );
+      await expect(integrationsTask.getIntegration('proj-1', 'int-1')).rejects.toThrow('Not found');
     });
   });
 

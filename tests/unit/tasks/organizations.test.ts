@@ -224,7 +224,10 @@ describe('OrganizationsTask', () => {
 
       const result = await organizationsTask.listMembers('org-1', { page: 2 } as any);
       expect(result).toEqual(list);
-      expect(mockMembersApi.listOrgMembers).toHaveBeenCalledWith({ organizationId: 'org-1', page: 2 });
+      expect(mockMembersApi.listOrgMembers).toHaveBeenCalledWith({
+        organizationId: 'org-1',
+        page: 2,
+      });
     });
 
     it('should update member permissions', async () => {
@@ -281,7 +284,9 @@ describe('OrganizationsTask', () => {
       expect(mockClient.projects.get).toHaveBeenCalledWith('proj-1');
       expect(mockClient.projects.list).toHaveBeenCalledWith('org-1', { page: 1 });
       expect(mockClient.projects.canCreate).toHaveBeenCalledWith('org-1');
-      expect(mockClient.projects.create).toHaveBeenCalledWith('org-1', 'eu-5.platform.sh', { title: 'X' });
+      expect(mockClient.projects.create).toHaveBeenCalledWith('org-1', 'eu-5.platform.sh', {
+        title: 'X',
+      });
       expect(mockClient.projects.delete).toHaveBeenCalledWith('proj-1');
     });
 
@@ -339,7 +344,9 @@ describe('OrganizationsTask', () => {
 
   describe('billing and addons', () => {
     it('should throw for downloadInvoice not implemented', async () => {
-      await expect(organizationsTask.downloadInvoice('tok')).rejects.toThrow('Method not implemented.');
+      await expect(organizationsTask.downloadInvoice('tok')).rejects.toThrow(
+        'Method not implemented.',
+      );
     });
 
     it('should apply voucher', async () => {
@@ -399,7 +406,10 @@ describe('OrganizationsTask', () => {
       await organizationsTask.getOrder('org-1', 'ord-1');
       await organizationsTask.listOrders('org-1', { page: 3 } as any);
 
-      expect(mockInvApi.getOrgInvoice).toHaveBeenCalledWith({ invoiceId: 'inv-1', organizationId: 'org-1' });
+      expect(mockInvApi.getOrgInvoice).toHaveBeenCalledWith({
+        invoiceId: 'inv-1',
+        organizationId: 'org-1',
+      });
       expect(mockInvApi.listOrgInvoices).toHaveBeenCalledWith({
         organizationId: 'org-1',
         filterStatus: undefined,
@@ -407,8 +417,15 @@ describe('OrganizationsTask', () => {
         filterOrderId: undefined,
         page: 2,
       });
-      expect(mockOrdApi.createAuthorizationCredentials).toHaveBeenCalledWith({ organizationId: 'org-1', orderId: 'ord-1' });
-      expect(mockOrdApi.getOrgOrder).toHaveBeenCalledWith({ organizationId: 'org-1', orderId: 'ord-1', mode: undefined });
+      expect(mockOrdApi.createAuthorizationCredentials).toHaveBeenCalledWith({
+        organizationId: 'org-1',
+        orderId: 'ord-1',
+      });
+      expect(mockOrdApi.getOrgOrder).toHaveBeenCalledWith({
+        organizationId: 'org-1',
+        orderId: 'ord-1',
+        mode: undefined,
+      });
       expect(mockOrdApi.listOrgOrders).toHaveBeenCalledWith({ organizationId: 'org-1', page: 3 });
     });
 
@@ -431,13 +448,22 @@ describe('OrganizationsTask', () => {
 
       expect(mockProfApi.getOrgAddress).toHaveBeenCalledWith({ organizationId: 'org-1' });
       expect(mockProfApi.getOrgProfile).toHaveBeenCalledWith({ organizationId: 'org-1' });
-      expect(mockProfApi.updateOrgAddress).toHaveBeenCalledWith({ organizationId: 'org-1', address: { city: 'Paris' } });
+      expect(mockProfApi.updateOrgAddress).toHaveBeenCalledWith({
+        organizationId: 'org-1',
+        address: { city: 'Paris' },
+      });
       expect(mockProfApi.updateOrgProfile).toHaveBeenCalledWith({
         organizationId: 'org-1',
         updateOrgProfileRequest: { name: 'Acme' },
       });
-      expect(mockRecApi.listOrgPlanRecords).toHaveBeenCalledWith({ organizationId: 'org-1', page: 1 });
-      expect(mockRecApi.listOrgUsageRecords).toHaveBeenCalledWith({ organizationId: 'org-1', page: 2 });
+      expect(mockRecApi.listOrgPlanRecords).toHaveBeenCalledWith({
+        organizationId: 'org-1',
+        page: 1,
+      });
+      expect(mockRecApi.listOrgUsageRecords).toHaveBeenCalledWith({
+        organizationId: 'org-1',
+        page: 2,
+      });
       expect(mockVouchApi.listOrgVouchers).toHaveBeenCalledWith({ organizationId: 'org-1' });
     });
   });

@@ -358,7 +358,9 @@ describe('EnvironmentsTask', () => {
     it('should call update with httpAccess patch', async () => {
       mockEnvironmentApi.updateEnvironment.mockResolvedValue({ ok: true } as any);
 
-      const result = await environmentTask.httpAccess('project-123', 'main', { isEnabled: true } as any);
+      const result = await environmentTask.httpAccess('project-123', 'main', {
+        isEnabled: true,
+      } as any);
       expect(result).toEqual({ ok: true });
       expect(mockEnvironmentApi.updateEnvironment).toHaveBeenCalledWith({
         projectId: 'project-123',
@@ -587,7 +589,16 @@ describe('EnvironmentsTask', () => {
       await environmentTask.listBackups('project-123', 'main');
       await environmentTask.deleteBackup('project-123', 'main', 'b1');
       await environmentTask.getBackup('project-123', 'main', 'b1');
-      await environmentTask.restoreBackup('project-123', 'main', 'b1', false, true, 'restored', 'parent', undefined);
+      await environmentTask.restoreBackup(
+        'project-123',
+        'main',
+        'b1',
+        false,
+        true,
+        'restored',
+        'parent',
+        undefined,
+      );
 
       expect(mockBackups.create).toHaveBeenCalledWith('project-123', 'main', true);
       expect(mockBackups.list).toHaveBeenCalledWith('project-123', 'main');

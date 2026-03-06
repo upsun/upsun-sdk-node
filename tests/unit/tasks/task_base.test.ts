@@ -260,9 +260,7 @@ describe('TaskBase', () => {
     });
 
     it('should throw when environment type ID is empty', () => {
-      expect(() => TaskBase.checkEnvironmentTypeId('')).toThrow(
-        'Environment Type ID is required',
-      );
+      expect(() => TaskBase.checkEnvironmentTypeId('')).toThrow('Environment Type ID is required');
     });
   });
 
@@ -368,9 +366,7 @@ describe('TaskBase', () => {
 
   describe('extractSubscriptionId', () => {
     it('should extract the subscription ID from a URI', () => {
-      const result = TaskBase.extractSubscriptionId(
-        'https://api.upsun.com/subscriptions/abc123',
-      );
+      const result = TaskBase.extractSubscriptionId('https://api.upsun.com/subscriptions/abc123');
       expect(result).toBe('abc123');
     });
 

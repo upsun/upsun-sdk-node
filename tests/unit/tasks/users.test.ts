@@ -177,8 +177,12 @@ describe('UsersTask', () => {
     });
 
     it('should validate user and project IDs', async () => {
-      await expect(usersTask.removeFromProject('', 'proj-1')).rejects.toThrow('User ID is required');
-      await expect(usersTask.removeFromProject('user-1', '')).rejects.toThrow('Project ID is required');
+      await expect(usersTask.removeFromProject('', 'proj-1')).rejects.toThrow(
+        'User ID is required',
+      );
+      await expect(usersTask.removeFromProject('user-1', '')).rejects.toThrow(
+        'Project ID is required',
+      );
     });
   });
 
@@ -285,7 +289,9 @@ describe('UsersTask', () => {
     });
 
     it('should require API token name', async () => {
-      await expect(usersTask.createApiToken('user-1', '')).rejects.toThrow('API token name is required');
+      await expect(usersTask.createApiToken('user-1', '')).rejects.toThrow(
+        'API token name is required',
+      );
     });
   });
 
@@ -423,12 +429,30 @@ describe('UsersTask', () => {
         permissions: ['viewer'],
       } as any);
 
-      expect(mockUserAccessApi.listProjectUserAccess).toHaveBeenCalledWith({ projectId: 'proj-1', page: 1 });
-      expect(mockUserAccessApi.getProjectUserAccess).toHaveBeenCalledWith({ projectId: 'proj-1', userId: 'user-1' });
-      expect(mockUserAccessApi.getUserProjectAccess).toHaveBeenCalledWith({ projectId: 'proj-1', userId: 'user-1' });
-      expect(mockUserAccessApi.listUserProjectAccess).toHaveBeenCalledWith({ userId: 'user-1', page: 2 });
-      expect(mockGrantsApi.listUserExtendedAccess).toHaveBeenCalledWith({ userId: 'user-1', page: 3 });
-      expect(mockUserAccessApi.removeUserProjectAccess).toHaveBeenCalledWith({ projectId: 'proj-1', userId: 'user-1' });
+      expect(mockUserAccessApi.listProjectUserAccess).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+        page: 1,
+      });
+      expect(mockUserAccessApi.getProjectUserAccess).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+        userId: 'user-1',
+      });
+      expect(mockUserAccessApi.getUserProjectAccess).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+        userId: 'user-1',
+      });
+      expect(mockUserAccessApi.listUserProjectAccess).toHaveBeenCalledWith({
+        userId: 'user-1',
+        page: 2,
+      });
+      expect(mockGrantsApi.listUserExtendedAccess).toHaveBeenCalledWith({
+        userId: 'user-1',
+        page: 3,
+      });
+      expect(mockUserAccessApi.removeUserProjectAccess).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+        userId: 'user-1',
+      });
       expect(mockUserAccessApi.updateUserProjectAccess).toHaveBeenCalledWith({
         projectId: 'proj-1',
         userId: 'user-1',
@@ -460,7 +484,10 @@ describe('UsersTask', () => {
       expect(mockUserProfilesApi.getAddress).toHaveBeenCalledWith({ userId: 'user-1' });
       expect(mockUserProfilesApi.getProfile).toHaveBeenCalledWith({ userId: 'user-1' });
       expect(mockUserProfilesApi.listProfiles).toHaveBeenCalled();
-      expect(mockUserProfilesApi.updateAddress).toHaveBeenCalledWith({ userId: 'user-1', address: { city: 'Paris' } });
+      expect(mockUserProfilesApi.updateAddress).toHaveBeenCalledWith({
+        userId: 'user-1',
+        address: { city: 'Paris' },
+      });
       expect(mockUserProfilesApi.updateProfile).toHaveBeenCalledWith({
         userId: 'user-1',
         updateProfileRequest: { website: 'https://x.dev' },
@@ -487,10 +514,19 @@ describe('UsersTask', () => {
       await usersTask.withdrawTotpEnrollment('user-1');
       await usersTask.recreateMfaRecoveryCodes('user-1');
 
-      expect(mockApiTokensApi.deleteApiToken).toHaveBeenCalledWith({ userId: 'user-1', tokenId: 'tok-1' });
-      expect(mockApiTokensApi.getApiToken).toHaveBeenCalledWith({ userId: 'user-1', tokenId: 'tok-1' });
+      expect(mockApiTokensApi.deleteApiToken).toHaveBeenCalledWith({
+        userId: 'user-1',
+        tokenId: 'tok-1',
+      });
+      expect(mockApiTokensApi.getApiToken).toHaveBeenCalledWith({
+        userId: 'user-1',
+        tokenId: 'tok-1',
+      });
       expect(mockApiTokensApi.listApiTokens).toHaveBeenCalledWith({ userId: 'user-1' });
-      expect(mockConnectionsApi.getLoginConnection).toHaveBeenCalledWith({ userId: 'user-1', provider: 'github' });
+      expect(mockConnectionsApi.getLoginConnection).toHaveBeenCalledWith({
+        userId: 'user-1',
+        provider: 'github',
+      });
       expect(mockConnectionsApi.listLoginConnections).toHaveBeenCalledWith({ userId: 'user-1' });
       expect(mockMfaApi.getTotpEnrollment).toHaveBeenCalledWith({ userId: 'user-1' });
       expect(mockMfaApi.withdrawTotpEnrollment).toHaveBeenCalledWith({ userId: 'user-1' });

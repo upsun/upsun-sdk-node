@@ -119,10 +119,7 @@ export class SupportTicketsTask extends TaskBase {
    * @param params - Fields to update.
    * @returns The updated ticket.
    */
-  async update(
-    ticketId: string,
-    params?: UpdateTicketRequest,
-  ): Promise<Ticket | null | undefined> {
+  async update(ticketId: string, params?: UpdateTicketRequest): Promise<Ticket | null | undefined> {
     TaskBase.checkTicketId(ticketId);
 
     return await this.supportApi.updateTicket({

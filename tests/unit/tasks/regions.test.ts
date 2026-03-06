@@ -16,9 +16,7 @@ describe('RegionsTask', () => {
       listRegions: jest.fn(),
     } as any;
 
-    (RegionsApi as jest.MockedClass<typeof RegionsApi>).mockImplementation(
-      () => mockRegionsApi,
-    );
+    (RegionsApi as jest.MockedClass<typeof RegionsApi>).mockImplementation(() => mockRegionsApi);
 
     mockClient = {
       apiConfig: { basePath: 'https://api.upsun.com' },

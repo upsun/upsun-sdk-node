@@ -363,7 +363,7 @@ export class OrganizationsTask extends TaskBase {
    */
   async getProject(projectId: string): Promise<Project> {
     TaskBase.checkProjectId(projectId);
-    
+
     return await this.client.projects.get(projectId);
   }
 
@@ -892,6 +892,9 @@ export class OrganizationsTask extends TaskBase {
   ): Promise<OrganizationAddonsObject> {
     TaskBase.checkOrganizationId(organizationId);
 
-    return await this.addOnsApi.updateOrgAddons({ organizationId, updateOrgAddonsRequest: addons || {} });
+    return await this.addOnsApi.updateOrgAddons({
+      organizationId,
+      updateOrgAddonsRequest: addons || {},
+    });
   }
 }

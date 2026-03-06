@@ -76,21 +76,21 @@ describe('OperationsTask', () => {
     });
 
     it('should throw when project ID is empty', async () => {
-      await expect(
-        operationsTask.run('', 'main', 'current', 'svc', 'op', ['p']),
-      ).rejects.toThrow('Project ID is required');
+      await expect(operationsTask.run('', 'main', 'current', 'svc', 'op', ['p'])).rejects.toThrow(
+        'Project ID is required',
+      );
     });
 
     it('should throw when environment ID is empty', async () => {
-      await expect(
-        operationsTask.run('proj-1', '', 'current', 'svc', 'op', ['p']),
-      ).rejects.toThrow('Environment ID is required');
+      await expect(operationsTask.run('proj-1', '', 'current', 'svc', 'op', ['p'])).rejects.toThrow(
+        'Environment ID is required',
+      );
     });
 
     it('should throw when deployment ID is empty', async () => {
-      await expect(
-        operationsTask.run('proj-1', 'main', '', 'svc', 'op', ['p']),
-      ).rejects.toThrow('Deployment ID is required');
+      await expect(operationsTask.run('proj-1', 'main', '', 'svc', 'op', ['p'])).rejects.toThrow(
+        'Deployment ID is required',
+      );
     });
 
     it('should throw when service is empty', async () => {

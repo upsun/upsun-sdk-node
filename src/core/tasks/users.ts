@@ -31,7 +31,11 @@ import {
   VerifyPhoneNumberRequestChannelEnum,
 } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
-import { FilterListProjectUserAccess, FilterListUserExtendedAccess, FilterProjectUserAccesses } from '../model.js';
+import {
+  FilterListProjectUserAccess,
+  FilterListUserExtendedAccess,
+  FilterProjectUserAccesses,
+} from '../model.js';
 import { TaskBase } from './task_base.js';
 
 export class UsersTask extends TaskBase {
@@ -145,8 +149,8 @@ export class UsersTask extends TaskBase {
    * the project.
    */
   async listProjectUserAccesses(
-    projectId: string, 
-    filters?: FilterProjectUserAccesses
+    projectId: string,
+    filters?: FilterProjectUserAccesses,
   ): Promise<ListProjectUserAccess200Response> {
     TaskBase.checkProjectId(projectId);
 
@@ -697,11 +701,11 @@ export class UsersTask extends TaskBase {
   }
 
   /**
-   * Lists all of a user's login connections. This method retrieves a list of all authentication connections that a 
+   * Lists all of a user's login connections. This method retrieves a list of all authentication connections that a
    * user has established with various login providers.
    * @param userId - The ID of the user to list login connections for. This should be a valid user ID that exists
    * within the system.
-   * @returns List of all login connections associated with the specified user, which may include details such as the 
+   * @returns List of all login connections associated with the specified user, which may include details such as the
    * provider name, connection status, and other relevant metadata for each connection.
    * @throws An error if the user ID is invalid or if there is an issue with the API request to list the user's login
    * connections.
@@ -738,8 +742,12 @@ export class UsersTask extends TaskBase {
     passCode: string,
   ): Promise<ConfirmTotpEnrollment200Response> {
     TaskBase.checkUserId(userId);
-    if (!secret) { throw new Error('TOTP secret is required'); }
-    if (!passCode) { throw new Error('TOTP pass code is required'); }
+    if (!secret) {
+      throw new Error('TOTP secret is required');
+    }
+    if (!passCode) {
+      throw new Error('TOTP pass code is required');
+    }
 
     return await this.mfaApi.confirmTotpEnrollment({
       userId,

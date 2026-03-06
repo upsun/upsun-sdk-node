@@ -23,12 +23,8 @@ describe('SupportTicketsTask', () => {
       updateTicket: jest.fn(),
     } as any;
 
-    (DefaultApi as jest.MockedClass<typeof DefaultApi>).mockImplementation(
-      () => mockDefaultApi,
-    );
-    (SupportApi as jest.MockedClass<typeof SupportApi>).mockImplementation(
-      () => mockSupportApi,
-    );
+    (DefaultApi as jest.MockedClass<typeof DefaultApi>).mockImplementation(() => mockDefaultApi);
+    (SupportApi as jest.MockedClass<typeof SupportApi>).mockImplementation(() => mockSupportApi);
 
     mockClient = {
       apiConfig: { basePath: 'https://api.upsun.com' },
@@ -191,7 +187,10 @@ describe('SupportTicketsTask', () => {
     });
 
     it('should list priorities without project ID', async () => {
-      const mockPriorities = [{ id: 'low', label: 'Low' }, { id: 'high', label: 'High' }];
+      const mockPriorities = [
+        { id: 'low', label: 'Low' },
+        { id: 'high', label: 'High' },
+      ];
       mockSupportApi.listTicketPriorities.mockResolvedValue(mockPriorities as any);
 
       const result = await supportTicketsTask.listPriorities();

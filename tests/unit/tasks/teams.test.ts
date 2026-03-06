@@ -96,9 +96,7 @@ describe('TeamsTask', () => {
     });
 
     it('should throw when organization ID is empty', async () => {
-      await expect(teamsTask.create('', 'My Team')).rejects.toThrow(
-        'Organization ID is required',
-      );
+      await expect(teamsTask.create('', 'My Team')).rejects.toThrow('Organization ID is required');
     });
 
     it('should throw when label is empty', async () => {
@@ -380,9 +378,9 @@ describe('TeamsTask', () => {
     });
 
     it('should throw when access array is empty', async () => {
-      await expect(
-        teamsTask.grantTeamProjectAccessToProject('proj-1', []),
-      ).rejects.toThrow('At least one team ID is required to grant access');
+      await expect(teamsTask.grantTeamProjectAccessToProject('proj-1', [])).rejects.toThrow(
+        'At least one team ID is required to grant access',
+      );
     });
   });
 
@@ -400,8 +398,12 @@ describe('TeamsTask', () => {
     });
 
     it('should validate team and project IDs', async () => {
-      await expect(teamsTask.getTeamProjectAccessByTeam('', 'proj-1')).rejects.toThrow('Team ID is required');
-      await expect(teamsTask.getTeamProjectAccessByTeam('team-1', '')).rejects.toThrow('Project ID is required');
+      await expect(teamsTask.getTeamProjectAccessByTeam('', 'proj-1')).rejects.toThrow(
+        'Team ID is required',
+      );
+      await expect(teamsTask.getTeamProjectAccessByTeam('team-1', '')).rejects.toThrow(
+        'Project ID is required',
+      );
     });
   });
 
@@ -418,9 +420,9 @@ describe('TeamsTask', () => {
     });
 
     it('should validate team ID and access list', async () => {
-      await expect(teamsTask.grantTeamProjectAccessToTeam('', [{ projectId: 'p' } as any])).rejects.toThrow(
-        'Team ID is required',
-      );
+      await expect(
+        teamsTask.grantTeamProjectAccessToTeam('', [{ projectId: 'p' } as any]),
+      ).rejects.toThrow('Team ID is required');
       await expect(teamsTask.grantTeamProjectAccessToTeam('team-1', [])).rejects.toThrow(
         'At least one project ID is required to grant access',
       );
@@ -453,8 +455,12 @@ describe('TeamsTask', () => {
     });
 
     it('should validate IDs for list methods', async () => {
-      await expect(teamsTask.listTeamProjectAccessByProject('', {} as any)).rejects.toThrow('Project ID is required');
-      await expect(teamsTask.listTeamProjectAccessByTeam('', {} as any)).rejects.toThrow('Team ID is required');
+      await expect(teamsTask.listTeamProjectAccessByProject('', {} as any)).rejects.toThrow(
+        'Project ID is required',
+      );
+      await expect(teamsTask.listTeamProjectAccessByTeam('', {} as any)).rejects.toThrow(
+        'Team ID is required',
+      );
     });
   });
 
@@ -474,15 +480,15 @@ describe('TeamsTask', () => {
     });
 
     it('should throw when project ID is empty', async () => {
-      await expect(
-        teamsTask.revokeTeamProjectAccessByProject('', 'team-1'),
-      ).rejects.toThrow('Project ID is required');
+      await expect(teamsTask.revokeTeamProjectAccessByProject('', 'team-1')).rejects.toThrow(
+        'Project ID is required',
+      );
     });
 
     it('should throw when team ID is empty', async () => {
-      await expect(
-        teamsTask.revokeTeamProjectAccessByProject('proj-1', ''),
-      ).rejects.toThrow('Team ID is required');
+      await expect(teamsTask.revokeTeamProjectAccessByProject('proj-1', '')).rejects.toThrow(
+        'Team ID is required',
+      );
     });
   });
 
@@ -498,8 +504,12 @@ describe('TeamsTask', () => {
     });
 
     it('should validate team and project IDs', async () => {
-      await expect(teamsTask.revokeTeamProjectAccessByTeam('', 'proj-1')).rejects.toThrow('Team ID is required');
-      await expect(teamsTask.revokeTeamProjectAccessByTeam('team-1', '')).rejects.toThrow('Project ID is required');
+      await expect(teamsTask.revokeTeamProjectAccessByTeam('', 'proj-1')).rejects.toThrow(
+        'Team ID is required',
+      );
+      await expect(teamsTask.revokeTeamProjectAccessByTeam('team-1', '')).rejects.toThrow(
+        'Project ID is required',
+      );
     });
   });
 });
