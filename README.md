@@ -1,6 +1,6 @@
 # Upsun SDK Node
 
-The official **Upsun SDK for Node.js** on TypeScript. 
+The official **Upsun SDK for Node.js** on TypeScript.
 This SDK provides a Node.js interface that maps to the Upsun CLI commands.
 
 For more information, read [the documentation](https://docs.upsun.com/api).
@@ -24,10 +24,10 @@ You will need an [Upsun API token](https://docs.upsun.com/administration/cli/api
 Store it securely, preferably in an environment variable.
 
 ```ts
-import { UpsunClient, UpsunConfig } from "upsun-sdk-node";
+import { UpsunClient, UpsunConfig } from 'upsun-sdk-node';
 
 const config: UpsunConfig = {
-  apiKey: process.env.UPSUN_CLI_TOKEN || "",
+  apiKey: process.env.UPSUN_CLI_TOKEN || '',
 };
 
 const upsunClient = new UpsunClient(config);
@@ -44,13 +44,13 @@ const organizations = await upsunClient.organizations.list();
 ### Example: List projects
 
 ```ts
-const projects = await upsunClient.projects.list("<organizationId>");
+const projects = await upsunClient.projects.list('<organizationId>');
 ```
 
 ### Example: Redeploy an environment
 
 ```ts
-const result = await upsunClient.environments.redeploy("<projectId>", "<environmentId>");
+const result = await upsunClient.environments.redeploy('<projectId>', '<environmentId>');
 ```
 
 ---
@@ -89,11 +89,13 @@ Please open a [pull request](https://github.com/upsun/upsun-sdk-node/compare) or
 for any improvements, bug fixes, or new features.
 
 ## Tests
+
 To run the tests, use:
 
 ```bash
 npm run test
 ```
+
 ## License
 
 This project is licensed under the Apache License 2.0. See the [LICENSE](https://github.com/upsun/upsun-sdk-node/blob/main/LICENSE) and [NOTICE](https://github.com/upsun/upsun-sdk-node/blob/main/NOTICE) files for details.
