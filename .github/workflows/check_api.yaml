@@ -1,0 +1,70 @@
+name: Check OpenAPI Spec Update
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch: ~
+
+permissions:
+  contents: write
+
+env:
+  DEFAULT_BRANCH: "main"
+  PRIMARY_NODE_VERSION: '25'
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'upsun' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        shell: bash
+        run: npm install
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install OpenApiGenerator CLI
+        run: npm run spec:generate:install
+
+      - name: Remove existing Api and Model Classes
+        run: npm run spec:clean
+
+      - name: Download OpenAPI spec
+        run: npm run spec:dl
+
+      - name: Generate SDK source code (Node.js)
+        run: npm run spec:generate
+
+      - name: Fix all generated API and Model classes
+        run: npm run fix:all
+
+      - uses: ./.github/actions/doc
+        with:
+          default-runtime-version: ${{ env.PRIMARY_NODE_VERSION }}
+
+      - name: Create Pull Request if changes
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.OPENAPI_WORKFLOW_TOKEN }}
+          commit-message: "Update OpenAPI spec"
+          body: |
+            This PR updates the OpenAPI spec from the upstream source and applies formatting changes.
+          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          draft: false
+          delete-branch: false
+          branch: update-openapi-spec
+          title: "[API-BOT] Update OpenAPI spec and regenerate SDK"
+          base: main
+          labels: |
+            report
+            automated pr
+          add-paths: |
+            src/
+            tests/
