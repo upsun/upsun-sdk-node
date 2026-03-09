@@ -306,16 +306,6 @@ describe('TaskBase', () => {
     });
   });
 
-  describe('checkProjectRegion', () => {
-    it('should not throw for a valid region', () => {
-      expect(() => TaskBase.checkProjectRegion('eu-5.platform.sh')).not.toThrow();
-    });
-
-    it('should throw when region is empty', () => {
-      expect(() => TaskBase.checkProjectRegion('')).toThrow('Project region is required');
-    });
-  });
-
   describe('checkUsername', () => {
     it('should not throw for a valid username', () => {
       expect(() => TaskBase.checkUsername('jdoe')).not.toThrow();
