@@ -30,7 +30,7 @@ const config: UpsunConfig = {
   apiKey: process.env.UPSUN_CLI_TOKEN || "",
 };
 
-const client = new UpsunClient(config);
+const upsunClient = new UpsunClient(config);
 ```
 
 ## Usage
@@ -38,19 +38,19 @@ const client = new UpsunClient(config);
 ### Example: List organizations
 
 ```ts
-const organizations = await client.organizations.list();
+const organizations = await upsunClient.organizations.list();
 ```
 
 ### Example: List projects
 
 ```ts
-const projects = await client.projects.list();
+const projects = await upsunClient.projects.list();
 ```
 
 ### Example: Redeploy an environment
 
 ```ts
-const result = await client.environments.redeploy("<projectId>", "main");
+const result = await upsunClient.environments.redeploy("<projectId>", "main");
 ```
 
 ---
@@ -90,4 +90,4 @@ for any improvements, bug fixes, or new features.
 
 ## License
 
-This project is licensed under the Apache License 2.0. See the [LICENSE](./LICENSE) and [NOTICE](./NOTICE) files for details.
+This project is licensed under the Apache License 2.0. See the [LICENSE](https://github.com/upsun/upsun-sdk-node/blob/main/LICENSE) and [NOTICE](https://github.com/upsun/upsun-sdk-node/blob/main/NOTICE) files for details.
