@@ -62,7 +62,7 @@
     "spec:generate:install": "npm install -g @openapitools/openapi-generator-cli",
     "spec:generate": "npx openapi-generator-cli generate -c templates/config.yaml",
     "release-version": "bash ./scripts/release-version.sh $npm_config_tag",
-    "spec:full": "",
+    "spec:full": "npm run spec:clean && npm run spec:dl && npm run spec:generate && npm run fix:all",
     "lint:all": "npm run lint:es && npm run lint:prettier",
     "fix:all": "npm run fix:es && npm run fix:prettier",
     "test:all": "npm run test:unit",

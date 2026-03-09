@@ -12,14 +12,15 @@ function getDefaultUpsunClientHeader(): string {
       platform?: string;
       arch?: string;
     };
+    fetch?: unknown;
   };
 
   const nodeVersion = runtime.process?.versions?.node || 'unknown';
-  const undiciVersion = runtime.process?.versions?.undici || 'unknown';
   const platform = runtime.process?.platform || 'unknown';
   const arch = runtime.process?.arch || 'unknown';
+  const fetchRuntime = typeof runtime.fetch === 'function' ? 'native' : 'unknown';
 
-  return `node/${nodeVersion} undici/${undiciVersion} ${platform}/${arch}`;
+  return `node/${nodeVersion} fetch/${fetchRuntime} ${platform}/${arch}`;
 }
 
 const DEFAULT_X_UPSUN_CLIENT = getDefaultUpsunClientHeader();
