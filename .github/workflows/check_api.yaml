@@ -45,10 +45,6 @@ jobs:
       - name: Fix all generated API and Model classes
         run: npm run fix:all
 
-      - uses: ./.github/actions/doc
-        with:
-          default-runtime-version: ${{ env.PRIMARY_NODE_VERSION }}
-
       - name: Create Pull Request if changes
         uses: peter-evans/create-pull-request@v6
         with:
