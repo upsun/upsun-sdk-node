@@ -1,32 +1,27 @@
 {
-  "name": "upsun-sdk-node",
-  "version": "0.4.2",
+  "name": "{{sdkName}}",
+  "version": "{{sdkVersion}}",
   "type": "module",
   "types": "dist/index.d.ts",
-  "license": "Apache v2.0",
-  "description": "The official Upsun SDK for Node.js",
+{{#licenseName}}
+  "license": "{{licenseName}}",
+{{/licenseName}}
+  "description": "{{sdkDescription}}",
+{{#packageAsSourceOnlyLibrary}}
+  "main": "./index.ts",
+{{/packageAsSourceOnlyLibrary}}
+{{^packageAsSourceOnlyLibrary}}
   "main": "dist/index.js",
+{{#supportsES6}}
   "module": "dist/index.js",
   "files": [
     "dist"
   ],
+{{/supportsES6}}  
   "keywords": ["Upsun","SDK","Node.js","Typescript","OpenAPI","API"],
-  "author": "Mickael GAILLARD",
-  "contributors": [
-    {
-        "name": "Mickael GAILLARD",
-        "email": "mickael.gaillard@upsun.com"
-    },
-    {
-        "name": "Florent HUCK",
-        "email": "florent.huck@upsun.com"
-    },
-    {
-        "name": "Upsun Advocacy Team",
-        "homepage": "https://www.upsun.com"
-    }
-  ],
-
+  "author": "{{authorName}}",
+  "contributors": {{&contributors}}
+{{/packageAsSourceOnlyLibrary}}
   "devDependencies": {
     "@eslint/js": "^9.0",
     "@types/jest": "^30.0",
@@ -76,6 +71,11 @@
   },  
   "repository": {
     "type": "git",
-    "url": "https://github.com/upsun/upsun-sdk-node"
+    "url": "{{artifactUrl}}"
+  }{{#npmRepository}},{{/npmRepository}}
+{{#npmRepository}}
+  "publishConfig": {
+    "registry": "{{npmRepository}}"
   }
+{{/npmRepository}}
 }

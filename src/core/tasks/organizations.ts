@@ -60,6 +60,8 @@ import {
   ProjectCreateRequest,
 } from '../model.js';
 
+const DEFAULT_UPSUN_PLAN = 'upsun/flexible';
+
 export class OrganizationsTask extends TaskBase {
   constructor(
     protected readonly client: UpsunClient,
@@ -451,7 +453,7 @@ export class OrganizationsTask extends TaskBase {
       storage,
       userLicenses,
       format,
-      plan: 'upsun/flexible',
+      plan: DEFAULT_UPSUN_PLAN,
     });
   }
 
@@ -488,7 +490,7 @@ export class OrganizationsTask extends TaskBase {
     return await this.subApi.estimateOrgSubscription({
       organizationId,
       subscriptionId,
-      plan: 'upsun/flexible',
+      plan: DEFAULT_UPSUN_PLAN,
       environments,
       storage,
       userLicenses,

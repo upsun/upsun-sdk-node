@@ -38,11 +38,11 @@ export class MountsTask extends TaskBase {
     for (const resourceType of resourceTypes) {
       const group = currentDeployment[resourceType] ?? {};
       for (const app of Object.values(group)) {
-        const appName = app.name ?? app.id;
+        const appName = (app as any).name ?? (app as any).id;
         if (!appName) {
           continue;
         }
-        result[appName] = app.mounts ?? {};
+        result[appName] = (app as any).mounts ?? {};
       }
     }
 
