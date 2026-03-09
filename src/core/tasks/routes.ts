@@ -26,7 +26,7 @@ export class RoutesTask extends TaskBase {
   async get(projectId: string, environmentId: string, routeId: string): Promise<Route> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
-    RoutesTask.checkRouteId(routeId);
+    TaskBase.checkRouteId(routeId);
 
     return await this.rteApi.getProjectsEnvironmentsRoutes({
       projectId,
@@ -49,16 +49,5 @@ export class RoutesTask extends TaskBase {
     TaskBase.checkEnvironmentId(environmentId);
 
     return await this.rteApi.listProjectsEnvironmentsRoutes({ projectId, environmentId });
-  }
-
-  /**
-   * Static method to validate a route ID. This method checks if the provided route ID is valid and throws an error if
-   * it is not.
-   * @param routeId
-   */
-  static checkRouteId(routeId: string): void {
-    if (!routeId) {
-      throw new Error('Route ID is required');
-    }
   }
 }

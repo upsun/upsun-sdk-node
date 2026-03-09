@@ -1,5 +1,6 @@
 import { MountsTask } from '../../../src/core/tasks/mounts.js';
 import { UpsunClient } from '../../../src/upsun.js';
+import { DeploymentResourceGroup } from '../../../src/core/model.js';
 
 // Mock the UpsunClient
 jest.mock('../../../src/upsun');
@@ -51,6 +52,44 @@ describe('MountsTask', () => {
     it('should list mounts from deployment', async () => {
       const result = await mountTask.list('project-123');
       expect(result).toEqual({});
+    });
+
+    it('should skip apps without name and id', async () => {
+      (mockClient.environments.getDeployment as jest.Mock).mockResolvedValue({
+        webapps: {
+          app1: { mounts: { '/data': { source: 'local' } } },
+        },
+      });
+
+      const result = await mountTask.list('project-123');
+      expect(result).toEqual({});
+    });
+
+    it('should support filtering by resource group', async () => {
+      (mockClient.environments.getDeployment as jest.Mock).mockResolvedValue({
+        webapps: {
+          app1: { id: 'app1', mounts: { '/a': { source: 'local' } } },
+        },
+        services: {
+          svc1: { id: 'svc1', mounts: { '/s': { source: 'local' } } },
+        },
+      });
+
+      const result = await mountTask.list('project-123', 'main', DeploymentResourceGroup.webapps);
+      expect(result).toEqual({
+        app1: { '/a': { source: 'local' } },
+      });
+    });
+
+    it('should default mounts to empty object when missing', async () => {
+      (mockClient.environments.getDeployment as jest.Mock).mockResolvedValue({
+        webapps: {
+          app1: { id: 'app1' },
+        },
+      });
+
+      const result = await mountTask.list('project-123');
+      expect(result).toEqual({ app1: {} });
     });
   });
 

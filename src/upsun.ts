@@ -28,6 +28,7 @@ import {
   WorkersTask,
 } from './core/index.js';
 import { IntegrationsTask } from './core/tasks/integrations.js';
+import { RegionsTask } from './core/tasks/regions.js';
 import { RepositoriesTask } from './core/tasks/repositories.js';
 import { UsersInvitationsTask } from './core/tasks/users-invitations.js';
 import {
@@ -36,6 +37,7 @@ import {
   AutoscalingApi,
   CertManagementApi,
   ConnectionsApi,
+  DefaultApi,
   DeploymentApi,
   DomainManagementApi,
   EnvironmentActivityApi,
@@ -59,12 +61,15 @@ import {
   ProjectSettingsApi,
   ProjectVariablesApi,
   RecordsApi,
+  RegionsApi,
   RepositoryApi,
   RoutingApi,
   RuntimeOperationsApi,
   SourceOperationsApi,
   SshKeysApi,
   SubscriptionsApi,
+  SupportApi,
+  SupportTicketsTask,
   SystemInformationApi,
   TeamAccessApi,
   TeamsApi,
@@ -137,12 +142,14 @@ export class UpsunClient {
   public operations: OperationsTask;
   public organizations: OrganizationsTask;
   public projects: ProjectsTask;
+  public regions: RegionsTask;
   public repositories: RepositoriesTask;
   public resources: ResourcesTask;
   public routes: RoutesTask;
   public services: ServicesTask;
   public sourceOperations: SourceOperationsTask;
   public ssh: SshTask;
+  public supportTickets: SupportTicketsTask;
   public teams: TeamsTask;
   public users: UsersTask;
   public variables: VariablesTask;
@@ -185,6 +192,7 @@ export class UpsunClient {
     const certManagementApi = new CertManagementApi(this.apiConfig);
     const connectionsApi = new ConnectionsApi(this.apiConfig);
     const deploymentApi = new DeploymentApi(this.apiConfig);
+    const defaultApi = new DefaultApi(this.apiConfig);
     const domainManagementApi = new DomainManagementApi(this.apiConfig);
     const environmentApi = new EnvironmentApi(this.apiConfig);
     const environmentBackupsApi = new EnvironmentBackupsApi(this.apiConfig);
@@ -204,6 +212,7 @@ export class UpsunClient {
     const projectInvitationsApi = new ProjectInvitationsApi(this.apiConfig);
     const projectSettingsApi = new ProjectSettingsApi(this.apiConfig);
     const projectVariablesApi = new ProjectVariablesApi(this.apiConfig);
+    const regionsApi = new RegionsApi(this.apiConfig);
     const recordsApi = new RecordsApi(this.apiConfig);
     const repositoryApi = new RepositoryApi(this.apiConfig);
     const routingApi = new RoutingApi(this.apiConfig);
@@ -211,6 +220,7 @@ export class UpsunClient {
     const sourceOperationsApi = new SourceOperationsApi(this.apiConfig);
     const subscriptionsApi = new SubscriptionsApi(this.apiConfig);
     const sshKeysApi = new SshKeysApi(this.apiConfig);
+    const supportApi = new SupportApi(this.apiConfig);
     const systemInformationApi = new SystemInformationApi(this.apiConfig);
     const teamAccessApi = new TeamAccessApi(this.apiConfig);
     const teamsApi = new TeamsApi(this.apiConfig);
@@ -265,12 +275,14 @@ export class UpsunClient {
       subscriptionsApi,
       projectSettingsApi,
     );
+    this.regions = new RegionsTask(this, regionsApi);
     this.resources = new ResourcesTask(this, deploymentApi, autoscalingApi);
     this.repositories = new RepositoriesTask(this, repositoryApi, systemInformationApi);
     this.routes = new RoutesTask(this, routingApi);
     this.services = new ServicesTask(this);
     this.sourceOperations = new SourceOperationsTask(this, sourceOperationsApi);
     this.ssh = new SshTask(this, sshKeysApi);
+    this.supportTickets = new SupportTicketsTask(this, defaultApi, supportApi);
     this.teams = new TeamsTask(this, teamsApi, teamAccessApi);
     this.users = new UsersTask(
       this,

@@ -32,6 +32,18 @@ describe('EnvironmentsTask', () => {
     get: jest.Mock;
     list: jest.Mock;
   };
+  let mockActivities: {
+    cancel: jest.Mock;
+    get: jest.Mock;
+    list: jest.Mock;
+  };
+  let mockBackups: {
+    create: jest.Mock;
+    list: jest.Mock;
+    delete: jest.Mock;
+    get: jest.Mock;
+    restore: jest.Mock;
+  };
   let mockDomains: {
     add: jest.Mock;
     delete: jest.Mock;
@@ -63,6 +75,7 @@ describe('EnvironmentsTask', () => {
 
     mockEnvironmentTypeApi = {
       getEnvironmentType: jest.fn(),
+      listProjectsEnvironmentTypes: jest.fn(),
     } as any;
 
     mockDeploymentApi = {
@@ -106,6 +119,20 @@ describe('EnvironmentsTask', () => {
       update: jest.fn(),
     };
 
+    mockActivities = {
+      cancel: jest.fn(),
+      get: jest.fn(),
+      list: jest.fn(),
+    };
+
+    mockBackups = {
+      create: jest.fn(),
+      list: jest.fn(),
+      delete: jest.fn(),
+      get: jest.fn(),
+      restore: jest.fn(),
+    };
+
     mockClient = {
       apiConfig: {
         basePath: 'https://api.upsun.com',
@@ -113,6 +140,8 @@ describe('EnvironmentsTask', () => {
       variables: mockVariables,
       routes: mockRoutes,
       domains: mockDomains,
+      activities: mockActivities,
+      backups: mockBackups,
     } as any;
 
     environmentTask = new EnvironmentsTask(
@@ -310,6 +339,35 @@ describe('EnvironmentsTask', () => {
         environmentId: 'main',
       });
     });
+
+    it('should update then get when params are provided', async () => {
+      mockEnvironmentApi.updateEnvironment.mockResolvedValue({} as any);
+      mockEnvironmentApi.getEnvironment.mockResolvedValue({ id: 'env-1' } as any);
+
+      const result = await environmentTask.info('project-123', 'main', { title: 'Updated' } as any);
+      expect(result).toEqual({ id: 'env-1' });
+      expect(mockEnvironmentApi.updateEnvironment).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+        environmentPatch: { title: 'Updated' },
+      });
+    });
+  });
+
+  describe('httpAccess', () => {
+    it('should call update with httpAccess patch', async () => {
+      mockEnvironmentApi.updateEnvironment.mockResolvedValue({ ok: true } as any);
+
+      const result = await environmentTask.httpAccess('project-123', 'main', {
+        isEnabled: true,
+      } as any);
+      expect(result).toEqual({ ok: true });
+      expect(mockEnvironmentApi.updateEnvironment).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+        environmentPatch: { httpAccess: { isEnabled: true } },
+      });
+    });
   });
 
   describe('get', () => {
@@ -422,6 +480,22 @@ describe('EnvironmentsTask', () => {
         },
       });
     });
+
+    it('should use default synchronize flags', async () => {
+      mockEnvironmentApi.synchronizeEnvironment.mockResolvedValue({} as any);
+
+      await environmentTask.synchronize('project-123', 'main');
+      expect(mockEnvironmentApi.synchronizeEnvironment).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+        environmentSynchronizeInput: {
+          synchronizeCode: true,
+          rebase: true,
+          synchronizeData: true,
+          synchronizeResources: true,
+        },
+      });
+    });
   });
 
   describe('update', () => {
@@ -451,6 +525,17 @@ describe('EnvironmentsTask', () => {
         environmentPatch: params,
       });
     });
+
+    it('should send empty patch when params are omitted', async () => {
+      mockEnvironmentApi.updateEnvironment.mockResolvedValue({} as any);
+
+      await environmentTask.update('project-123', 'main');
+      expect(mockEnvironmentApi.updateEnvironment).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+        environmentPatch: {},
+      });
+    });
   });
 
   describe('getType', () => {
@@ -464,6 +549,87 @@ describe('EnvironmentsTask', () => {
         projectId: 'project-123',
         environmentTypeId: 'type-1',
       });
+    });
+
+    it('should list environment types', async () => {
+      const response = [{ id: 'type-1' }] as any;
+      mockEnvironmentTypeApi.listProjectsEnvironmentTypes.mockResolvedValue(response);
+
+      const result = await environmentTask.listTypes('project-123');
+      expect(result).toBe(response);
+      expect(mockEnvironmentTypeApi.listProjectsEnvironmentTypes).toHaveBeenCalledWith({
+        projectId: 'project-123',
+      });
+    });
+  });
+
+  describe('activities/backups passthrough', () => {
+    it('should cancel/get/list activities via client', async () => {
+      mockActivities.cancel.mockResolvedValue({ ok: true } as any);
+      mockActivities.get.mockResolvedValue({ id: 'act-1' } as any);
+      mockActivities.list.mockResolvedValue([{ id: 'act-1' }] as any);
+
+      await environmentTask.activityCancel('project-123', 'main', 'act-1');
+      await environmentTask.getActivity('project-123', 'main', 'act-1');
+      await environmentTask.listActivities('project-123', 'main');
+
+      expect(mockActivities.cancel).toHaveBeenCalledWith('project-123', 'act-1', 'main');
+      expect(mockActivities.get).toHaveBeenCalledWith('project-123', 'act-1', 'main');
+      expect(mockActivities.list).toHaveBeenCalledWith('project-123', 'main');
+    });
+
+    it('should create/list/delete/get/restore backups via client', async () => {
+      mockBackups.create.mockResolvedValue({ ok: true } as any);
+      mockBackups.list.mockResolvedValue([{ id: 'b1' }] as any);
+      mockBackups.delete.mockResolvedValue({ ok: true } as any);
+      mockBackups.get.mockResolvedValue({ id: 'b1' } as any);
+      mockBackups.restore.mockResolvedValue({ ok: true } as any);
+
+      await environmentTask.backup('project-123', 'main', true);
+      await environmentTask.listBackups('project-123', 'main');
+      await environmentTask.deleteBackup('project-123', 'main', 'b1');
+      await environmentTask.getBackup('project-123', 'main', 'b1');
+      await environmentTask.restoreBackup(
+        'project-123',
+        'main',
+        'b1',
+        false,
+        true,
+        'restored',
+        'parent',
+        undefined,
+      );
+
+      expect(mockBackups.create).toHaveBeenCalledWith('project-123', 'main', true);
+      expect(mockBackups.list).toHaveBeenCalledWith('project-123', 'main');
+      expect(mockBackups.delete).toHaveBeenCalledWith('project-123', 'main', 'b1');
+      expect(mockBackups.get).toHaveBeenCalledWith('project-123', 'main', 'b1');
+      expect(mockBackups.restore).toHaveBeenCalledWith(
+        'project-123',
+        'main',
+        'b1',
+        false,
+        true,
+        'restored',
+        'parent',
+        undefined,
+      );
+    });
+
+    it('should call restore backup with default parameters', async () => {
+      mockBackups.restore.mockResolvedValue({ ok: true } as any);
+
+      await environmentTask.restoreBackup('project-123', 'main', 'b2');
+      expect(mockBackups.restore).toHaveBeenCalledWith(
+        'project-123',
+        'main',
+        'b2',
+        true,
+        true,
+        undefined,
+        undefined,
+        undefined,
+      );
     });
   });
 
@@ -560,7 +726,7 @@ describe('EnvironmentsTask', () => {
   describe('domains passthrough', () => {
     it('should pass domain creation to client', async () => {
       mockDomains.add.mockResolvedValue({} as any);
-      await environmentTask.createDomain('project-123', 'main', '');
+      await environmentTask.addDomain('project-123', 'main', '');
       expect(mockDomains.add).toHaveBeenCalledWith(
         'project-123',
         '',
@@ -574,7 +740,7 @@ describe('EnvironmentsTask', () => {
     it('should create domain via client', async () => {
       const response = { ok: true } as any;
       mockDomains.add.mockResolvedValue(response);
-      const result = await environmentTask.createDomain(
+      const result = await environmentTask.addDomain(
         'project-123',
         'main',
         'example.com',

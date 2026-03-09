@@ -236,5 +236,17 @@ describe('CertificatesTask', () => {
         certificatesTask.update('project-123', 'cert-456', { chain, isInvalid }),
       ).rejects.toThrow('Update failed');
     });
+
+    it('should send empty patch when params are omitted', async () => {
+      const mockResponse = { status: 'ok' };
+      mockCertApi.updateProjectsCertificates = jest.fn().mockResolvedValue(mockResponse);
+
+      await certificatesTask.update('project-123', 'cert-456');
+      expect(mockCertApi.updateProjectsCertificates).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        certificateId: 'cert-456',
+        certificatePatch: {},
+      });
+    });
   });
 });

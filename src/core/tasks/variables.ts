@@ -59,7 +59,7 @@ export class VariablesTask extends TaskBase {
    */
   async deleteProjectVariable(projectId: string, variableId: string): Promise<void> {
     TaskBase.checkProjectId(projectId);
-    VariablesTask.checkVariableId(variableId);
+    TaskBase.checkVariableId(variableId);
 
     await this.projVarApi.deleteProjectsVariables({
       projectId: projectId,
@@ -78,7 +78,7 @@ export class VariablesTask extends TaskBase {
    */
   async getProjectVariable(projectId: string, variableId: string): Promise<ProjectVariable> {
     TaskBase.checkProjectId(projectId);
-    VariablesTask.checkVariableId(variableId);
+    TaskBase.checkVariableId(variableId);
 
     return await this.projVarApi.getProjectsVariables({
       projectId: projectId,
@@ -118,7 +118,7 @@ export class VariablesTask extends TaskBase {
     params?: ProjectVariablePatch,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
-    VariablesTask.checkVariableId(variableId);
+    TaskBase.checkVariableId(variableId);
 
     return await this.projVarApi.updateProjectsVariables({
       projectId: projectId,
@@ -188,7 +188,7 @@ export class VariablesTask extends TaskBase {
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
-    VariablesTask.checkVariableId(variableId);
+    TaskBase.checkVariableId(variableId);
 
     return await this.envVarApi.deleteProjectsEnvironmentsVariables({
       projectId: projectId,
@@ -215,7 +215,7 @@ export class VariablesTask extends TaskBase {
   ): Promise<EnvironmentVariable> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
-    VariablesTask.checkVariableId(variableId);
+    TaskBase.checkVariableId(variableId);
 
     return await this.envVarApi.getProjectsEnvironmentsVariables({
       projectId: projectId,
@@ -281,7 +281,7 @@ export class VariablesTask extends TaskBase {
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
-    VariablesTask.checkVariableId(variableId);
+    TaskBase.checkVariableId(variableId);
 
     if (!name) {
       throw new Error('Variable name is required');
@@ -296,17 +296,5 @@ export class VariablesTask extends TaskBase {
       variableId,
       environmentVariablePatch: { name, value, ...params },
     });
-  }
-
-  /**
-   * Checks if the provided variable ID is valid. This method is used to validate that a variable ID is provided and is
-   * in the correct format before making API requests that require a variable ID. If the variable ID is invalid, an
-   * error is thrown to prevent making an API request with an invalid variable ID.
-   * @param variableId
-   */
-  static checkVariableId(variableId: string): void {
-    if (!variableId) {
-      throw new Error('Variable ID is required');
-    }
   }
 }

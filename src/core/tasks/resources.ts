@@ -65,7 +65,8 @@ export class ResourcesTask extends TaskBase {
    * @param services map of `<appName> => { resources?: { profileSize?: string }, disk?: number }`
    * @param workers map of `<appName> => { resources?: { profileSize?: string }, instanceCount?: number }`
    *
-   * Only include the entries you actually want to change; the API merges the provided settings into the next deployment draft.
+   * Only include the entries you actually want to change; the API merges the provided settings into the next deployment
+   * draft.
    */
   async set(
     projectId: string,
@@ -133,7 +134,7 @@ export class ResourcesTask extends TaskBase {
   async updateAutoscalerSettings(
     projectId: string,
     environmentId: string,
-    params: AutoscalerSettings,
+    autoscalerSettings?: AutoscalerSettings,
   ): Promise<AutoscalerSettings> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -141,7 +142,7 @@ export class ResourcesTask extends TaskBase {
     return await this.autoscalingApi.postAutoscalerSettings({
       projectId,
       environmentId,
-      autoscalerSettings: params,
+      autoscalerSettings,
     });
   }
 }

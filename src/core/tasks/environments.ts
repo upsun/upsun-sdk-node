@@ -151,7 +151,7 @@ export class EnvironmentsTask extends TaskBase {
   async httpAccess(
     projectId: string,
     environmentId: string,
-    httpAccess: HttpAccessPermissions2,
+    httpAccess?: HttpAccessPermissions2,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -268,7 +268,7 @@ export class EnvironmentsTask extends TaskBase {
   }
 
   //TODO implement logs streaming?
-  async logs(projectId: string, environmentId: string, app_name: string): Promise<never> {
+  async logs(projectId: string, environmentId: string, appName: string): Promise<never> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
@@ -349,14 +349,18 @@ export class EnvironmentsTask extends TaskBase {
   async relationships(
     projectId: string,
     environmentId: string,
-    appId: string,
+    applicationId: string,
   ): Promise<{ [key: string]: ServiceRelationshipsValue }> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
-    const appConfig = await this.client.applications.configGet(projectId, environmentId, appId);
+    const appConfig = await this.client.applications.configGet(
+      projectId,
+      environmentId,
+      applicationId,
+    );
 
-    return appConfig.relationships;
+    return appConfig?.relationships || {};
   }
 
   /**
@@ -605,12 +609,25 @@ export class EnvironmentsTask extends TaskBase {
    */
   async getType(projectId: string, environmentTypeId: string): Promise<EnvironmentType> {
     TaskBase.checkProjectId(projectId);
-    TaskBase.checkEnvironmentId(environmentTypeId);
+    TaskBase.checkEnvironmentTypeId(environmentTypeId);
 
     return await this.envTypeApi.getEnvironmentType({
       projectId: projectId,
       environmentTypeId: environmentTypeId,
     });
+  }
+
+  /**
+   * List all environment types available in the project. Environment types represent different categories or
+   * classifications of environments, such as development, staging, production, etc. Each environment type may have
+   * specific characteristics or configurations that differentiate it from other types.
+   * @param projectId - The ID of the project.
+   * @returns A list of environment types available in the project.
+   */
+  async listTypes(projectId: string): Promise<EnvironmentType[]> {
+    TaskBase.checkProjectId(projectId);
+
+    return await this.envTypeApi.listProjectsEnvironmentTypes({ projectId: projectId });
   }
 
   /**
@@ -752,19 +769,27 @@ export class EnvironmentsTask extends TaskBase {
   }
 
   /**
-   * Create a new route in the environment.
+   * Add a domain to the environment. A domain represents a custom hostname that can be used to access the applications
+   * running in the environment. Each domain must have a unique name within the environment.
    * @param projectId - The ID of the project.
-   * @param environmentId - The ID of the environment to create the route in.
-   * @param path - The path for the route. This should be a valid URL path (e.g., "/api").
-   * @param destination - The destination for the route. This should specify where traffic matching the route's path
-   * should be directed to (e.g., a specific application or service in the environment).
-   * @param isDefault - Whether this route should be the default route for the environment. If true, this route will
-   * be used to handle any traffic that does not match any other routes in the environment.
-   * @return An AcceptedResponse indicating that the create route request has been accepted.
-   * @throws An error if the project ID or environment ID is invalid, if the path or destination is missing or invalid,
-   * if a route with the same path already exists in the environment, or if there is an issue with the API request.
+   * @param environmentId - The ID of the environment to add the domain to.
+   * @param domainName - The name of the domain to add. This must be a non-empty string and unique within the
+   * environment.
+   * @param attributes - (Optional) Additional attributes for the domain, such as whether it is the default domain for
+   * the environment, etc.
+   * @param isDefault - (Optional) Whether this domain should be set as the default domain for the environment. If true,
+   * this domain will be used as the primary hostname for accessing applications in the environment. If false or not
+   * provided, this domain will be added as a secondary hostname.
+   * @param replacementFor - (Optional) The ID of an existing domain to replace with this new domain. If provided, the
+   * existing domain with the specified ID will be replaced by the new domain being added. This can be used to update
+   * the hostname of an existing domain while keeping the same domain ID and associated configuration. If not provided,
+   * the new domain will be added without replacing any existing domains.
+   * @return An AcceptedResponse indicating that the add domain request has been accepted.
+   * @throws An error if the project ID or environment ID is invalid, if the domain name is missing or invalid, if a
+   * domain with the same name already exists in the environment, if the replacement domain ID does not exist in the
+   * environment, or if there is an issue with the API request.
    */
-  async createDomain(
+  async addDomain(
     projectId: string,
     environmentId: string,
     domainName: string,
@@ -828,7 +853,7 @@ export class EnvironmentsTask extends TaskBase {
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to update the domain in.
    * @param domainId - The ID of the domain to update.
-   * @param params - The parameters to update for the domain, such as the domain's attributes, whether it is the default
+   * @param domainPatch - The parameters to update for the domain, such as the domain's attributes, whether it is the default
    * domain, etc.
    * @return An AcceptedResponse indicating that the update domain request has been accepted.
    * @throws An error if the project ID, environment ID, or domain ID is invalid, if the domain to update does not exist
@@ -838,9 +863,9 @@ export class EnvironmentsTask extends TaskBase {
     projectId: string,
     environmentId: string,
     domainId: string,
-    params?: DomainPatch,
+    domainPatch?: DomainPatch,
   ): Promise<AcceptedResponse> {
-    return await this.client.domains.update(projectId, domainId, params, environmentId);
+    return await this.client.domains.update(projectId, domainId, domainPatch, environmentId);
   }
 
   /**

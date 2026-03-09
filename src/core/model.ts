@@ -71,3 +71,4 @@ export type DeploymentResourceGroup =
 export type FilterListProjectUserAccess = Omit<ListProjectUserAccessRequest, 'projectId'>;
 export type FilterListUserProjectAccess = Omit<ListUserProjectAccessRequest, 'userId'>;
 export type FilterListUserExtendedAccess = Omit<ListUserExtendedAccessRequest, 'userId'>;
+export type FilterProjectUserAccesses = Omit<ListProjectUserAccessRequest, 'projectId'>;

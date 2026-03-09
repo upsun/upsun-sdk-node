@@ -169,6 +169,24 @@ export abstract class TaskBase {
     }
   }
 
+  static checkEnvironmentTypeId(environmentTypeId: string): void {
+    if (!environmentTypeId) {
+      throw new Error('Environment Type ID is required');
+    }
+  }
+
+  static checkRouteId(routeId: string): void {
+    if (!routeId) {
+      throw new Error('Route ID is required');
+    }
+  }
+
+  static checkTicketId(ticketId: string): void {
+    if (!ticketId) {
+      throw new Error('Ticket ID is required');
+    }
+  }
+
   // works for URIs like /subscriptions/{subscriptionId} to extract subscriptionId
   // as the subscriptionId is not returned directly in the project object (emty field)
   // e.g. /subscriptions/abc123

@@ -75,6 +75,20 @@ describe('ActivitiesTask', () => {
         projectId: 'project-123',
       });
     });
+
+    it('should list environment activities when environmentId is provided', async () => {
+      const mockActivities = [{ id: 'env-act-1' }];
+      mockEnvironmentActivityApi.listProjectsEnvironmentsActivities.mockResolvedValue(
+        mockActivities as any,
+      );
+
+      const result = await activitiesTask.list('project-123', 'main');
+      expect(result).toEqual(mockActivities);
+      expect(mockEnvironmentActivityApi.listProjectsEnvironmentsActivities).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+      });
+    });
   });
 
   describe('get', () => {
@@ -101,6 +115,21 @@ describe('ActivitiesTask', () => {
         activityId: 'activity-123',
       });
     });
+
+    it('should get an environment activity when environmentId is provided', async () => {
+      const mockActivity = { id: 'env-activity-123' };
+      mockEnvironmentActivityApi.getProjectsEnvironmentsActivities.mockResolvedValue(
+        mockActivity as any,
+      );
+
+      const result = await activitiesTask.get('project-123', 'activity-123', 'main');
+      expect(result).toEqual(mockActivity);
+      expect(mockEnvironmentActivityApi.getProjectsEnvironmentsActivities).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+        activityId: 'activity-123',
+      });
+    });
   });
 
   describe('cancel', () => {
@@ -118,6 +147,23 @@ describe('ActivitiesTask', () => {
       expect(result).toBeDefined();
       expect(mockProjectActivityApi.actionProjectsActivitiesCancel).toHaveBeenCalledWith({
         projectId: 'project-123',
+        activityId: 'activity-123',
+      });
+    });
+
+    it('should cancel an environment activity when environmentId is provided', async () => {
+      const mockResult = { success: true };
+      mockEnvironmentActivityApi.actionProjectsEnvironmentsActivitiesCancel.mockResolvedValue(
+        mockResult as any,
+      );
+
+      const result = await activitiesTask.cancel('project-123', 'activity-123', 'main');
+      expect(result).toEqual(mockResult);
+      expect(
+        mockEnvironmentActivityApi.actionProjectsEnvironmentsActivitiesCancel,
+      ).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
         activityId: 'activity-123',
       });
     });

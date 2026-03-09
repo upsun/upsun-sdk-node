@@ -1,6 +1,6 @@
 generatorName: typescript-fetch
 inputSpec: ./schema/openapispec-upsun.json
-outputDir: src
+outputDir: ./
 packageName: upsun-client
 templateDir: ./templates/node
 generateSupportingFiles: true
@@ -16,27 +16,29 @@ isOAuth: true
 additionalProperties:
   isApiKey: true
   sdkName: upsun-sdk-node
-  sdkVersion: 0.1.0
+  sdkVersion: 0.5.0
   sdkDescription: The official Upsun SDK for Node.js
-  licenseName: MIT
+  licenseName: Apache-2.0
   artifactUrl: https://github.com/upsun/upsun-sdk-node
-  authorName: Upsun Advocacy Team
+  authorName: Mickael GAILLARD
   contributors: |
-        [
-            {
-                "name": "Florent HUCK",
-                "email": "florent.huck@upsun.com"
-            },
-            {
-                "name": "Mickael GAILLARD",
-                "email": "mickael.gaillard@upsun.com"
-            },
-            {
-                "name": "Upsun Advocacy Team",
-                "homepage": "https://www.upsun.com"
-            }
-        ],
+    [
+        {
+            "name": "Mickael GAILLARD",
+            "email": "mickael.gaillard@upsun.com"
+        },
+        {
+            "name": "Florent HUCK",
+            "email": "florent.huck@upsun.com"
+        },
+        {
+            "name": "Upsun Advocacy Team",
+            "homepage": "https://www.upsun.com"
+        }
+      ],
   importFileExtension: .js
+  apiPackage: src/api
+  modelPackage: src/model
   #Bug on OpenApiGenerator => fileNaming: kebab-case
   enumPropertyNaming: UPPERCASE
   modelPropertyNaming: camelCase
@@ -48,20 +50,24 @@ files:
   apis.mustache:
     templateType: API
     destinationFilename: .ts
-    folder: api
+    folder: src/api
   apis.index.mustache:
     templateType: SupportingFiles
     destinationFilename: index.ts
-    folder: api
+    folder: src/api
   models.mustache:
     templateType: Model
     destinationFilename: .ts
-    folder: model
+    folder: src/model
   models.index.mustache:
     templateType: SupportingFiles
     destinationFilename: index.ts
-    folder: model
+    folder: src/model
   runtime.mustache:
     templateType: SupportingFiles
     destinationFilename: runtime.ts
-    folder: core
+    folder: src/core
+  package.mustache:
+    templateType: SupportingFiles
+    destinationFilename: package.json
+    folder: .
