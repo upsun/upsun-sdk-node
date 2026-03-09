@@ -3,6 +3,7 @@
 {{>licenseInfo}}
 
 export const BASE_PATH = "{{{basePath}}}".replace(/\/+$/, "");
+const DEFAULT_USER_AGENT = '{{sdkName}}@{{sdkVersion}}';
 
 export interface ConfigurationParameters {
   basePath?: string; // override base path
@@ -65,7 +66,10 @@ export class Configuration {
   }
 
   get headers(): HTTPHeaders | undefined {
-    return this.configuration.headers;
+    return {
+      'User-Agent': DEFAULT_USER_AGENT,
+      ...(this.configuration.headers || {}),
+    };
   }
 
   get credentials(): RequestCredentials | undefined {

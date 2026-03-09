@@ -40,9 +40,11 @@ export class SourceOperationsTask extends TaskBase {
    * and environment by providing the necessary parameters for the operation.
    * @param projectId - The ID of the project to run the source operation for.
    * @param environmentId - The ID of the environment to run the source operation for.
-   * @param params - An object containing the necessary parameters for the source operation. The specific parameters
-   * required will depend on the type of source operation being run, and may include details such as the operation type,
-   * source details, and other relevant information.
+   * @param operation - The name of the source operation to run. This should correspond to a valid source operation that
+   *  can be executed in the specified environment.
+   * @param variables - A set of variables that are required for the source operation. The specific variables needed
+   * will depend on the source operation being executed, and should be provided in accordance with the requirements of
+   * that operation.
    * @return An AcceptedResponse indicating that the source operation request has been accepted. The client should check
    * the status of the source operation through the operation details to confirm whether it was executed successfully or
    * if there were any issues.

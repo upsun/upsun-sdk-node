@@ -215,7 +215,7 @@ export class ProjectsTask extends TaskBase {
     TaskBase.checkProjectId(projectId);
 
     const project = await this.prjApi.getProjects({ projectId });
-    const subscriptionId = TaskBase.extractSubscriptionId(project?.subscription?.licenseUri);
+    const subscriptionId = TaskBase.extractSubscriptionId(project?.subscription?.licenseUri || '');
 
     TaskBase.checkSubscriptionId(subscriptionId);
     TaskBase.checkOrganizationId(project.organization || '');
