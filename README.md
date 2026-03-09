@@ -5,7 +5,7 @@ This SDK provides a Node.js interface that maps to the Upsun CLI commands.
 
 For more information, read [the documentation](https://docs.upsun.com/api).
 
-> [!CAUTION]
+> **CAUTION**:
 > This project is currently in **Beta**, meaning features and APIs may evolve over time.
 >
 > Please report bugs or request new features by creating a GitHub issue.
@@ -62,7 +62,6 @@ Clone the repository and install dependencies:
 ```bash
 git clone git@github.com:upsun/upsun-sdk-node.git
 npm install
-npm run spec:generate:install
 ```
 
 ## Architecture of this SDK
@@ -79,7 +78,8 @@ The SDK is built as follows:
 API classes are generated from the [Upsun OpenAPI spec](https://docs.upsun.com/api/openapispec-upsun.json).
 
 ```bash
-npm run spec:generate
+npm run spec:generate:install
+npm run spec:full
 ```
 
 ## Contributing
