@@ -5,6 +5,25 @@
 export const BASE_PATH = "{{{basePath}}}".replace(/\/+$/, "");
 const DEFAULT_USER_AGENT = '{{sdkName}}@{{sdkVersion}}';
 
+function getDefaultUpsunClientHeader(): string {
+  const runtime = globalThis as {
+    process?: {
+      versions?: Record<string, string | undefined>;
+      platform?: string;
+      arch?: string;
+    };
+  };
+
+  const nodeVersion = runtime.process?.versions?.node || 'unknown';
+  const undiciVersion = runtime.process?.versions?.undici || 'unknown';
+  const platform = runtime.process?.platform || 'unknown';
+  const arch = runtime.process?.arch || 'unknown';
+
+  return `node/${nodeVersion} undici/${undiciVersion} ${platform}/${arch}`;
+}
+
+const DEFAULT_X_UPSUN_CLIENT = getDefaultUpsunClientHeader();
+
 export interface ConfigurationParameters {
   basePath?: string; // override base path
   fetchApi?: FetchAPI; // override for fetch implementation
@@ -68,6 +87,7 @@ export class Configuration {
   get headers(): HTTPHeaders | undefined {
     return {
       'User-Agent': DEFAULT_USER_AGENT,
+      'X-Upsun-Client': DEFAULT_X_UPSUN_CLIENT,
       ...(this.configuration.headers || {}),
     };
   }
