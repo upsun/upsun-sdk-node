@@ -134,7 +134,7 @@ export class ResourcesTask extends TaskBase {
   async updateAutoscalerSettings(
     projectId: string,
     environmentId: string,
-    autoscalerSettings: AutoscalerSettings,
+    autoscalerSettings?: AutoscalerSettings,
   ): Promise<AutoscalerSettings> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
