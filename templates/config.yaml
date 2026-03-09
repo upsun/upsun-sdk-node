@@ -16,9 +16,9 @@ isOAuth: true
 additionalProperties:
   isApiKey: true
   sdkName: upsun-sdk-node
-  sdkVersion: 0.4.2
+  sdkVersion: 0.5.0
   sdkDescription: The official Upsun SDK for Node.js
-  licenseName: Apache v2.0
+  licenseName: Apache-2.0
   artifactUrl: https://github.com/upsun/upsun-sdk-node
   authorName: Mickael GAILLARD
   contributors: |

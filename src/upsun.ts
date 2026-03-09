@@ -79,6 +79,27 @@ import {
   UsersApi,
   VouchersApi,
 } from './index.js';
+import { createRequire } from 'node:module';
+
+const FALLBACK_USER_AGENT = 'upsun-sdk-node';
+
+function getDefaultUserAgent(): string {
+  try {
+    const require = createRequire(import.meta.url);
+    const pkg = require('../package.json') as { name?: string; version?: string };
+    if (pkg.name && pkg.version) {
+      return `${pkg.name}@${pkg.version}`;
+    }
+    if (pkg.name) {
+      return pkg.name;
+    }
+  } catch {
+    // Keep a stable fallback when package metadata is not available.
+  }
+  return FALLBACK_USER_AGENT;
+}
+
+const DEFAULT_USER_AGENT = getDefaultUserAgent();
 
 /**
  * Configuration interface for the Upsun API client.
@@ -97,6 +118,7 @@ export interface UpsunConfig {
   base_url: string;
   auth_url: string;
   apiKey?: string;
+  userAgent?: string;
   token_endpoint: string;
   refresh_endpoint: string;
   clientId: string;
@@ -110,6 +132,7 @@ export interface UpsunConfig {
 export const DEFAULT_UPSUN_CONFIG: UpsunConfig = {
   base_url: 'https://api.upsun.com', // Default base URL for the Upsun API
   auth_url: 'https://auth.upsun.com', // Default authentication URL for the Upsun API
+  userAgent: DEFAULT_USER_AGENT,
   token_endpoint: 'oauth2/token',
   refresh_endpoint: 'oauth2/token',
   clientId: 'sdk-node-client-id',
@@ -181,6 +204,9 @@ export class UpsunClient {
     const param: ConfigurationParameters = {
       basePath: this.upsunConfig.base_url,
       accessToken: this.getToken.bind(this),
+      headers: {
+        'User-Agent': this.upsunConfig.userAgent || DEFAULT_USER_AGENT,
+      },
       middleware: [this.authMiddleware],
     };
     this.apiConfig = new Configuration(param);
