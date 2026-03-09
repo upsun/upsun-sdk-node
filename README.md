@@ -88,6 +88,12 @@ Contributions are welcome!
 Please open a [pull request](https://github.com/upsun/upsun-sdk-node/compare) or an [issue](https://github.com/upsun/upsun-sdk-node/issues/new)
 for any improvements, bug fixes, or new features.
 
+## Tests
+To run the tests, use:
+
+```bash
+npm run test
+```
 ## License
 
 This project is licensed under the Apache License 2.0. See the [LICENSE](https://github.com/upsun/upsun-sdk-node/blob/main/LICENSE) and [NOTICE](https://github.com/upsun/upsun-sdk-node/blob/main/NOTICE) files for details.
