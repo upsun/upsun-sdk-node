@@ -44,13 +44,13 @@ const organizations = await upsunClient.organizations.list();
 ### Example: List projects
 
 ```ts
-const projects = await upsunClient.projects.list();
+const projects = await upsunClient.projects.list("<organizationId>");
 ```
 
 ### Example: Redeploy an environment
 
 ```ts
-const result = await upsunClient.environments.redeploy("<projectId>", "main");
+const result = await upsunClient.environments.redeploy("<projectId>", "<environmentId>");
 ```
 
 ---
