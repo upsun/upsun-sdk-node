@@ -6,6 +6,11 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 env:
   # Define the primary Node.js version for release, build, coverage uploads and badge generation
   PRIMARY_NODE_VERSION: '25'
@@ -151,6 +156,7 @@ jobs:
         run: npm install --no-save upsun-sdk-checker@latest
 
       - name: Run SDK comparison (informational)
+        id: sdk_checker
         continue-on-error: true
         env:
           EXCLUDE_OPTIONAL_PARAMS: "true"
@@ -158,4 +164,79 @@ jobs:
           SDK_PHP_BRANCH: main
           SDK_NODE_BRANCH: ${{ github.head_ref || github.ref_name }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx upsun-sdk-checker full:checks
+        run: |
+          set -o pipefail
+          npx upsun-sdk-checker full:checks 2>&1 | tee sdk-checker-report.txt
+
+      - name: Comment SDK comparison output on PR
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          REPORT_PATH: sdk-checker-report.txt
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- upsun-sdk-checker-report -->';
+            const reportPath = process.env.REPORT_PATH;
+
+            let report = '';
+            try {
+              report = fs.readFileSync(reportPath, 'utf8');
+            } catch (error) {
+              report = `Unable to read ${reportPath}: ${error.message}`;
+            }
+
+            const maxLength = 60000;
+            let truncationNote = '';
+            if (report.length > maxLength) {
+              report = report.slice(0, maxLength);
+              truncationNote = `\n\n_Output truncated to ${maxLength} characters._`;
+            }
+
+            const safeReport = report.replace(/```/g, '\\\`\\\`\\\`');
+            const body = [
+              marker,
+              '## Upsun SDK checker report',
+              '',
+              '<details>',
+              '<summary>Afficher la sortie brute</summary>',
+              '',
+              '```text',
+              safeReport,
+              '```',
+              '</details>',
+              truncationNote
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+
+            const existing = comments.find(comment =>
+              comment.user?.type === 'Bot' &&
+              comment.body?.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+            }
