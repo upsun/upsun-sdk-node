@@ -188,6 +188,13 @@ jobs:
               report = `Unable to read ${reportPath}: ${error.message}`;
             }
 
+            // Remove ANSI/control sequences and replacement chars to keep PR comments readable.
+            report = report
+              .replace(/\u001B\[[0-9;]*[A-Za-z]/g, '')
+              .replace(/\u009B[0-9;]*[A-Za-z]/g, '')
+              .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+              .replace(/\uFFFD/g, '');
+
             const maxLength = 60000;
             let truncationNote = '';
             if (report.length > maxLength) {
@@ -201,7 +208,7 @@ jobs:
               '## Upsun SDK checker report',
               '',
               '<details>',
-              '<summary>Afficher la sortie brute</summary>',
+              '<summary>Display raw output</summary>',
               '',
               '```text',
               safeReport,
