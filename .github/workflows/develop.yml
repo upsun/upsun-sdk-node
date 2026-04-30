@@ -128,3 +128,34 @@ jobs:
 
       - name: Build project
         run: npm run build
+
+  compare-signatures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [ build ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install repo dependencies
+        run: npm ci
+
+      - name: Install SDK checker
+        run: npm install --no-save upsun-sdk-checker@latest
+
+      - name: Run SDK comparison (informational)
+        continue-on-error: true
+        env:
+          EXCLUDE_OPTIONAL_PARAMS: "true"
+          EXCLUDE_DEPRECATED: "true"
+          SDK_PHP_BRANCH: main
+          SDK_NODE_BRANCH: ${{ github.head_ref || github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx upsun-sdk-checker full:checks
