@@ -175,7 +175,7 @@ export class ProjectsTask extends TaskBase {
    * @throws An error if the project ID is invalid, if the parameters are invalid, or if there is an issue with the API
    * request.
    */
-  async update(projectId: string, params: UpdateOrgProjectRequest): Promise<Project> {
+  async update(projectId: string, params?: UpdateOrgProjectRequest): Promise<Project> {
     TaskBase.checkProjectId(projectId);
 
     const project = await this.prjApi.getProjects({ projectId });
@@ -271,7 +271,7 @@ export class ProjectsTask extends TaskBase {
   async createInvite(
     projectId: string,
     email: string,
-    params: CreateProjectInvite,
+    params?: CreateProjectInvite,
   ): Promise<ProjectInvitation> {
     return await this.client.invitations.createProjectInvite(projectId, email, params);
   }
@@ -585,9 +585,9 @@ export class ProjectsTask extends TaskBase {
   async updateDomain(
     projectId: string,
     domainId: string,
-    params?: DomainPatch,
+    domainPatch: DomainPatch,
   ): Promise<AcceptedResponse> {
-    return await this.client.domains.update(projectId, domainId, params);
+    return await this.client.domains.update(projectId, domainId, domainPatch);
   }
 
   /**
