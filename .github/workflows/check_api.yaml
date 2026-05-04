@@ -46,7 +46,7 @@ jobs:
         run: npm run fix:all
 
       - name: Create Pull Request if changes
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.OPENAPI_WORKFLOW_TOKEN }}
           commit-message: "Update OpenAPI spec"
