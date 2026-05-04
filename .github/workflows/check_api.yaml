@@ -64,3 +64,4 @@ jobs:
           add-paths: |
             src/
             tests/
+            schema/
