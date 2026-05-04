@@ -23,12 +23,12 @@ describe('ProjectsTask', () => {
     mockProjectApi = {
       actionProjectsClearBuildCache: jest.fn(),
       getProjects: jest.fn(),
-      updateProjects: jest.fn(),
       getProjectsCapabilities: jest.fn(),
     } as any;
 
     mockOrgProjectsApi = {
       listOrgProjects: jest.fn(),
+      updateOrgProject: jest.fn(),
     } as any;
 
     mockSubscriptionsApi = {
@@ -165,15 +165,16 @@ describe('ProjectsTask', () => {
     });
 
     it('should update project when params provided', async () => {
-      const mockProject = { id: 'proj-1', title: 'Updated Title' };
-      mockProjectApi.updateProjects.mockResolvedValue(undefined);
+      const mockProject = { id: 'proj-1', title: 'Updated Title', organization: 'org-1' };
+      mockOrgProjectsApi.updateOrgProject.mockResolvedValue(mockProject as any);
       mockProjectApi.getProjects.mockResolvedValue(mockProject as any);
 
       const result = await projectsTask.info('proj-1', { title: 'Updated Title' });
       expect(result).toBeDefined();
-      expect(mockProjectApi.updateProjects).toHaveBeenCalledWith({
+      expect(mockOrgProjectsApi.updateOrgProject).toHaveBeenCalledWith({
+        organizationId: 'org-1',
         projectId: 'proj-1',
-        projectPatch: { title: 'Updated Title' },
+        updateOrgProjectRequest: { title: 'Updated Title' },
       });
     });
 
