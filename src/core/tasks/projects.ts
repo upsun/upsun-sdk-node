@@ -14,7 +14,6 @@ import {
   EnvironmentVariableCreateInput,
   Project,
   ProjectCapabilities,
-  ProjectPatch,
   ProjectSettings,
   ProjectVariable,
   Subscription,
@@ -32,6 +31,7 @@ import {
   ProjectInvitation,
   ListOrgProjects200Response,
   CertificatePatch,
+  UpdateOrgProjectRequest,
 } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
 import {
@@ -142,7 +142,7 @@ export class ProjectsTask extends TaskBase {
    * @throws An error if the project ID is invalid, if the parameters are invalid, or if there is an issue with the API
    * request.
    */
-  async info(projectId: string, params?: ProjectPatch): Promise<Project> {
+  async info(projectId: string, params?: UpdateOrgProjectRequest): Promise<Project> {
     TaskBase.checkProjectId(projectId);
 
     if (params && Object.keys(params).length > 0) {
@@ -175,10 +175,18 @@ export class ProjectsTask extends TaskBase {
    * @throws An error if the project ID is invalid, if the parameters are invalid, or if there is an issue with the API
    * request.
    */
-  async update(projectId: string, params: ProjectPatch): Promise<Project> {
+  async update(projectId: string, params: UpdateOrgProjectRequest): Promise<Project> {
     TaskBase.checkProjectId(projectId);
 
-    await this.prjApi.updateProjects({ projectId, projectPatch: params });
+    const project = await this.prjApi.getProjects({ projectId });
+    TaskBase.checkOrganizationId(project.organization || '');
+
+    await this.orgPrjApi.updateOrgProject({
+      organizationId: project.organization as string,
+      projectId,
+      updateOrgProjectRequest: params,
+    });
+
     return await this.get(projectId);
   }
 
