@@ -6,6 +6,11 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 env:
   # Define the primary Node.js version for release, build, coverage uploads and badge generation
   PRIMARY_NODE_VERSION: '25'
@@ -128,3 +133,117 @@ jobs:
 
       - name: Build project
         run: npm run build
+
+  compare-signatures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [ build ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install repo dependencies
+        run: npm ci
+
+      - name: Install SDK checker
+        run: npm install --no-save upsun-sdk-checker@latest
+
+      - name: Run SDK comparison (informational)
+        id: sdk_checker
+        continue-on-error: true
+        env:
+          EXCLUDE_OPTIONAL_PARAMS: "true"
+          EXCLUDE_DEPRECATED: "true"
+          SDK_PHP_BRANCH: main
+          SDK_NODE_BRANCH: ${{ github.head_ref || github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -o pipefail
+          npx upsun-sdk-checker full:checks 2>&1 | tee sdk-checker-report.txt
+
+      - name: Comment SDK comparison output on PR
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          REPORT_PATH: sdk-checker-report.txt
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- upsun-sdk-checker-report -->';
+            const reportPath = process.env.REPORT_PATH;
+
+            let report = '';
+            try {
+              report = fs.readFileSync(reportPath, 'utf8');
+            } catch (error) {
+              report = `Unable to read ${reportPath}: ${error.message}`;
+            }
+
+            // Remove ANSI/control sequences and replacement chars to keep PR comments readable.
+            report = report
+              .replace(/\u001B\[[0-9;]*[A-Za-z]/g, '')
+              .replace(/\u009B[0-9;]*[A-Za-z]/g, '')
+              .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+              .replace(/\uFFFD/g, '');
+
+            const maxLength = 60000;
+            let truncationNote = '';
+            if (report.length > maxLength) {
+              report = report.slice(0, maxLength);
+              truncationNote = `\n\n_Output truncated to ${maxLength} characters._`;
+            }
+
+            const safeReport = report.replace(/```/g, '\\\`\\\`\\\`');
+            const body = [
+              marker,
+              '## Upsun SDK checker report',
+              '',
+              '<details>',
+              '<summary>Display raw output</summary>',
+              '',
+              '```text',
+              safeReport,
+              '```',
+              '</details>',
+              truncationNote
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+
+            const existing = comments.find(comment =>
+              comment.user?.type === 'Bot' &&
+              comment.body?.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+            }
