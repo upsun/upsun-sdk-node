@@ -22,7 +22,7 @@ parameterNameMappings:
 additionalProperties:
   isApiKey: true
   sdkName: upsun-sdk-node
-  sdkVersion: 0.5.0
+  sdkVersion: 0.6.0
   sdkDescription: The official Upsun SDK for Node.js
   licenseName: Apache-2.0
   artifactUrl: https://github.com/upsun/upsun-sdk-node
@@ -73,7 +73,3 @@ files:
     templateType: SupportingFiles
     destinationFilename: runtime.ts
     folder: src/core
-  package.mustache:
-    templateType: SupportingFiles
-    destinationFilename: package.json
-    folder: .
