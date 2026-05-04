@@ -82,6 +82,34 @@ npm run spec:generate:install
 npm run spec:full
 ```
 
+## Publishing
+To generate a new version of the Upsun SDK Node and automatically publish it on https://npmjs.org
+
+1. update your local
+```bash
+git fetch
+git checkout main
+git pull
+```
+2. check existing tags on https://github.com/upsun/upsun-sdk-node/tags
+3. Update `package.json` version to the new release version (highest version + 1)
+4. update `package-lock.json` using: 
+```bash
+npm install
+git add package.json package-lock.json
+git commit -m "bump release version to v<x.y.z>"
+git push
+```
+5. create a new tag from your local
+```bash
+git tag v<x.y.z>
+git push --tag
+```
+6. Go on release page: https://github.com/upsun/upsun-sdk-node/releases
+7. create a new release based on the previously created tag (Do not forget to autogenerate description in the form)
+8. check publishing action status: https://github.com/upsun/upsun-sdk-node/actions 
+9. check new release version on https://www.npmjs.com/package/upsun-sdk-node 
+
 ## Contributing
 
 Contributions are welcome!  
