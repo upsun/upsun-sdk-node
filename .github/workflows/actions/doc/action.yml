@@ -9,7 +9,7 @@ runs:
   using: "composite"
   steps:
     - name: Set up runtime - Node.js ${{ inputs.default-runtime-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.default-runtime-version }}
         cache: 'npm'
@@ -19,6 +19,6 @@ runs:
       run: npm ci
   
     - name: Generate documentation (with docs generator)
-      if: false
+      if: "false"
       shell: bash
       run: npm run docs

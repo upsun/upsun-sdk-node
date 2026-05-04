@@ -12,7 +12,7 @@ runs:
   using: "composite"
   steps:
     - name: Set up runtime - Node.js ${{ inputs.default-runtime-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.default-runtime-version }}
         cache: 'npm'
@@ -21,7 +21,7 @@ runs:
       shell: bash
       run: npm ci
 
-    - uses: actions/setup-java@v4
+    - uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: '21'
@@ -36,7 +36,7 @@ runs:
 
     - name: Upload coverage to Codecov
       if: success()
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v6
       with:
         files: coverage.xml
         flags: unittests
