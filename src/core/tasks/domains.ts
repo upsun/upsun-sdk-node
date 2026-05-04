@@ -149,7 +149,7 @@ export class DomainsTask extends TaskBase {
   async update(
     projectId: string,
     domainId: string,
-    params?: DomainPatch,
+    domainPatch: DomainPatch,
     environmentId?: string,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
@@ -159,7 +159,7 @@ export class DomainsTask extends TaskBase {
       return await this.domApi.updateProjectsDomains({
         projectId,
         domainId,
-        domainPatch: params || {},
+        domainPatch: domainPatch || {},
       });
     } else {
       TaskBase.checkEnvironmentId(environmentId);
@@ -167,7 +167,7 @@ export class DomainsTask extends TaskBase {
         projectId,
         environmentId,
         domainId,
-        domainPatch: params || {},
+        domainPatch: domainPatch || {},
       });
     }
   }

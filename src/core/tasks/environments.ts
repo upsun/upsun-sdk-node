@@ -863,7 +863,7 @@ export class EnvironmentsTask extends TaskBase {
     projectId: string,
     environmentId: string,
     domainId: string,
-    domainPatch?: DomainPatch,
+    domainPatch: DomainPatch,
   ): Promise<AcceptedResponse> {
     return await this.client.domains.update(projectId, domainId, domainPatch, environmentId);
   }
