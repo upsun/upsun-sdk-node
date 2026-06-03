@@ -10,23 +10,29 @@
   "files": [
     "dist"
   ],
-  "keywords": ["Upsun","SDK","Node.js","Typescript","OpenAPI","API"],
+  "keywords": [
+    "Upsun",
+    "SDK",
+    "Node.js",
+    "Typescript",
+    "OpenAPI",
+    "API"
+  ],
   "author": "Mickael GAILLARD",
   "contributors": [
     {
-        "name": "Mickael GAILLARD",
-        "email": "mickael.gaillard@upsun.com"
+      "name": "Mickael GAILLARD",
+      "email": "mickael.gaillard@upsun.com"
     },
     {
-        "name": "Florent HUCK",
-        "email": "florent.huck@upsun.com"
+      "name": "Florent HUCK",
+      "email": "florent.huck@upsun.com"
     },
     {
-        "name": "Upsun Advocacy Team",
-        "homepage": "https://www.upsun.com"
+      "name": "Upsun Advocacy Team",
+      "homepage": "https://www.upsun.com"
     }
   ],
-
   "devDependencies": {
     "@eslint/js": "^9.0",
     "@types/jest": "^30.0",
@@ -73,10 +79,10 @@
     "test:all": "npm run test:unit",
     "qa": "npm run lint:all && npm run test:all",
     "qa:all": "npm run build && npm run lint:all && npm run test:all"
-  },  
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/upsun/upsun-sdk-node"
+    "url": "git+https://github.com/upsun/upsun-sdk-node.git"
   },
   "homepage": "https://github.com/upsun/upsun-sdk-node#readme",
   "bugs": {
