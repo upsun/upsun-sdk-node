@@ -173,6 +173,7 @@ export class UpsunClient {
         `${this.upsunConfig.auth_url}/${this.upsunConfig.token_endpoint}`,
         this.upsunConfig.clientId,
         this.upsunConfig.apiKey,
+        `${this.upsunConfig.auth_url}/${this.upsunConfig.refresh_endpoint}`,
       );
     }
 
@@ -318,7 +319,10 @@ export class UpsunClient {
         if (!this.auth) {
           return response;
         }
-        await this.auth.exchangeCodeForToken();
+        // RFC 6750 §3.1: on invalid_token (401), re-acquire unconditionally.
+        // forceRefresh() prefers refresh_token grant, falls back to api_token
+        // (RFC 6749 Fig.2 steps F→G→H). Concurrent retries share one request.
+        await this.auth.forceRefresh();
         const token = await this.getToken();
         retryInit.headers = {
           ...this.cloneHeaders(init.headers),
