@@ -15,10 +15,10 @@ import {
   EnvironmentVariable,
   FilesInner,
   HttpAccessPermissions2,
-  Resources3InitEnum,
   Resources4InitEnum,
   Resources5InitEnum,
   Resources6InitEnum,
+  Resources7InitEnum,
   Route,
   RouteCollection,
   ServiceRelationshipsValue,
@@ -87,7 +87,7 @@ export class EnvironmentsTask extends TaskBase {
     name: string,
     cloneParent: boolean = true,
     type: EnvironmentBranchInputTypeEnum = EnvironmentBranchInputTypeEnum.DEVELOPMENT,
-    init: Resources3InitEnum = Resources3InitEnum.PARENT,
+    init: Resources5InitEnum = Resources5InitEnum.PARENT,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -226,7 +226,7 @@ export class EnvironmentsTask extends TaskBase {
     repository: string,
     files: FilesInner[],
     config?: string,
-    init: Resources4InitEnum = Resources4InitEnum.DEFAULT,
+    init: Resources6InitEnum = Resources6InitEnum.DEFAULT,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -291,7 +291,7 @@ export class EnvironmentsTask extends TaskBase {
   async merge(
     projectId: string,
     environmentId: string,
-    init: Resources5InitEnum = Resources5InitEnum.DEFAULT,
+    init: Resources7InitEnum = Resources7InitEnum.DEFAULT,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);

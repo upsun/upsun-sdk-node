@@ -39,7 +39,7 @@ export class IntegrationsTask extends TaskBase {
 
     return await this.thirdPartyIntegrationsApi.createProjectsIntegrations({
       projectId,
-      integrationCreateInput: { type, ...params },
+      integrationCreateCreateInput: { type, ...params },
     });
   }
 
