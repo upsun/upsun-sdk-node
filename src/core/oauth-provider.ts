@@ -72,7 +72,7 @@ export class OAuth2Client {
     return true;
   }
 
-    /**
+  /**
    * Forces an unconditional token re-acquisition, bypassing the expiry check.
    *
    * Called by the retry middleware on 401 responses from the resource server
