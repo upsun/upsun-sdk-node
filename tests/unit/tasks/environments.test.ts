@@ -10,10 +10,14 @@ import {
   AddressGrantsInnerPermissionEnum,
   EnvironmentPatchTypeEnum,
   EnvironmentBranchInputTypeEnum,
-  Resources3InitEnum,
   Resources4InitEnum,
   Resources5InitEnum,
+  Resources6InitEnum,
+  Resources7InitEnum,
 } from '../../../src/model/index.js';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+
+type AsyncMock = jest.Mock<(...args: any[]) => Promise<any>>;
 
 jest.mock('../../../src/upsun');
 jest.mock('../../../src/api/index.js');
@@ -22,34 +26,34 @@ describe('EnvironmentsTask', () => {
   let environmentTask: EnvironmentsTask;
   let mockClient: jest.Mocked<UpsunClient>;
   let mockVariables: {
-    createEnvironmentVariable: jest.Mock;
-    deleteEnvironmentVariable: jest.Mock;
-    getEnvironmentVariable: jest.Mock;
-    listEnvironmentVariables: jest.Mock;
-    updateEnvironmentVariable: jest.Mock;
+    createEnvironmentVariable: AsyncMock;
+    deleteEnvironmentVariable: AsyncMock;
+    getEnvironmentVariable: AsyncMock;
+    listEnvironmentVariables: AsyncMock;
+    updateEnvironmentVariable: AsyncMock;
   };
   let mockRoutes: {
-    get: jest.Mock;
-    list: jest.Mock;
+    get: AsyncMock;
+    list: AsyncMock;
   };
   let mockActivities: {
-    cancel: jest.Mock;
-    get: jest.Mock;
-    list: jest.Mock;
+    cancel: AsyncMock;
+    get: AsyncMock;
+    list: AsyncMock;
   };
   let mockBackups: {
-    create: jest.Mock;
-    list: jest.Mock;
-    delete: jest.Mock;
-    get: jest.Mock;
-    restore: jest.Mock;
+    create: AsyncMock;
+    list: AsyncMock;
+    delete: AsyncMock;
+    get: AsyncMock;
+    restore: AsyncMock;
   };
   let mockDomains: {
-    add: jest.Mock;
-    delete: jest.Mock;
-    get: jest.Mock;
-    list: jest.Mock;
-    update: jest.Mock;
+    add: AsyncMock;
+    delete: AsyncMock;
+    get: AsyncMock;
+    list: AsyncMock;
+    update: AsyncMock;
   };
   let mockEnvironmentApi: jest.Mocked<EnvironmentApi>;
   let mockEnvironmentTypeApi: jest.Mocked<EnvironmentTypeApi>;
@@ -168,13 +172,17 @@ describe('EnvironmentsTask', () => {
       const mockResponse = { status: 'ok' } as any;
       mockEnvironmentApi.activateEnvironment.mockResolvedValue(mockResponse);
 
-      const result = await environmentTask.activate('project-123', 'main', 'INIT_VAL');
+      const result = await environmentTask.activate(
+        'project-123',
+        'main',
+        Resources4InitEnum.DEFAULT,
+      );
       expect(result).toBe(mockResponse);
       expect(mockEnvironmentApi.activateEnvironment).toHaveBeenCalledWith({
         projectId: 'project-123',
         environmentId: 'main',
         environmentActivateInput: {
-          resources: { init: 'INIT_VAL' },
+          resources: { init: Resources4InitEnum.DEFAULT },
         },
       });
     });
@@ -205,7 +213,7 @@ describe('EnvironmentsTask', () => {
         'my-env',
         true,
         EnvironmentBranchInputTypeEnum.DEVELOPMENT,
-        Resources3InitEnum.PARENT,
+        Resources5InitEnum.PARENT,
       );
       expect(result).toBe(mockResponse);
       expect(mockEnvironmentApi.branchEnvironment).toHaveBeenCalledWith({
@@ -216,7 +224,7 @@ describe('EnvironmentsTask', () => {
           name: 'my-env',
           cloneParent: true,
           type: EnvironmentBranchInputTypeEnum.DEVELOPMENT,
-          resources: { init: Resources3InitEnum.PARENT },
+          resources: { init: Resources5InitEnum.PARENT },
         },
       });
     });
@@ -250,7 +258,7 @@ describe('EnvironmentsTask', () => {
         'repo',
         files,
         'configVal',
-        Resources4InitEnum.DEFAULT,
+        Resources6InitEnum.DEFAULT,
       );
       expect(result).toBe(mockResponse);
       expect(mockEnvironmentApi.initializeEnvironment).toHaveBeenCalledWith({
@@ -260,7 +268,7 @@ describe('EnvironmentsTask', () => {
           profile: 'profile',
           repository: 'repo',
           config: 'configVal',
-          resources: { init: Resources4InitEnum.DEFAULT },
+          resources: { init: Resources6InitEnum.DEFAULT },
           files: files,
         },
       });
@@ -296,7 +304,7 @@ describe('EnvironmentsTask', () => {
       expect(mockEnvironmentApi.initializeEnvironment).toHaveBeenCalledWith(
         expect.objectContaining({
           environmentInitializeInput: expect.objectContaining({
-            resources: { init: Resources4InitEnum.DEFAULT },
+            resources: { init: Resources6InitEnum.DEFAULT },
           }),
         }),
       );
@@ -409,12 +417,12 @@ describe('EnvironmentsTask', () => {
   describe('merge', () => {
     it('should merge an environment', async () => {
       mockEnvironmentApi.mergeEnvironment.mockResolvedValue({} as any);
-      await environmentTask.merge('project-123', 'main', Resources5InitEnum.CHILD);
+      await environmentTask.merge('project-123', 'main', Resources7InitEnum.CHILD);
       expect(mockEnvironmentApi.mergeEnvironment).toHaveBeenCalledWith({
         projectId: 'project-123',
         environmentId: 'main',
         environmentMergeInput: {
-          resources: { init: Resources5InitEnum.CHILD },
+          resources: { init: Resources7InitEnum.CHILD },
         },
       });
     });
@@ -425,7 +433,7 @@ describe('EnvironmentsTask', () => {
       expect(mockEnvironmentApi.mergeEnvironment).toHaveBeenCalledWith(
         expect.objectContaining({
           environmentMergeInput: expect.objectContaining({
-            resources: { init: Resources5InitEnum.DEFAULT },
+            resources: { init: Resources7InitEnum.DEFAULT },
           }),
         }),
       );
@@ -839,7 +847,7 @@ describe('EnvironmentsTask', () => {
     it('should return relationships for an app', async () => {
       const relationships = { db: { host: 'db', port: 5432 } } as any;
       mockClient.applications = {
-        configGet: jest.fn().mockResolvedValue({ relationships }),
+        configGet: jest.fn<() => Promise<any>>().mockResolvedValue({ relationships }),
       } as any;
 
       const result = await environmentTask.relationships('project-123', 'main', 'app-1');

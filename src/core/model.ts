@@ -21,7 +21,7 @@ import {
   CreateOrgSubscriptionRequest,
   CreateProjectInviteRequest,
   EnvironmentVariableCreateInput,
-  IntegrationCreateInput,
+  IntegrationCreateCreateInput,
   ProjectVariableCreateInput,
 } from '../model/index.js';
 
@@ -40,7 +40,7 @@ export type FilterListUsageRecords = Omit<ListOrgUsageRecordsRequest, 'organizat
 export type FilterListOrgs = Omit<ListOrgsRequest, never>;
 
 // used in ProjectTasks
-export type IntegrationCreateData = Omit<IntegrationCreateInput, 'type'>;
+export type IntegrationCreateData = Omit<IntegrationCreateCreateInput, 'type'>;
 export type ProjectCreateRequest = Omit<CreateOrgSubscriptionRequest, 'projectRegion'>;
 export type FilterListOrgProjects = Omit<ListOrgProjectsRequest, 'organizationId'>;
 

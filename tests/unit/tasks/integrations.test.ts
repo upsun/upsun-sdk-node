@@ -51,7 +51,7 @@ describe('IntegrationsTask', () => {
       expect(result).toBeDefined();
       expect(mockApi.createProjectsIntegrations).toHaveBeenCalledWith({
         projectId: 'proj-1',
-        integrationCreateInput: { type: 'github', token: 'tok' },
+        integrationCreateCreateInput: { type: 'github', token: 'tok' },
       });
     });
 

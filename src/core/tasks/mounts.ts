@@ -3,6 +3,12 @@ import { UpsunClient } from '../../upsun.js';
 import { DeploymentResourceGroup } from '../model.js';
 import { TaskBase } from './task_base.js';
 
+type DeploymentEntry = {
+  id?: string;
+  name?: string;
+  mounts?: Record<string, MountsValue>;
+};
+
 export class MountsTask extends TaskBase {
   constructor(protected readonly client: UpsunClient) {
     super(client);
@@ -38,11 +44,12 @@ export class MountsTask extends TaskBase {
     for (const resourceType of resourceTypes) {
       const group = currentDeployment[resourceType] ?? {};
       for (const app of Object.values(group)) {
-        const appName = (app as any).name ?? (app as any).id;
+        const appEntry = app as DeploymentEntry;
+        const appName = appEntry.name ?? appEntry.id;
         if (!appName) {
           continue;
         }
-        result[appName] = (app as any).mounts ?? {};
+        result[appName] = appEntry.mounts ?? {};
       }
     }
 
