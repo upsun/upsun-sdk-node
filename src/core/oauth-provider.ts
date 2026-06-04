@@ -1,7 +1,7 @@
 type TokenResponse = {
   access_token: string;
   refresh_token?: string;
-  expires_in: number; // in secondes
+  expires_in: number; // in seconds
   token_type: string;
 };
 
@@ -21,7 +21,7 @@ export class OAuth2Client {
   private typeToken: string | null = null;
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
-  private tokenExpiry: number = 0; // timestamp en ms
+  private tokenExpiry: number = 0; // timestamp in ms
 
   /** Deduplicates concurrent token acquisition calls (thundering-herd protection). */
   private pendingToken: Promise<void> | null = null;
@@ -51,6 +51,7 @@ export class OAuth2Client {
     const params = new URLSearchParams({
       grant_type: 'api_token',
       api_token: this.clientSecret,
+      client_id: this.clientId,
     });
 
     const response = await fetch(this.tokenEndpoint, {

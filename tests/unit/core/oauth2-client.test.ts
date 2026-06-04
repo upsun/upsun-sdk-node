@@ -31,17 +31,21 @@ describe('OAuth2Client', () => {
       expect(typeof result).toBe('boolean');
     });
 
-    it('should send Authorization: Basic header', async () => {
+    it('should send Authorization: Basic header and include client_id in body', async () => {
       let capturedAuth: string | undefined;
+      let capturedBody: string | undefined;
       nock('https://auth.upsun.com')
         .post('/oauth2/token')
-        .reply(function () {
+        .reply(function (_uri, body) {
           capturedAuth = this.req.headers['authorization'] as string;
+          capturedBody = body as string;
           return [200, { access_token: 'tok', token_type: 'Bearer', expires_in: 3600 }];
         });
 
       await oauth2Client.exchangeCodeForToken();
       expect(capturedAuth).toMatch(/^Basic /);
+      expect(capturedBody).toContain('client_id=test-client-id');
+      expect(capturedBody).toContain('grant_type=api_token');
     });
 
     it('should handle token exchange errors', async () => {
@@ -250,6 +254,18 @@ describe('OAuth2Client', () => {
 
       const token = await clientWithSeparateRefresh.getAuthorization();
       expect(token).toBe('refreshed-via-separate-endpoint');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // refreshAccessToken defensive guard (private method, line 121)
+  // ---------------------------------------------------------------------------
+  describe('refreshAccessToken (defensive guard)', () => {
+    it('should throw when called without a stored refresh token', async () => {
+      // oauth2Client has no refresh token because no exchange has been performed
+      await expect((oauth2Client as any).refreshAccessToken()).rejects.toThrow(
+        'No refresh token available',
+      );
     });
   });
 });
