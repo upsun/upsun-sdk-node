@@ -498,14 +498,14 @@ describe('ObservabilityTask', () => {
         from: 1700000000,
         to: 1700003600,
         transaction: 'GET /cart',
-        limit: 5,
+        limit: 20,
       });
 
       const url = sentUrl();
       expect(url.searchParams.get('from')).toBe('1700000000');
       expect(url.searchParams.get('to')).toBe('1700003600');
       expect(url.searchParams.get('transaction')).toBe('GET /cart');
-      expect(url.searchParams.get('limit')).toBe('5');
+      expect(url.searchParams.get('limit')).toBe('20');
     });
 
     it('should keep the IDs of the arguments when the params also hold IDs', async () => {
