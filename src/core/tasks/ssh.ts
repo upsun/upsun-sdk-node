@@ -14,13 +14,13 @@ export class SshTask extends TaskBase {
 
   /**
    * Add an SSH public key to a user.
-   * @param value - The public key, for example `ssh-ed25519 AAAA...`.
    * @param userId - The ID of the user who owns the key.
+   * @param value - The public key, for example `ssh-ed25519 AAAA...`.
    * @param label - (Optional) A label that identifies the key.
    * @return The new SSH key.
    * @throws An error if the user ID or the key value is empty, or if the API request fails.
    */
-  async add(value: string, userId: string, label?: string): Promise<SshKey> {
+  async add(userId: string, value: string, label?: string): Promise<SshKey> {
     TaskBase.checkUserId(userId);
 
     if (!value) {

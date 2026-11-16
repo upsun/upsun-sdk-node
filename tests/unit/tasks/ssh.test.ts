@@ -46,7 +46,7 @@ describe('SshTask', () => {
       const sshKey = { id: 'key-123', label: 'laptop', value: 'ssh-ed25519 AAAA' };
       mockSshApi.createUserSshKey.mockResolvedValue(sshKey as any);
 
-      const result = await sshTask.add('ssh-ed25519 AAAA', 'user-456', 'laptop');
+      const result = await sshTask.add('user-456', 'ssh-ed25519 AAAA', 'laptop');
 
       expect(result).toBe(sshKey);
       expect(mockSshApi.createUserSshKey).toHaveBeenCalledWith({
@@ -58,7 +58,7 @@ describe('SshTask', () => {
     it('should add an SSH key without a label', async () => {
       mockSshApi.createUserSshKey.mockResolvedValue({} as any);
 
-      await sshTask.add('ssh-ed25519 AAAA', 'user-456');
+      await sshTask.add('user-456', 'ssh-ed25519 AAAA');
 
       expect(mockSshApi.createUserSshKey).toHaveBeenCalledWith({
         userId: 'user-456',
@@ -69,18 +69,18 @@ describe('SshTask', () => {
     it('should propagate API errors', async () => {
       mockSshApi.createUserSshKey.mockRejectedValue(new Error('SSH key already exists'));
 
-      await expect(sshTask.add('ssh-ed25519 AAAA', 'user-456')).rejects.toThrow(
+      await expect(sshTask.add('user-456', 'ssh-ed25519 AAAA')).rejects.toThrow(
         'SSH key already exists',
       );
     });
 
     it('should require a user ID', async () => {
-      await expect(sshTask.add('ssh-ed25519 AAAA', '')).rejects.toThrow('User ID is required');
+      await expect(sshTask.add('', 'ssh-ed25519 AAAA')).rejects.toThrow('User ID is required');
       expect(mockSshApi.createUserSshKey).not.toHaveBeenCalled();
     });
 
     it('should require a key value', async () => {
-      await expect(sshTask.add('', 'user-456')).rejects.toThrow('SSH key value is required');
+      await expect(sshTask.add('user-456', '')).rejects.toThrow('SSH key value is required');
       expect(mockSshApi.createUserSshKey).not.toHaveBeenCalled();
     });
   });
