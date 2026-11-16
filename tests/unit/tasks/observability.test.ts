@@ -229,4 +229,92 @@ describe('ObservabilityTask', () => {
       expect(fetchApi).not.toHaveBeenCalled();
     });
   });
+
+  describe('resourcesOverview', () => {
+    it('should call GET /observability/resources/overview', async () => {
+      await task.resourcesOverview('proj-1', 'main', { from: 1700000000, to: 1700003600 });
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/resources/overview',
+      );
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.resourcesOverview('', 'main', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.resourcesOverview('proj-1', '', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('resourcesSummary', () => {
+    it('should call GET /observability/resources/summary', async () => {
+      await task.resourcesSummary('proj-1', 'main', { from: 1700000000, to: 1700003600 });
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/resources/summary',
+      );
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.resourcesSummary('', 'main', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.resourcesSummary('proj-1', '', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('resourcesByService', () => {
+    it('should call GET /observability/resources/service/{service}', async () => {
+      await task.resourcesByService('proj-1', 'main', 'db', { from: 1700000000, to: 1700003600 });
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/resources/service/db',
+      );
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.resourcesByService('', 'main', 'db', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.resourcesByService('proj-1', '', 'db', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require the service name', async () => {
+      await expect(
+        task.resourcesByService('proj-1', 'main', '', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Service name is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
 });

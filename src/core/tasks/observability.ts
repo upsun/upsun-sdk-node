@@ -1,4 +1,4 @@
-import { EntrypointApi, LogsApi, HttpTrafficApi } from '../../api/index.js';
+import { EntrypointApi, LogsApi, HttpTrafficApi, ResourcesApi } from '../../api/index.js';
 import {
   HttpMetricsTimelineIps200Response,
   HttpMetricsTimelineUrls200Response,
@@ -6,6 +6,9 @@ import {
   LogsOverview200Response,
   LogsQuery200Response,
   ObservabilityEntrypoint200Response,
+  ResourcesByService200Response,
+  ResourcesOverview200Response,
+  ResourcesSummary200Response,
 } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import {
@@ -14,6 +17,9 @@ import {
   HttpMetricsTimelineUserAgentsParams,
   LogsOverviewParams,
   LogsQueryParams,
+  ResourcesByServiceParams,
+  ResourcesOverviewParams,
+  ResourcesSummaryParams,
 } from '../model.js';
 import { TaskBase } from './task_base.js';
 
@@ -23,6 +29,7 @@ export class ObservabilityTask extends TaskBase {
     private entrypointApi = new EntrypointApi(client.apiConfig),
     private logsApi = new LogsApi(client.apiConfig),
     private httpTrafficApi = new HttpTrafficApi(client.apiConfig),
+    private resourcesApi = new ResourcesApi(client.apiConfig),
   ) {
     super(client);
   }
@@ -148,6 +155,73 @@ export class ObservabilityTask extends TaskBase {
       ...params,
       projectId,
       environmentId,
+    });
+  }
+
+  /**
+   * Get an overview of the resource metrics of an environment.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - The time range (`from` and `to`, required) and the filters.
+   * @return The resource metrics overview.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async resourcesOverview(
+    projectId: string,
+    environmentId: string,
+    params: ResourcesOverviewParams,
+  ): Promise<ResourcesOverview200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.resourcesApi.resourcesOverview({ ...params, projectId, environmentId });
+  }
+
+  /**
+   * Get a summary of the resource metrics of an environment.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - The time range (`from` and `to`, required) and the filters.
+   * @return The resource metrics summary.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async resourcesSummary(
+    projectId: string,
+    environmentId: string,
+    params: ResourcesSummaryParams,
+  ): Promise<ResourcesSummary200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.resourcesApi.resourcesSummary({ ...params, projectId, environmentId });
+  }
+
+  /**
+   * Get the resource metrics of one service of an environment.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param service - The name of the service or application.
+   * @param params - The time range (`from` and `to`, required) and the filters.
+   * @return The resource metrics of the service.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async resourcesByService(
+    projectId: string,
+    environmentId: string,
+    service: string,
+    params: ResourcesByServiceParams,
+  ): Promise<ResourcesByService200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+    if (!service) {
+      throw new Error('Service name is required');
+    }
+
+    return await this.resourcesApi.resourcesByService({
+      ...params,
+      projectId,
+      environmentId,
+      service,
     });
   }
 }
