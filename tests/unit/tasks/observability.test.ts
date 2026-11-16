@@ -440,6 +440,36 @@ describe('ObservabilityTask', () => {
       expect(url.pathname).toBe('/projects/proj-1/environments/main/observability/profiles');
     });
 
+    it('should send the filters, the sort and the pagination as query parameters', async () => {
+      responseBody = { profiles: [] };
+      await task.listProfiles('proj-1', 'main', {
+        transaction: 'GET /cart',
+        sortBy: 'wt',
+        sortOrder: 'desc',
+        startDate: new Date('2026-11-01T00:00:00.000Z'),
+        page: 2,
+        itemsPerPage: 20,
+      });
+
+      const url = sentUrl();
+      expect(url.searchParams.get('transaction')).toBe('GET /cart');
+      expect(url.searchParams.get('sort_by')).toBe('wt');
+      expect(url.searchParams.get('sort_order')).toBe('desc');
+      expect(url.searchParams.get('start_date')).toBe('2026-11-01T00:00:00.000Z');
+      expect(url.searchParams.get('page')).toBe('2');
+      expect(url.searchParams.get('items_per_page')).toBe('20');
+    });
+
+    it('should keep the IDs of the arguments when the params also hold IDs', async () => {
+      // A caller without type checks can put IDs in params: the arguments must win.
+      responseBody = { profiles: [] };
+      const params = { projectId: 'other', environmentId: 'other' } as any;
+
+      await task.listProfiles('proj-1', 'main', params);
+
+      expect(sentUrl().pathname).toBe('/projects/proj-1/environments/main/observability/profiles');
+    });
+
     it('should require a project ID', async () => {
       await expect(task.listProfiles('', 'main')).rejects.toThrow('Project ID is required');
       expect(fetchApi).not.toHaveBeenCalled();
@@ -458,6 +488,34 @@ describe('ObservabilityTask', () => {
 
       const url = sentUrl();
       expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/profiles/recommendations',
+      );
+    });
+
+    it('should send the time range, the transaction and the limit as query parameters', async () => {
+      responseBody = { recommendations: [] };
+      await task.profileRecommendations('proj-1', 'main', {
+        from: 1700000000,
+        to: 1700003600,
+        transaction: 'GET /cart',
+        limit: 5,
+      });
+
+      const url = sentUrl();
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+      expect(url.searchParams.get('transaction')).toBe('GET /cart');
+      expect(url.searchParams.get('limit')).toBe('5');
+    });
+
+    it('should keep the IDs of the arguments when the params also hold IDs', async () => {
+      // A caller without type checks can put IDs in params: the arguments must win.
+      responseBody = { recommendations: [] };
+      const params = { projectId: 'other', environmentId: 'other' } as any;
+
+      await task.profileRecommendations('proj-1', 'main', params);
+
+      expect(sentUrl().pathname).toBe(
         '/projects/proj-1/environments/main/observability/profiles/recommendations',
       );
     });

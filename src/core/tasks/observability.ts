@@ -370,7 +370,7 @@ export class ObservabilityTask extends TaskBase {
    * Get the recommendation statistics of the profiles of an environment.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
-   * @param params - (Optional) The filters, the sort and the pagination.
+   * @param params - (Optional) The time range (`from` and `to`), the transaction filter and the result limit.
    * @return The recommendation statistics.
    * @throws An error if an ID is empty, or if the API request fails.
    */
