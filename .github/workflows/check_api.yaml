@@ -21,9 +21,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Set up runtime - Node.js ${{ env.PRIMARY_NODE_VERSION }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.PRIMARY_NODE_VERSION }}
+          cache: 'npm'
+
       - name: Install dependencies
-        shell: bash
-        run: npm install
+        run: npm ci
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
 
       - name: Set up Git
         run: |
