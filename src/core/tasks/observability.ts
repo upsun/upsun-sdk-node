@@ -244,7 +244,8 @@ export class ObservabilityTask extends TaskBase {
    * Get the server monitoring overview of an environment.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
-   * @param params - The time range (`from` and `to`, required) and the filters.
+   * @param params - The time range (`from` and `to`, required), the metrics to get (`keys`, required) and the
+   * filters.
    * @return The server monitoring overview.
    * @throws An error if an ID is empty, or if the API request fails.
    */
