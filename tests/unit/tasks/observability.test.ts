@@ -430,4 +430,236 @@ describe('ObservabilityTask', () => {
       expect(fetchApi).not.toHaveBeenCalled();
     });
   });
+
+  describe('listProfiles', () => {
+    it('should call GET /observability/profiles', async () => {
+      responseBody = { profiles: [] };
+      await task.listProfiles('proj-1', 'main');
+
+      const url = sentUrl();
+      expect(url.pathname).toBe('/projects/proj-1/environments/main/observability/profiles');
+    });
+
+    it('should send the filters, the sort and the pagination as query parameters', async () => {
+      responseBody = { profiles: [] };
+      await task.listProfiles('proj-1', 'main', {
+        transaction: 'GET /cart',
+        sortBy: 'wt',
+        sortOrder: 'desc',
+        startDate: new Date('2026-11-01T00:00:00.000Z'),
+        page: 2,
+        itemsPerPage: 20,
+      });
+
+      const url = sentUrl();
+      expect(url.searchParams.get('transaction')).toBe('GET /cart');
+      expect(url.searchParams.get('sort_by')).toBe('wt');
+      expect(url.searchParams.get('sort_order')).toBe('desc');
+      expect(url.searchParams.get('start_date')).toBe('2026-11-01T00:00:00.000Z');
+      expect(url.searchParams.get('page')).toBe('2');
+      expect(url.searchParams.get('items_per_page')).toBe('20');
+    });
+
+    it('should keep the IDs of the arguments when the params also hold IDs', async () => {
+      // A caller without type checks can put IDs in params: the arguments must win.
+      responseBody = { profiles: [] };
+      const params = { projectId: 'other', environmentId: 'other' } as any;
+
+      await task.listProfiles('proj-1', 'main', params);
+
+      expect(sentUrl().pathname).toBe('/projects/proj-1/environments/main/observability/profiles');
+    });
+
+    it('should require a project ID', async () => {
+      await expect(task.listProfiles('', 'main')).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(task.listProfiles('proj-1', '')).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('profileRecommendations', () => {
+    it('should call GET /observability/profiles/recommendations', async () => {
+      responseBody = { recommendations: [] };
+      await task.profileRecommendations('proj-1', 'main');
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/profiles/recommendations',
+      );
+    });
+
+    it('should send the time range, the transaction and the limit as query parameters', async () => {
+      responseBody = { recommendations: [] };
+      await task.profileRecommendations('proj-1', 'main', {
+        from: 1700000000,
+        to: 1700003600,
+        transaction: 'GET /cart',
+        limit: 20,
+      });
+
+      const url = sentUrl();
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+      expect(url.searchParams.get('transaction')).toBe('GET /cart');
+      expect(url.searchParams.get('limit')).toBe('20');
+    });
+
+    it('should keep the IDs of the arguments when the params also hold IDs', async () => {
+      // A caller without type checks can put IDs in params: the arguments must win.
+      responseBody = { recommendations: [] };
+      const params = { projectId: 'other', environmentId: 'other' } as any;
+
+      await task.profileRecommendations('proj-1', 'main', params);
+
+      expect(sentUrl().pathname).toBe(
+        '/projects/proj-1/environments/main/observability/profiles/recommendations',
+      );
+    });
+
+    it('should require a project ID', async () => {
+      await expect(task.profileRecommendations('', 'main')).rejects.toThrow(
+        'Project ID is required',
+      );
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(task.profileRecommendations('proj-1', '')).rejects.toThrow(
+        'Environment ID is required',
+      );
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getProfile', () => {
+    it('should call GET /observability/profiles/{uuid}/profile', async () => {
+      await task.getProfile('proj-1', 'main', '0b7e5c1a-1111-4222-8333-944455556666');
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/profiles/0b7e5c1a-1111-4222-8333-944455556666/profile',
+      );
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.getProfile('', 'main', '0b7e5c1a-1111-4222-8333-944455556666'),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.getProfile('proj-1', '', '0b7e5c1a-1111-4222-8333-944455556666'),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require the profile UUID', async () => {
+      await expect(task.getProfile('proj-1', 'main', '')).rejects.toThrow(
+        'Profile UUID is required',
+      );
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('profileGraph', () => {
+    it('should call GET /observability/profiles/{uuid}/graph', async () => {
+      await task.profileGraph('proj-1', 'main', '0b7e5c1a-1111-4222-8333-944455556666');
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/profiles/0b7e5c1a-1111-4222-8333-944455556666/graph',
+      );
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.profileGraph('', 'main', '0b7e5c1a-1111-4222-8333-944455556666'),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.profileGraph('proj-1', '', '0b7e5c1a-1111-4222-8333-944455556666'),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require the profile UUID', async () => {
+      await expect(task.profileGraph('proj-1', 'main', '')).rejects.toThrow(
+        'Profile UUID is required',
+      );
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('profileSubprofiles', () => {
+    it('should call GET /observability/profiles/{uuid}/subprofiles', async () => {
+      await task.profileSubprofiles('proj-1', 'main', '0b7e5c1a-1111-4222-8333-944455556666');
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/profiles/0b7e5c1a-1111-4222-8333-944455556666/subprofiles',
+      );
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.profileSubprofiles('', 'main', '0b7e5c1a-1111-4222-8333-944455556666'),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.profileSubprofiles('proj-1', '', '0b7e5c1a-1111-4222-8333-944455556666'),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require the profile UUID', async () => {
+      await expect(task.profileSubprofiles('proj-1', 'main', '')).rejects.toThrow(
+        'Profile UUID is required',
+      );
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('profileTimeline', () => {
+    it('should call GET /observability/profiles/{uuid}/timeline', async () => {
+      await task.profileTimeline('proj-1', 'main', '0b7e5c1a-1111-4222-8333-944455556666');
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/profiles/0b7e5c1a-1111-4222-8333-944455556666/timeline',
+      );
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.profileTimeline('', 'main', '0b7e5c1a-1111-4222-8333-944455556666'),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.profileTimeline('proj-1', '', '0b7e5c1a-1111-4222-8333-944455556666'),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require the profile UUID', async () => {
+      await expect(task.profileTimeline('proj-1', 'main', '')).rejects.toThrow(
+        'Profile UUID is required',
+      );
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
 });
