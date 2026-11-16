@@ -433,6 +433,7 @@ describe('ObservabilityTask', () => {
 
   describe('listProfiles', () => {
     it('should call GET /observability/profiles', async () => {
+      responseBody = { profiles: [] };
       await task.listProfiles('proj-1', 'main');
 
       const url = sentUrl();
@@ -452,6 +453,7 @@ describe('ObservabilityTask', () => {
 
   describe('profileRecommendations', () => {
     it('should call GET /observability/profiles/recommendations', async () => {
+      responseBody = { recommendations: [] };
       await task.profileRecommendations('proj-1', 'main');
 
       const url = sentUrl();
