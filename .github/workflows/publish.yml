@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - uses: ./.github/workflows/actions/doc
+      - uses: ./.github/actions/doc
         if: false
         with:
           default-runtime-version: ${{ env.PRIMARY_NODE_VERSION }}
@@ -30,7 +30,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - uses: ./.github/workflows/actions/coverage
+      - uses: ./.github/actions/coverage
         if: false
         with:
           default-runtime-version: ${{ env.PRIMARY_NODE_VERSION }}
