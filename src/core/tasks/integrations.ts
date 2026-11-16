@@ -1,7 +1,13 @@
 import { ThirdPartyIntegrationsApi } from '../../api/index.js';
-import { AcceptedResponse, Integration, IntegrationCollection } from '../../model/index.js';
+import {
+  AcceptedResponse,
+  Integration,
+  IntegrationCollection,
+  IntegrationCreateCreateInput,
+  IntegrationPatch,
+} from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
-import { IntegrationCreateData } from '../model.js';
+import { IntegrationCreateData, IntegrationPatchData, IntegrationType } from '../model.js';
 import { TaskBase } from './task_base.js';
 
 export class IntegrationsTask extends TaskBase {
@@ -26,10 +32,10 @@ export class IntegrationsTask extends TaskBase {
    * @throws An error if the project ID is invalid, if the integration type is not specified, or if there is an issue
    * with the API request.
    */
-  async createIntegration(
+  async createIntegration<T extends IntegrationType>(
     projectId: string,
-    type: string,
-    params: IntegrationCreateData,
+    type: T,
+    params: IntegrationCreateData<T>,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
 
@@ -39,7 +45,8 @@ export class IntegrationsTask extends TaskBase {
 
     return await this.thirdPartyIntegrationsApi.createProjectsIntegrations({
       projectId,
-      integrationCreateCreateInput: { type, ...params },
+      // TypeScript cannot narrow a spread over the generic T to the matching union member.
+      integrationCreateCreateInput: { type, ...params } as IntegrationCreateCreateInput,
     });
   }
 
@@ -114,11 +121,11 @@ export class IntegrationsTask extends TaskBase {
    * @throws An error if the project ID or integration ID is invalid, if the integration type is not specified, or if
    * there is an issue with the API request.
    */
-  async updateIntegration(
+  async updateIntegration<T extends IntegrationType>(
     projectId: string,
     integrationId: string,
-    type: string,
-    params: IntegrationCreateData,
+    type: T,
+    params: IntegrationPatchData<T>,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkIntegrationId(integrationId);
@@ -130,7 +137,8 @@ export class IntegrationsTask extends TaskBase {
     return await this.thirdPartyIntegrationsApi.updateProjectsIntegrations({
       projectId,
       integrationId,
-      integrationPatch: { type, ...params },
+      // TypeScript cannot narrow a spread over the generic T to the matching union member.
+      integrationPatch: { type, ...params } as IntegrationPatch,
     });
   }
 }

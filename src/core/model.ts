@@ -14,6 +14,7 @@ import {
   ListUserExtendedAccessRequest,
   ListUserOrgsRequest,
   ListUserProjectAccessRequest,
+  ListUserSshKeysRequest,
   ListUserTeamsRequest,
 } from '../api/index.js';
 import {
@@ -22,6 +23,7 @@ import {
   CreateProjectInviteRequest,
   EnvironmentVariableCreateInput,
   IntegrationCreateCreateInput,
+  IntegrationPatch,
   ProjectVariableCreateInput,
 } from '../model/index.js';
 
@@ -40,7 +42,15 @@ export type FilterListUsageRecords = Omit<ListOrgUsageRecordsRequest, 'organizat
 export type FilterListOrgs = Omit<ListOrgsRequest, never>;
 
 // used in ProjectTasks
-export type IntegrationCreateData = Omit<IntegrationCreateCreateInput, 'type'>;
+export type IntegrationType = IntegrationCreateCreateInput['type'];
+export type IntegrationCreateData<T extends IntegrationType> = Omit<
+  Extract<IntegrationCreateCreateInput, { type: T }>,
+  'type'
+>;
+export type IntegrationPatchData<T extends IntegrationType> = Omit<
+  Extract<IntegrationPatch, { type: T }>,
+  'type'
+>;
 export type ProjectCreateRequest = Omit<CreateOrgSubscriptionRequest, 'projectRegion'>;
 export type FilterListOrgProjects = Omit<ListOrgProjectsRequest, 'organizationId'>;
 
@@ -49,6 +59,9 @@ export type FilterListTeamProjectAccess = Omit<ListTeamProjectAccessRequest, 'te
 export type FilterListProjectTeamAccess = Omit<ListProjectTeamAccessRequest, 'projectId'>;
 export type FilterListUserTeams = Omit<ListUserTeamsRequest, 'userId'>;
 export type FilterListTeamMembers = Omit<ListTeamMembersRequest, 'teamId'>;
+
+// used in SshTask
+export type FilterListUserSshKeys = Omit<ListUserSshKeysRequest, 'userId'>;
 
 // used in VariablesTask
 export type ProjectVariableCreateParams = Omit<ProjectVariableCreateInput, 'name' | 'value'>;
