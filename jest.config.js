@@ -1,18 +1,21 @@
 export default {
-  preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
     '^.+\\.ts$': [
-      'ts-jest',
+      '@swc/jest',
       {
-        useESM: true,
-        tsconfig: 'tsconfig.test.json',
+        jsc: { parser: { syntax: 'typescript' }, target: 'es2022' },
+        module: { type: 'commonjs' },
       },
     ],
+    '^.+\\.m?js$': ['@swc/jest', { jsc: { target: 'es2022' }, module: { type: 'commonjs' } }],
   },
-  extensionsToTreatAsEsm: ['.ts'],
+  // nock >= 15 and its interceptors are ESM-only
+  transformIgnorePatterns: [
+    '/node_modules/(?!(nock|@mswjs|@open-draft|outvariant|is-node-process|rettime|strict-event-emitter)/)',
+  ],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },

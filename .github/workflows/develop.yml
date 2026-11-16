@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run JS/TS lint (eslint, prettier)
+      - name: Run JS/TS lint (oxlint, prettier)
         run: npm run lint:all
 
   tests:
