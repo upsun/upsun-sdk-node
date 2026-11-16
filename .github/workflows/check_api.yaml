@@ -30,9 +30,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Install OpenApiGenerator CLI
-        run: npm run spec:generate:install
-
       - name: Remove existing Api and Model Classes
         run: npm run spec:clean
 

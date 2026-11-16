@@ -442,3 +442,25 @@ export class TextApiResponse {
     return await this.raw.text();
   };
 }
+
+// Dates use UTC, like the generic models and the API parameters: a mix of conventions shifts the day.
+export function serializeDateTime(value: Date): string {
+  return value.toISOString();
+}
+
+export function serializeDate(value: Date): string {
+  const iso = value.toISOString();
+  // toISOString writes years outside 0-9999 with a sign and six digits, which `format: date` cannot hold.
+  if (!/^\d{4}-/.test(iso)) {
+    throw new RangeError(`Year out of range for format: date: ${iso}`);
+  }
+  return iso.substring(0, 10);
+}
+
+export function parseDate(value: Date | string): Date {
+  return value instanceof Date ? value : new Date(value);
+}
+
+export function parseDateTime(value: any): Date {
+  return new Date(value);
+}

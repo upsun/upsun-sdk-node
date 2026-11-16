@@ -4,7 +4,7 @@
     {
       "label": "Generate: OpenAPI generator",
       "type": "shell",
-      "command": "./scripts/gen_node.sh"
+      "command": "npm run spec:full"
     }
   ]
 }
