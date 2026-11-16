@@ -1,11 +1,14 @@
 import {
+  HttpMetricsTimelineIpsRequest,
+  HttpMetricsTimelineUrlsRequest,
+  HttpMetricsTimelineUserAgentsRequest,
   ListOrgInvitesRequest,
   ListOrgMembersRequest,
   ListOrgOrdersRequest,
   ListOrgPlanRecordsRequest,
   ListOrgProjectsRequest,
-  ListOrgsRequest,
   ListOrgUsageRecordsRequest,
+  ListOrgsRequest,
   ListProjectInvitesRequest,
   ListProjectTeamAccessRequest,
   ListProjectUserAccessRequest,
@@ -89,3 +92,15 @@ export type FilterProjectUserAccesses = Omit<ListProjectUserAccessRequest, 'proj
 
 export type LogsOverviewParams = Omit<LogsOverviewRequest, 'projectId' | 'environmentId'>;
 export type LogsQueryParams = Omit<LogsQueryRequest, 'projectId' | 'environmentId'>;
+export type HttpMetricsTimelineUrlsParams = Omit<
+  HttpMetricsTimelineUrlsRequest,
+  'projectId' | 'environmentId'
+>;
+export type HttpMetricsTimelineIpsParams = Omit<
+  HttpMetricsTimelineIpsRequest,
+  'projectId' | 'environmentId'
+>;
+export type HttpMetricsTimelineUserAgentsParams = Omit<
+  HttpMetricsTimelineUserAgentsRequest,
+  'projectId' | 'environmentId'
+>;

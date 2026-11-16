@@ -148,4 +148,85 @@ describe('ObservabilityTask', () => {
       expect(fetchApi).not.toHaveBeenCalled();
     });
   });
+
+  describe('httpTimelineByUrl', () => {
+    it('should call GET /observability/http/breakdown/urls', async () => {
+      await task.httpTimelineByUrl('proj-1', 'main', { from: 1700000000, to: 1700003600 });
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/http/breakdown/urls',
+      );
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.httpTimelineByUrl('', 'main', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.httpTimelineByUrl('proj-1', '', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('httpTimelineByIp', () => {
+    it('should call GET /observability/http/breakdown/ips', async () => {
+      await task.httpTimelineByIp('proj-1', 'main', { from: 1700000000, to: 1700003600 });
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/http/breakdown/ips',
+      );
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.httpTimelineByIp('', 'main', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.httpTimelineByIp('proj-1', '', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('httpTimelineByUserAgent', () => {
+    it('should call GET /observability/http/breakdown/user-agents', async () => {
+      await task.httpTimelineByUserAgent('proj-1', 'main', { from: 1700000000, to: 1700003600 });
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/http/breakdown/user-agents',
+      );
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.httpTimelineByUserAgent('', 'main', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.httpTimelineByUserAgent('proj-1', '', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
 });

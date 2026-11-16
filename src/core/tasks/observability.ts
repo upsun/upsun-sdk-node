@@ -1,11 +1,20 @@
-import { EntrypointApi, LogsApi } from '../../api/index.js';
+import { EntrypointApi, LogsApi, HttpTrafficApi } from '../../api/index.js';
 import {
+  HttpMetricsTimelineIps200Response,
+  HttpMetricsTimelineUrls200Response,
+  HttpMetricsTimelineUserAgents200Response,
   LogsOverview200Response,
   LogsQuery200Response,
   ObservabilityEntrypoint200Response,
 } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
-import { LogsOverviewParams, LogsQueryParams } from '../model.js';
+import {
+  HttpMetricsTimelineIpsParams,
+  HttpMetricsTimelineUrlsParams,
+  HttpMetricsTimelineUserAgentsParams,
+  LogsOverviewParams,
+  LogsQueryParams,
+} from '../model.js';
 import { TaskBase } from './task_base.js';
 
 export class ObservabilityTask extends TaskBase {
@@ -13,6 +22,7 @@ export class ObservabilityTask extends TaskBase {
     protected readonly client: UpsunClient,
     private entrypointApi = new EntrypointApi(client.apiConfig),
     private logsApi = new LogsApi(client.apiConfig),
+    private httpTrafficApi = new HttpTrafficApi(client.apiConfig),
   ) {
     super(client);
   }
@@ -70,5 +80,74 @@ export class ObservabilityTask extends TaskBase {
     TaskBase.checkEnvironmentId(environmentId);
 
     return await this.logsApi.logsQuery({ ...params, projectId, environmentId });
+  }
+
+  /**
+   * Get the HTTP traffic timeline of an environment, by URL.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - The time range (`from` and `to`, required) and the filters.
+   * @return The HTTP traffic timeline by URL.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async httpTimelineByUrl(
+    projectId: string,
+    environmentId: string,
+    params: HttpMetricsTimelineUrlsParams,
+  ): Promise<HttpMetricsTimelineUrls200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.httpTrafficApi.httpMetricsTimelineUrls({
+      ...params,
+      projectId,
+      environmentId,
+    });
+  }
+
+  /**
+   * Get the HTTP traffic timeline of an environment, by client IP.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - The time range (`from` and `to`, required) and the filters.
+   * @return The HTTP traffic timeline by IP.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async httpTimelineByIp(
+    projectId: string,
+    environmentId: string,
+    params: HttpMetricsTimelineIpsParams,
+  ): Promise<HttpMetricsTimelineIps200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.httpTrafficApi.httpMetricsTimelineIps({
+      ...params,
+      projectId,
+      environmentId,
+    });
+  }
+
+  /**
+   * Get the HTTP traffic timeline of an environment, by user agent.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - The time range (`from` and `to`, required) and the filters.
+   * @return The HTTP traffic timeline by user agent.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async httpTimelineByUserAgent(
+    projectId: string,
+    environmentId: string,
+    params: HttpMetricsTimelineUserAgentsParams,
+  ): Promise<HttpMetricsTimelineUserAgents200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.httpTrafficApi.httpMetricsTimelineUserAgents({
+      ...params,
+      projectId,
+      environmentId,
+    });
   }
 }
