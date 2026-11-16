@@ -30,7 +30,7 @@ updates:
   - package-ecosystem: github-actions
     directories:
       - /
-      - /.github/workflows/actions/*
+      - /.github/actions/*
     schedule:
       interval: daily
       time: "06:00"
