@@ -1,5 +1,15 @@
-import { EntrypointApi, LogsApi, HttpTrafficApi, ResourcesApi } from '../../api/index.js';
 import {
+  EntrypointApi,
+  LogsApi,
+  HttpTrafficApi,
+  ResourcesApi,
+  BlackfireMonitoringApi,
+} from '../../api/index.js';
+import {
+  BlackfirePhpServerCaches200Response,
+  BlackfireServerGlobal200Response,
+  BlackfireServerTopSpans200Response,
+  BlackfireServerTransactionsBreakdown200Response,
   HttpMetricsTimelineIps200Response,
   HttpMetricsTimelineUrls200Response,
   HttpMetricsTimelineUserAgents200Response,
@@ -12,6 +22,10 @@ import {
 } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import {
+  BlackfirePhpServerCachesParams,
+  BlackfireServerGlobalParams,
+  BlackfireServerTopSpansParams,
+  BlackfireServerTransactionsBreakdownParams,
   HttpMetricsTimelineIpsParams,
   HttpMetricsTimelineUrlsParams,
   HttpMetricsTimelineUserAgentsParams,
@@ -30,6 +44,7 @@ export class ObservabilityTask extends TaskBase {
     private logsApi = new LogsApi(client.apiConfig),
     private httpTrafficApi = new HttpTrafficApi(client.apiConfig),
     private resourcesApi = new ResourcesApi(client.apiConfig),
+    private blackfireMonitoringApi = new BlackfireMonitoringApi(client.apiConfig),
   ) {
     super(client);
   }
@@ -222,6 +237,99 @@ export class ObservabilityTask extends TaskBase {
       projectId,
       environmentId,
       service,
+    });
+  }
+
+  /**
+   * Get the server monitoring overview of an environment.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - The time range (`from` and `to`, required), the metrics to get (`keys`, required) and the
+   * filters.
+   * @return The server monitoring overview.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async serverOverview(
+    projectId: string,
+    environmentId: string,
+    params: BlackfireServerGlobalParams,
+  ): Promise<BlackfireServerGlobal200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.blackfireMonitoringApi.blackfireServerGlobal({
+      ...params,
+      projectId,
+      environmentId,
+    });
+  }
+
+  /**
+   * Get the server cache metrics of an environment.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - The time range (`from` and `to`, required) and the filters.
+   * @return The server cache metrics.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async serverCaches(
+    projectId: string,
+    environmentId: string,
+    params: BlackfirePhpServerCachesParams,
+  ): Promise<BlackfirePhpServerCaches200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.blackfireMonitoringApi.blackfirePhpServerCaches({
+      ...params,
+      projectId,
+      environmentId,
+    });
+  }
+
+  /**
+   * Get the top spans of an environment.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - The time range (`from` and `to`, required) and the filters.
+   * @return The top spans.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async serverTopSpans(
+    projectId: string,
+    environmentId: string,
+    params: BlackfireServerTopSpansParams,
+  ): Promise<BlackfireServerTopSpans200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.blackfireMonitoringApi.blackfireServerTopSpans({
+      ...params,
+      projectId,
+      environmentId,
+    });
+  }
+
+  /**
+   * Get the server transaction breakdown of an environment.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - The time range (`from` and `to`, required) and the filters.
+   * @return The server transaction breakdown.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async serverTransactionsBreakdown(
+    projectId: string,
+    environmentId: string,
+    params: BlackfireServerTransactionsBreakdownParams,
+  ): Promise<BlackfireServerTransactionsBreakdown200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.blackfireMonitoringApi.blackfireServerTransactionsBreakdown({
+      ...params,
+      projectId,
+      environmentId,
     });
   }
 }

@@ -1,4 +1,8 @@
 import {
+  BlackfirePhpServerCachesRequest,
+  BlackfireServerGlobalRequest,
+  BlackfireServerTopSpansRequest,
+  BlackfireServerTransactionsBreakdownRequest,
   HttpMetricsTimelineIpsRequest,
   HttpMetricsTimelineUrlsRequest,
   HttpMetricsTimelineUserAgentsRequest,
@@ -112,4 +116,20 @@ export type ResourcesSummaryParams = Omit<ResourcesSummaryRequest, 'projectId' |
 export type ResourcesByServiceParams = Omit<
   ResourcesByServiceRequest,
   'projectId' | 'environmentId' | 'service'
+>;
+export type BlackfireServerGlobalParams = Omit<
+  BlackfireServerGlobalRequest,
+  'projectId' | 'environmentId'
+>;
+export type BlackfirePhpServerCachesParams = Omit<
+  BlackfirePhpServerCachesRequest,
+  'projectId' | 'environmentId'
+>;
+export type BlackfireServerTopSpansParams = Omit<
+  BlackfireServerTopSpansRequest,
+  'projectId' | 'environmentId'
+>;
+export type BlackfireServerTransactionsBreakdownParams = Omit<
+  BlackfireServerTransactionsBreakdownRequest,
+  'projectId' | 'environmentId'
 >;

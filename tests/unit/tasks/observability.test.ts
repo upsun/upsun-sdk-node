@@ -317,4 +317,117 @@ describe('ObservabilityTask', () => {
       expect(fetchApi).not.toHaveBeenCalled();
     });
   });
+
+  describe('serverOverview', () => {
+    it('should call GET /observability/server', async () => {
+      responseBody = { alert_evaluations: [], server: { total: 0, data: [] } };
+      await task.serverOverview('proj-1', 'main', {
+        from: 1700000000,
+        to: 1700003600,
+        keys: ['wt', 'mu'],
+      });
+
+      const url = sentUrl();
+      expect(url.pathname).toBe('/projects/proj-1/environments/main/observability/server');
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+      expect(url.searchParams.getAll('keys[]')).toEqual(['wt', 'mu']);
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.serverOverview('', 'main', { from: 1700000000, to: 1700003600, keys: ['wt', 'mu'] }),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.serverOverview('proj-1', '', { from: 1700000000, to: 1700003600, keys: ['wt', 'mu'] }),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('serverCaches', () => {
+    it('should call GET /observability/server/caches', async () => {
+      await task.serverCaches('proj-1', 'main', { from: 1700000000, to: 1700003600 });
+
+      const url = sentUrl();
+      expect(url.pathname).toBe('/projects/proj-1/environments/main/observability/server/caches');
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.serverCaches('', 'main', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.serverCaches('proj-1', '', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('serverTopSpans', () => {
+    it('should call GET /observability/server/top-spans', async () => {
+      await task.serverTopSpans('proj-1', 'main', { from: 1700000000, to: 1700003600 });
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/server/top-spans',
+      );
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.serverTopSpans('', 'main', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.serverTopSpans('proj-1', '', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('serverTransactionsBreakdown', () => {
+    it('should call GET /observability/server/transactions-break-down', async () => {
+      await task.serverTransactionsBreakdown('proj-1', 'main', {
+        from: 1700000000,
+        to: 1700003600,
+      });
+
+      const url = sentUrl();
+      expect(url.pathname).toBe(
+        '/projects/proj-1/environments/main/observability/server/transactions-break-down',
+      );
+      expect(url.searchParams.get('from')).toBe('1700000000');
+      expect(url.searchParams.get('to')).toBe('1700003600');
+    });
+
+    it('should require a project ID', async () => {
+      await expect(
+        task.serverTransactionsBreakdown('', 'main', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Project ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+
+    it('should require an environment ID', async () => {
+      await expect(
+        task.serverTransactionsBreakdown('proj-1', '', { from: 1700000000, to: 1700003600 }),
+      ).rejects.toThrow('Environment ID is required');
+      expect(fetchApi).not.toHaveBeenCalled();
+    });
+  });
 });
