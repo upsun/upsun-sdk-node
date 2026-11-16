@@ -1,72 +1,75 @@
-import { SshKeysApi } from '../../api/index.js';
-import { SshKey } from '../../model/index.js';
+import { SshApi } from '../../api/index.js';
+import { ListUserSshKeys200Response, SshKey } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
+import { FilterListUserSshKeys } from '../model.js';
 import { TaskBase } from './task_base.js';
 
 export class SshTask extends TaskBase {
   constructor(
     protected readonly client: UpsunClient,
-    private sshKeysApi = new SshKeysApi(client.apiConfig),
+    private sshApi = new SshApi(client.apiConfig),
   ) {
     super(client);
   }
 
   /**
-   * Add a new SSH key for the user. This method allows you to add a new SSH key for the user by providing the key
-   * value, and optionally a user ID and title for the key. The method returns the details of the newly added SSH key,
-   * including the key ID, value, title, and other relevant information.
-   * @param value - The value of the SSH key to add. This should be the public key string that you want to associate
-   * with the user.
-   * @param userId - (Optional) The ID of the user to associate the SSH key with. If not provided, the key will be
-   * associated with the currently authenticated user.
-   * @param title - (Optional) A title or description for the SSH key. This can be used to help identify the key later
-   * on.
-   * @return The details of the newly added SSH key, including the key ID, value, title, and other relevant information.
-   * @throws An error if the SSH key value is not provided, if the user ID is invalid, or if there is an issue with the
-   * API request to add the SSH key.
+   * Add an SSH public key to a user.
+   * @param userId - The ID of the user who owns the key.
+   * @param value - The public key, for example `ssh-ed25519 AAAA...`.
+   * @param label - (Optional) A label that identifies the key.
+   * @return The new SSH key.
+   * @throws An error if the user ID or the key value is empty, or if the API request fails.
    */
-  async add(value: string, userId: string, title?: string): Promise<SshKey> {
+  async add(userId: string, value: string, label?: string): Promise<SshKey> {
     TaskBase.checkUserId(userId);
 
     if (!value) {
       throw new Error('SSH key value is required');
     }
 
-    return await this.sshKeysApi.createSshKey({
-      createSshKeyRequest: { uuid: userId, value, title },
+    return await this.sshApi.createUserSshKey({
+      userId,
+      createUserSshKeyRequest: { value, label },
     });
   }
 
   /**
-   * Get the details of an SSH key by its ID. This method allows you to retrieve the details of a specific SSH key by
-   * providing the key ID. The method returns the details of the SSH key, including the key ID, value, title, and other
-   * relevant information.
-   * @param keyId - The ID of the SSH key to retrieve the details for. This should be a positive integer that uniquely
-   * identifies the SSH key within the system.
-   * @return The details of the SSH key with the specified ID, including the key ID, value, title, and other relevant
-   * information. If the SSH key with the specified ID is not found, an error will be thrown.
-   * @throws An error if the key ID is invalid (e.g., not a positive integer) or if there is an issue with the API
-   * request to retrieve the SSH key details.
+   * Get an SSH key of a user.
+   * @param userId - The ID of the user who owns the key.
+   * @param keyId - The ID of the SSH key.
+   * @return The SSH key.
+   * @throws An error if the user ID or the key ID is empty, or if the API request fails.
    */
-  async get(keyId: number): Promise<SshKey> {
+  async get(userId: string, keyId: string): Promise<SshKey> {
+    TaskBase.checkUserId(userId);
     TaskBase.checkSshKeyId(keyId);
 
-    return await this.sshKeysApi.getSshKey({ keyId });
+    return await this.sshApi.getUserSshKey({ userId, keyId });
   }
 
   /**
-   * Delete an SSH key by its ID. This method allows you to delete a specific SSH key by providing the key ID. The
-   * method returns nothing if the deletion is successful.
-   * @param keyId - The ID of the SSH key to delete. This should be a positive integer that uniquely identifies the SSH
-   * key within the system.
-   * @return Nothing if the deletion is successful. If the SSH key with the specified ID is not found, an error will be
-   * thrown.
-   * @throws An error if the key ID is invalid (e.g., not a positive integer) or if there is an issue with the API
-   * request to delete the SSH key.
+   * List the SSH keys of a user.
+   * @param userId - The ID of the user who owns the keys.
+   * @param filters - (Optional) Filters, sort and pagination.
+   * @return One page of SSH keys.
+   * @throws An error if the user ID is empty, or if the API request fails.
    */
-  async delete(keyId: number): Promise<void> {
+  async list(userId: string, filters?: FilterListUserSshKeys): Promise<ListUserSshKeys200Response> {
+    TaskBase.checkUserId(userId);
+
+    return await this.sshApi.listUserSshKeys({ userId, ...filters });
+  }
+
+  /**
+   * Delete an SSH key of a user. The API requires a recent authentication.
+   * @param userId - The ID of the user who owns the key.
+   * @param keyId - The ID of the SSH key.
+   * @throws An error if the user ID or the key ID is empty, or if the API request fails.
+   */
+  async delete(userId: string, keyId: string): Promise<void> {
+    TaskBase.checkUserId(userId);
     TaskBase.checkSshKeyId(keyId);
 
-    return await this.sshKeysApi.deleteSshKey({ keyId });
+    return await this.sshApi.deleteUserSshKey({ userId, keyId });
   }
 }

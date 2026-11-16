@@ -66,7 +66,7 @@ import {
   RoutingApi,
   RuntimeOperationsApi,
   SourceOperationsApi,
-  SshKeysApi,
+  SshApi,
   SubscriptionsApi,
   SupportApi,
   SupportTicketsTask,
@@ -220,7 +220,7 @@ export class UpsunClient {
     const runtimeOperationsApi = new RuntimeOperationsApi(this.apiConfig);
     const sourceOperationsApi = new SourceOperationsApi(this.apiConfig);
     const subscriptionsApi = new SubscriptionsApi(this.apiConfig);
-    const sshKeysApi = new SshKeysApi(this.apiConfig);
+    const sshApi = new SshApi(this.apiConfig);
     const supportApi = new SupportApi(this.apiConfig);
     const systemInformationApi = new SystemInformationApi(this.apiConfig);
     const teamAccessApi = new TeamAccessApi(this.apiConfig);
@@ -282,7 +282,7 @@ export class UpsunClient {
     this.routes = new RoutesTask(this, routingApi);
     this.services = new ServicesTask(this);
     this.sourceOperations = new SourceOperationsTask(this, sourceOperationsApi);
-    this.ssh = new SshTask(this, sshKeysApi);
+    this.ssh = new SshTask(this, sshApi);
     this.supportTickets = new SupportTicketsTask(this, defaultApi, supportApi);
     this.teams = new TeamsTask(this, teamsApi, teamAccessApi);
     this.users = new UsersTask(

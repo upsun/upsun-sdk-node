@@ -319,16 +319,12 @@ describe('TaskBase', () => {
   // ─── SSH key ID ──────────────────────────────────────────────────────────────
 
   describe('checkSshKeyId', () => {
-    it('should not throw for a positive key ID', () => {
-      expect(() => TaskBase.checkSshKeyId(42)).not.toThrow();
+    it('should not throw for a non-empty key ID', () => {
+      expect(() => TaskBase.checkSshKeyId('key-42')).not.toThrow();
     });
 
-    it('should throw when key ID is 0', () => {
-      expect(() => TaskBase.checkSshKeyId(0)).toThrow('Key ID must be a positive integer');
-    });
-
-    it('should throw when key ID is negative', () => {
-      expect(() => TaskBase.checkSshKeyId(-5)).toThrow('Key ID must be a positive integer');
+    it('should throw when key ID is empty', () => {
+      expect(() => TaskBase.checkSshKeyId('')).toThrow('SSH key ID is required');
     });
   });
 
