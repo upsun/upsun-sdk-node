@@ -78,7 +78,6 @@ The SDK is built as follows:
 API classes are generated from the [Upsun OpenAPI spec](https://docs.upsun.com/api/openapispec-upsun.json).
 
 ```bash
-npm run spec:generate:install
 npm run spec:full
 ```
 
