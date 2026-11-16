@@ -442,3 +442,45 @@ export class TextApiResponse {
     return await this.raw.text();
   };
 }
+
+// `format: date` is a calendar date with no offset: both ends use the local calendar, or the day shifts.
+// `format: date-time` is an instant and uses UTC.
+export function serializeDateTime(value: Date): string {
+  return value.toISOString();
+}
+
+export function serializeDate(value: Date): string {
+  if (isNaN(value.getTime())) {
+    throw new RangeError('Invalid time value');
+  }
+  const year = ('000' + value.getFullYear()).slice(-4);
+  const month = ('0' + (value.getMonth() + 1)).slice(-2);
+  const day = ('0' + value.getDate()).slice(-2);
+  return `${year}-${month}-${day}`;
+}
+
+export function parseDate(value: Date | string): Date {
+  if (value instanceof Date) {
+    return value;
+  }
+  // `new Date("2026-08-05")` parses as UTC midnight, which is the day before west of UTC.
+  const fullDate = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value));
+  if (fullDate) {
+    const year = Number(fullDate[1]);
+    const month = Number(fullDate[2]) - 1;
+    const day = Number(fullDate[3]);
+    const date = new Date(0);
+    date.setFullYear(year, month, day);
+    date.setHours(0, 0, 0, 0);
+    // Out-of-range parts roll over silently; reject them instead of returning another day.
+    if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
+      return new Date(NaN);
+    }
+    return date;
+  }
+  return new Date(value);
+}
+
+export function parseDateTime(value: any): Date {
+  return new Date(value);
+}

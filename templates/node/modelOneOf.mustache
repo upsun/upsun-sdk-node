@@ -1,3 +1,4 @@
+import { parseDate, parseDateTime, serializeDate, serializeDateTime } from '../core/runtime{{importFileExtension}}';
 {{#hasImports}}
 {{#oneOfArrays}}
 import type { {{{.}}} } from './{{.}}{{importFileExtension}}';
@@ -131,12 +132,12 @@ export function {{classname}}FromJSONTyped(json: any, ignoreDiscriminator: boole
     {{#isDateType}}
     {{#isDateLibraryTemporal}}
     try {
-        return {{^required}}json == null ? undefined : {{/required}}({{#required}}{{#isNullable}}json == null ? null : {{/isNullable}}{{/required}}parseDate(json));
+        return ({{#required}}{{#isNullable}}json == null ? null : {{/isNullable}}{{/required}}parseDate(json));
     } catch {}
     {{/isDateLibraryTemporal}}
     {{^isDateLibraryTemporal}}
     if (!(isNaN(parseDate(json).getTime()))) {
-        return {{^required}}json == null ? undefined : {{/required}}({{#required}}{{#isNullable}}json == null ? null : {{/isNullable}}{{/required}}parseDate(json));
+        return ({{#required}}{{#isNullable}}json == null ? null : {{/isNullable}}{{/required}}parseDate(json));
     }
     {{/isDateLibraryTemporal}}
     {{/isDateType}}
@@ -144,12 +145,12 @@ export function {{classname}}FromJSONTyped(json: any, ignoreDiscriminator: boole
     {{#isDateTimeType}}
     {{#isDateLibraryTemporal}}
     try {
-        return {{^required}}json == null ? undefined : {{/required}}({{#required}}{{#isNullable}}json == null ? null : {{/isNullable}}{{/required}}parseDateTime(json));
+        return ({{#required}}{{#isNullable}}json == null ? null : {{/isNullable}}{{/required}}parseDateTime(json));
     } catch {}
     {{/isDateLibraryTemporal}}
     {{^isDateLibraryTemporal}}
     if (!(isNaN(parseDateTime(json).getTime()))) {
-        return {{^required}}json == null ? undefined : {{/required}}({{#required}}{{#isNullable}}json == null ? null : {{/isNullable}}{{/required}}parseDateTime(json));
+        return ({{#required}}{{#isNullable}}json == null ? null : {{/isNullable}}{{/required}}parseDateTime(json));
     }
     {{/isDateLibraryTemporal}}
     {{/isDateTimeType}}

@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-./scripts/gen_node.sh
+npm run spec:full
 
 echo "Build project..."
 npm run clean
