@@ -13,7 +13,7 @@ permissions:
 
 env:
   # Define the primary Node.js version for release, build, coverage uploads and badge generation
-  PRIMARY_NODE_VERSION: '25'
+  PRIMARY_NODE_VERSION: '24'
 
 jobs:
   quality:
@@ -45,7 +45,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [22.x, 24.x]
+        node-version: [22.x, 24.x, 26.x]
 
     steps:
       - name: Checkout repository
@@ -140,7 +140,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.PRIMARY_NODE_VERSION }}
           cache: npm
 
       - name: Install repo dependencies
