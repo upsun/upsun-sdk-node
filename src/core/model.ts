@@ -21,6 +21,9 @@ import {
   ListUserTeamsRequest,
   LogsOverviewRequest,
   LogsQueryRequest,
+  ResourcesByServiceRequest,
+  ResourcesOverviewRequest,
+  ResourcesSummaryRequest,
 } from '../api/index.js';
 import {
   CertificateCreateInput,
@@ -103,4 +106,10 @@ export type HttpMetricsTimelineIpsParams = Omit<
 export type HttpMetricsTimelineUserAgentsParams = Omit<
   HttpMetricsTimelineUserAgentsRequest,
   'projectId' | 'environmentId'
+>;
+export type ResourcesOverviewParams = Omit<ResourcesOverviewRequest, 'projectId' | 'environmentId'>;
+export type ResourcesSummaryParams = Omit<ResourcesSummaryRequest, 'projectId' | 'environmentId'>;
+export type ResourcesByServiceParams = Omit<
+  ResourcesByServiceRequest,
+  'projectId' | 'environmentId' | 'service'
 >;
