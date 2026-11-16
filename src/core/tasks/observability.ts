@@ -4,9 +4,16 @@ import {
   HttpTrafficApi,
   ResourcesApi,
   BlackfireMonitoringApi,
+  BlackfireProfilingApi,
 } from '../../api/index.js';
 import {
   BlackfirePhpServerCaches200Response,
+  BlackfireProfileGraph200Response,
+  BlackfireProfileProfile200Response,
+  BlackfireProfileSubprofiles200Response,
+  BlackfireProfileTimeline200Response,
+  BlackfireProfilesList200Response,
+  BlackfireProfilesRecommendations200Response,
   BlackfireServerGlobal200Response,
   BlackfireServerTopSpans200Response,
   BlackfireServerTransactionsBreakdown200Response,
@@ -23,6 +30,8 @@ import {
 import { UpsunClient } from '../../upsun.js';
 import {
   BlackfirePhpServerCachesParams,
+  BlackfireProfilesListParams,
+  BlackfireProfilesRecommendationsParams,
   BlackfireServerGlobalParams,
   BlackfireServerTopSpansParams,
   BlackfireServerTransactionsBreakdownParams,
@@ -45,6 +54,7 @@ export class ObservabilityTask extends TaskBase {
     private httpTrafficApi = new HttpTrafficApi(client.apiConfig),
     private resourcesApi = new ResourcesApi(client.apiConfig),
     private blackfireMonitoringApi = new BlackfireMonitoringApi(client.apiConfig),
+    private blackfireProfilingApi = new BlackfireProfilingApi(client.apiConfig),
   ) {
     super(client);
   }
@@ -330,6 +340,156 @@ export class ObservabilityTask extends TaskBase {
       ...params,
       projectId,
       environmentId,
+    });
+  }
+
+  /**
+   * List the profiling results of an environment.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - (Optional) The filters, the sort and the pagination.
+   * @return One page of profiling results.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async listProfiles(
+    projectId: string,
+    environmentId: string,
+    params?: BlackfireProfilesListParams,
+  ): Promise<BlackfireProfilesList200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.blackfireProfilingApi.blackfireProfilesList({
+      ...params,
+      projectId,
+      environmentId,
+    });
+  }
+
+  /**
+   * Get the recommendation statistics of the profiles of an environment.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param params - (Optional) The filters, the sort and the pagination.
+   * @return The recommendation statistics.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async profileRecommendations(
+    projectId: string,
+    environmentId: string,
+    params?: BlackfireProfilesRecommendationsParams,
+  ): Promise<BlackfireProfilesRecommendations200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.blackfireProfilingApi.blackfireProfilesRecommendations({
+      ...params,
+      projectId,
+      environmentId,
+    });
+  }
+
+  /**
+   * Get the details of a profile.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param uuid - The UUID of the profile.
+   * @return The profile details.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async getProfile(
+    projectId: string,
+    environmentId: string,
+    uuid: string,
+  ): Promise<BlackfireProfileProfile200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+    if (!uuid) {
+      throw new Error('Profile UUID is required');
+    }
+
+    return await this.blackfireProfilingApi.blackfireProfileProfile({
+      projectId,
+      environmentId,
+      uuid,
+    });
+  }
+
+  /**
+   * Get the call graph of a profile.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param uuid - The UUID of the profile.
+   * @return The call graph.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async profileGraph(
+    projectId: string,
+    environmentId: string,
+    uuid: string,
+  ): Promise<BlackfireProfileGraph200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+    if (!uuid) {
+      throw new Error('Profile UUID is required');
+    }
+
+    return await this.blackfireProfilingApi.blackfireProfileGraph({
+      projectId,
+      environmentId,
+      uuid,
+    });
+  }
+
+  /**
+   * Get the subprofiles of a profile.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param uuid - The UUID of the profile.
+   * @return The subprofiles.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async profileSubprofiles(
+    projectId: string,
+    environmentId: string,
+    uuid: string,
+  ): Promise<BlackfireProfileSubprofiles200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+    if (!uuid) {
+      throw new Error('Profile UUID is required');
+    }
+
+    return await this.blackfireProfilingApi.blackfireProfileSubprofiles({
+      projectId,
+      environmentId,
+      uuid,
+    });
+  }
+
+  /**
+   * Get the timeline data of a profile.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param uuid - The UUID of the profile.
+   * @return The timeline data.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async profileTimeline(
+    projectId: string,
+    environmentId: string,
+    uuid: string,
+  ): Promise<BlackfireProfileTimeline200Response> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+    if (!uuid) {
+      throw new Error('Profile UUID is required');
+    }
+
+    return await this.blackfireProfilingApi.blackfireProfileTimeline({
+      projectId,
+      environmentId,
+      uuid,
     });
   }
 }

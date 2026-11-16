@@ -1,5 +1,7 @@
 import {
   BlackfirePhpServerCachesRequest,
+  BlackfireProfilesListRequest,
+  BlackfireProfilesRecommendationsRequest,
   BlackfireServerGlobalRequest,
   BlackfireServerTopSpansRequest,
   BlackfireServerTransactionsBreakdownRequest,
@@ -131,5 +133,13 @@ export type BlackfireServerTopSpansParams = Omit<
 >;
 export type BlackfireServerTransactionsBreakdownParams = Omit<
   BlackfireServerTransactionsBreakdownRequest,
+  'projectId' | 'environmentId'
+>;
+export type BlackfireProfilesListParams = Omit<
+  BlackfireProfilesListRequest,
+  'projectId' | 'environmentId'
+>;
+export type BlackfireProfilesRecommendationsParams = Omit<
+  BlackfireProfilesRecommendationsRequest,
   'projectId' | 'environmentId'
 >;
