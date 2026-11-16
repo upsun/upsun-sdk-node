@@ -7,6 +7,7 @@ export * from './environments.js';
 export * from './integrations.js';
 export * from './metrics.js';
 export * from './mounts.js';
+export * from './observability.js';
 export * from './operations.js';
 export * from './organizations.js';
 export * from './projects.js';

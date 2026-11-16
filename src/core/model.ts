@@ -16,6 +16,8 @@ import {
   ListUserProjectAccessRequest,
   ListUserSshKeysRequest,
   ListUserTeamsRequest,
+  LogsOverviewRequest,
+  LogsQueryRequest,
 } from '../api/index.js';
 import {
   CertificateCreateInput,
@@ -84,3 +86,6 @@ export type FilterListProjectUserAccess = Omit<ListProjectUserAccessRequest, 'pr
 export type FilterListUserProjectAccess = Omit<ListUserProjectAccessRequest, 'userId'>;
 export type FilterListUserExtendedAccess = Omit<ListUserExtendedAccessRequest, 'userId'>;
 export type FilterProjectUserAccesses = Omit<ListProjectUserAccessRequest, 'projectId'>;
+
+export type LogsOverviewParams = Omit<LogsOverviewRequest, 'projectId' | 'environmentId'>;
+export type LogsQueryParams = Omit<LogsQueryRequest, 'projectId' | 'environmentId'>;
