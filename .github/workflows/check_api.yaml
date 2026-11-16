@@ -10,7 +10,7 @@ permissions:
 
 env:
   DEFAULT_BRANCH: "main"
-  PRIMARY_NODE_VERSION: '25'
+  PRIMARY_NODE_VERSION: '26'
 
 jobs:
   check-and-update:
