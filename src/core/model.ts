@@ -43,14 +43,13 @@ export type FilterListOrgs = Omit<ListOrgsRequest, never>;
 
 // used in ProjectTasks
 export type IntegrationType = IntegrationCreateCreateInput['type'];
-export type IntegrationCreateData<T extends IntegrationType> = Omit<
-  Extract<IntegrationCreateCreateInput, { type: T }>,
-  'type'
->;
-export type IntegrationPatchData<T extends IntegrationType> = Omit<
-  Extract<IntegrationPatch, { type: T }>,
-  'type'
->;
+// Distributive: a union T gives a union of per-type shapes, as Omit over a union keeps only the shared keys.
+export type IntegrationCreateData<T extends IntegrationType> = T extends unknown
+  ? Omit<Extract<IntegrationCreateCreateInput, { type: T }>, 'type'>
+  : never;
+export type IntegrationPatchData<T extends IntegrationType> = T extends unknown
+  ? Omit<Extract<IntegrationPatch, { type: T }>, 'type'>
+  : never;
 export type ProjectCreateRequest = Omit<CreateOrgSubscriptionRequest, 'projectRegion'>;
 export type FilterListOrgProjects = Omit<ListOrgProjectsRequest, 'organizationId'>;
 
