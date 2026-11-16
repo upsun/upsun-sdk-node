@@ -203,7 +203,7 @@ export class ObservabilityTask extends TaskBase {
    * @param service - The name of the service or application.
    * @param params - The time range (`from` and `to`, required) and the filters.
    * @return The resource metrics of the service.
-   * @throws An error if an ID is empty, or if the API request fails.
+   * @throws An error if an ID or the service name is empty, or if the API request fails.
    */
   async resourcesByService(
     projectId: string,
