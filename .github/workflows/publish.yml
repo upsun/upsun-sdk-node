@@ -6,7 +6,7 @@ on:
 
 env:
   # Define the primary Node.js version for release, build, coverage uploads and badge generation
-  PRIMARY_NODE_VERSION: '22'
+  PRIMARY_NODE_VERSION: '26'
 
 jobs:
   doc:
