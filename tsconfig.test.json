@@ -4,6 +4,7 @@
     "rootDir": ".",
     "outDir": "./dist-tests",
     "noEmit": true,
+    "incremental": false,
     "isolatedModules": true,
     "types": ["jest", "node"]
   },

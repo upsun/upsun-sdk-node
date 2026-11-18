@@ -36,9 +36,9 @@ describe('OAuth2Client', () => {
       let capturedBody: string | undefined;
       nock('https://auth.upsun.com')
         .post('/oauth2/token')
-        .reply(function (_uri, body) {
-          capturedAuth = this.req.headers['authorization'] as string;
-          capturedBody = body as string;
+        .reply(async (req: Request) => {
+          capturedAuth = req.headers.get('authorization') ?? undefined;
+          capturedBody = await req.text();
           return [200, { access_token: 'tok', token_type: 'Bearer', expires_in: 3600 }];
         });
 
@@ -60,7 +60,9 @@ describe('OAuth2Client', () => {
     it('should handle network errors during token exchange', async () => {
       nock('https://auth.upsun.com').post('/oauth2/token').replyWithError('Network error');
 
-      await expect(oauth2Client.exchangeCodeForToken()).rejects.toThrow('Network error');
+      await expect(oauth2Client.exchangeCodeForToken()).rejects.toMatchObject({
+        cause: expect.objectContaining({ message: 'Network error' }),
+      });
     });
   });
 
@@ -93,8 +95,8 @@ describe('OAuth2Client', () => {
       let capturedBody: string | undefined;
       nock('https://auth.upsun.com')
         .post('/oauth2/token')
-        .reply(function (_uri, body) {
-          capturedBody = body as string;
+        .reply(async (req: Request) => {
+          capturedBody = await req.text();
           return [200, { access_token: 'refreshed-token', token_type: 'Bearer', expires_in: 3600 }];
         });
 
@@ -116,8 +118,8 @@ describe('OAuth2Client', () => {
       let capturedAuth: string | undefined;
       nock('https://auth.upsun.com')
         .post('/oauth2/token')
-        .reply(function () {
-          capturedAuth = this.req.headers['authorization'] as string;
+        .reply((req: Request) => {
+          capturedAuth = req.headers.get('authorization') ?? undefined;
           return [200, { access_token: 'refreshed-token', token_type: 'Bearer', expires_in: 3600 }];
         });
 
@@ -140,9 +142,9 @@ describe('OAuth2Client', () => {
       nock('https://auth.upsun.com')
         .post('/oauth2/token')
         .twice()
-        .reply(function (_uri, body) {
+        .reply(async (req: Request) => {
           callCount++;
-          const b = body as string;
+          const b = await req.text();
           if (b.includes('refresh_token')) return [400, { error: 'invalid_grant' }];
           return [200, { access_token: 'new-token', token_type: 'Bearer', expires_in: 3600 }];
         });
@@ -187,8 +189,8 @@ describe('OAuth2Client', () => {
       let capturedBody: string | undefined;
       nock('https://auth.upsun.com')
         .post('/oauth2/token')
-        .reply(function (_uri, body) {
-          capturedBody = body as string;
+        .reply(async (req: Request) => {
+          capturedBody = await req.text();
           return [200, { access_token: 'force-refreshed', token_type: 'Bearer', expires_in: 3600 }];
         });
 

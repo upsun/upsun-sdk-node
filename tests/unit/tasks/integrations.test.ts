@@ -62,9 +62,9 @@ describe('IntegrationsTask', () => {
     });
 
     it('should throw when type is empty', async () => {
-      await expect(integrationsTask.createIntegration('proj-1', '', {} as any)).rejects.toThrow(
-        'Integration type is required',
-      );
+      await expect(
+        integrationsTask.createIntegration('proj-1', '' as any, {} as any),
+      ).rejects.toThrow('Integration type is required');
     });
 
     it('should handle API error', async () => {
@@ -210,7 +210,7 @@ describe('IntegrationsTask', () => {
 
     it('should throw when type is empty', async () => {
       await expect(
-        integrationsTask.updateIntegration('proj-1', 'int-1', '', {} as any),
+        integrationsTask.updateIntegration('proj-1', 'int-1', '' as any, {} as any),
       ).rejects.toThrow('Integration type is required');
     });
 

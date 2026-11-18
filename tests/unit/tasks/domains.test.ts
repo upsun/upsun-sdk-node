@@ -368,7 +368,7 @@ describe('DomainsTask', () => {
       const mockActivity = { id: 'activity-update-457', type: 'domain.update' };
       mockDomainApi.updateProjectsEnvironmentsDomains.mockResolvedValue(mockActivity as any);
 
-      await domainsTask.update('project-123', 'domain-456', undefined, 'env-789');
+      await domainsTask.update('project-123', 'domain-456', undefined as any, 'env-789');
       expect(mockDomainApi.updateProjectsEnvironmentsDomains).toHaveBeenCalledWith({
         projectId: 'project-123',
         environmentId: 'env-789',
@@ -385,7 +385,7 @@ describe('DomainsTask', () => {
 
       mockDomainApi.updateProjectsDomains.mockResolvedValue(mockActivity as any);
 
-      const result = await domainsTask.update('project-123', 'domain-456');
+      const result = await domainsTask.update('project-123', 'domain-456', undefined as any);
 
       expect(result).toBeDefined();
       expect(mockDomainApi.updateProjectsDomains).toHaveBeenCalledWith({
@@ -398,9 +398,9 @@ describe('DomainsTask', () => {
     it('should handle domain update errors', async () => {
       mockDomainApi.updateProjectsDomains.mockRejectedValue(new Error('Update failed'));
 
-      await expect(domainsTask.update('project-123', 'domain-456')).rejects.toThrow(
-        'Update failed',
-      );
+      await expect(
+        domainsTask.update('project-123', 'domain-456', undefined as any),
+      ).rejects.toThrow('Update failed');
     });
   });
 });

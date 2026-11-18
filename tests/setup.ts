@@ -28,3 +28,8 @@ process.env.NODE_ENV = 'test';
 global.beforeEach(() => {
   jest.clearAllMocks();
 });
+
+// nock patches shared Node core modules; unpatch so the next test file in this worker starts clean
+afterAll(() => {
+  nock.restore();
+});

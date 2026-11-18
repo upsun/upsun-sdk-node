@@ -15,9 +15,8 @@ import {
   Resources6InitEnum,
   Resources7InitEnum,
 } from '../../../src/model/index.js';
-import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-type AsyncMock = jest.Mock<(...args: any[]) => Promise<any>>;
+type AsyncMock = jest.Mock<Promise<any>, any[]>;
 
 jest.mock('../../../src/upsun');
 jest.mock('../../../src/api/index.js');
@@ -847,7 +846,7 @@ describe('EnvironmentsTask', () => {
     it('should return relationships for an app', async () => {
       const relationships = { db: { host: 'db', port: 5432 } } as any;
       mockClient.applications = {
-        configGet: jest.fn<() => Promise<any>>().mockResolvedValue({ relationships }),
+        configGet: jest.fn<Promise<any>, []>().mockResolvedValue({ relationships }),
       } as any;
 
       const result = await environmentTask.relationships('project-123', 'main', 'app-1');
