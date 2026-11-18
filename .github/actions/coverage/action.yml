@@ -12,7 +12,7 @@ runs:
   using: "composite"
   steps:
     - name: Set up runtime - Node.js ${{ inputs.default-runtime-version }}
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ inputs.default-runtime-version }}
         cache: 'npm'
