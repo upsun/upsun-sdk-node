@@ -50,6 +50,7 @@ describe('UpsunClient', () => {
       expect(client.environments).toBeDefined();
       expect(client.metrics).toBeDefined();
       expect(client.mounts).toBeDefined();
+      expect(client.observability).toBeDefined();
       expect(client.operations).toBeDefined();
       expect(client.organizations).toBeDefined();
       expect(client.projects).toBeDefined();

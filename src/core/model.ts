@@ -1,11 +1,20 @@
 import {
+  BlackfirePhpServerCachesRequest,
+  BlackfireProfilesListRequest,
+  BlackfireProfilesRecommendationsRequest,
+  BlackfireServerGlobalRequest,
+  BlackfireServerTopSpansRequest,
+  BlackfireServerTransactionsBreakdownRequest,
+  HttpMetricsTimelineIpsRequest,
+  HttpMetricsTimelineUrlsRequest,
+  HttpMetricsTimelineUserAgentsRequest,
   ListOrgInvitesRequest,
   ListOrgMembersRequest,
   ListOrgOrdersRequest,
   ListOrgPlanRecordsRequest,
   ListOrgProjectsRequest,
-  ListOrgsRequest,
   ListOrgUsageRecordsRequest,
+  ListOrgsRequest,
   ListProjectInvitesRequest,
   ListProjectTeamAccessRequest,
   ListProjectUserAccessRequest,
@@ -16,6 +25,11 @@ import {
   ListUserProjectAccessRequest,
   ListUserSshKeysRequest,
   ListUserTeamsRequest,
+  LogsOverviewRequest,
+  LogsQueryRequest,
+  ResourcesByServiceRequest,
+  ResourcesOverviewRequest,
+  ResourcesSummaryRequest,
 } from '../api/index.js';
 import {
   CertificateCreateInput,
@@ -84,3 +98,48 @@ export type FilterListProjectUserAccess = Omit<ListProjectUserAccessRequest, 'pr
 export type FilterListUserProjectAccess = Omit<ListUserProjectAccessRequest, 'userId'>;
 export type FilterListUserExtendedAccess = Omit<ListUserExtendedAccessRequest, 'userId'>;
 export type FilterProjectUserAccesses = Omit<ListProjectUserAccessRequest, 'projectId'>;
+
+export type LogsOverviewParams = Omit<LogsOverviewRequest, 'projectId' | 'environmentId'>;
+export type LogsQueryParams = Omit<LogsQueryRequest, 'projectId' | 'environmentId'>;
+export type HttpMetricsTimelineUrlsParams = Omit<
+  HttpMetricsTimelineUrlsRequest,
+  'projectId' | 'environmentId'
+>;
+export type HttpMetricsTimelineIpsParams = Omit<
+  HttpMetricsTimelineIpsRequest,
+  'projectId' | 'environmentId'
+>;
+export type HttpMetricsTimelineUserAgentsParams = Omit<
+  HttpMetricsTimelineUserAgentsRequest,
+  'projectId' | 'environmentId'
+>;
+export type ResourcesOverviewParams = Omit<ResourcesOverviewRequest, 'projectId' | 'environmentId'>;
+export type ResourcesSummaryParams = Omit<ResourcesSummaryRequest, 'projectId' | 'environmentId'>;
+export type ResourcesByServiceParams = Omit<
+  ResourcesByServiceRequest,
+  'projectId' | 'environmentId' | 'service'
+>;
+export type BlackfireServerGlobalParams = Omit<
+  BlackfireServerGlobalRequest,
+  'projectId' | 'environmentId'
+>;
+export type BlackfirePhpServerCachesParams = Omit<
+  BlackfirePhpServerCachesRequest,
+  'projectId' | 'environmentId'
+>;
+export type BlackfireServerTopSpansParams = Omit<
+  BlackfireServerTopSpansRequest,
+  'projectId' | 'environmentId'
+>;
+export type BlackfireServerTransactionsBreakdownParams = Omit<
+  BlackfireServerTransactionsBreakdownRequest,
+  'projectId' | 'environmentId'
+>;
+export type BlackfireProfilesListParams = Omit<
+  BlackfireProfilesListRequest,
+  'projectId' | 'environmentId'
+>;
+export type BlackfireProfilesRecommendationsParams = Omit<
+  BlackfireProfilesRecommendationsRequest,
+  'projectId' | 'environmentId'
+>;
