@@ -5,41 +5,13 @@ on:
     types: [published]
 
 env:
-  # Define the primary Node.js version for release, build, coverage uploads and badge generation
+  # Node.js version for the release build and publish
   PRIMARY_NODE_VERSION: '26'
 
 jobs:
-  doc:
-    name: Generate Documentation
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - uses: ./.github/actions/doc
-        if: false
-        with:
-          default-runtime-version: ${{ env.PRIMARY_NODE_VERSION }}
-
-  coverage:
-    name: Code Coverage Report
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - uses: ./.github/actions/coverage
-        if: false
-        with:
-          default-runtime-version: ${{ env.PRIMARY_NODE_VERSION }}
-          codecov-secret: ${{ secrets.CODECOV_TOKEN || 'Please define a CODECOV_TOKEN in your GitHub envVars' }}
-
   publish:
     name: Publish release to NPM
     runs-on: ubuntu-latest
-    needs: [ doc, coverage ]
     environment: main
     permissions:
       contents: read
