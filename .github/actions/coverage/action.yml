@@ -36,7 +36,7 @@ runs:
 
     - name: Upload coverage to Codecov
       if: success()
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         files: coverage.xml
         flags: unittests
