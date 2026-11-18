@@ -38,15 +38,15 @@
     "@swc/core": "^1.16.22",
     "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0",
-    "@types/node": "^25.9.9",
+    "@types/node": "^26.6.6",
     "jest": "^30.5.2",
     "nock": "^15.0.6",
-    "oxlint": "^1.93.0",
+    "oxlint": "^1.94.0",
     "prettier": "^3.10.1",
     "typescript": "^7.0.2"
   },
   "dependencies": {
-    "dotenv": "^18.0.10"
+    "dotenv": "^17.3"
   },
   "scripts": {
     "help": "bash ./scripts/help.sh",
@@ -70,7 +70,8 @@
     "spec:generate": "openapi-generator-cli generate -c templates/config.yaml",
     "release-version": "bash ./scripts/release-version.sh $npm_config_tag",
     "spec:full": "npm run spec:clean && npm run spec:dl && npm run spec:generate && npm run fix:all",
-    "lint:all": "npm run lint:ox && npm run lint:prettier",
+    "lint:types": "tsc -p tsconfig.test.json",
+    "lint:all": "npm run lint:ox && npm run lint:types && npm run lint:prettier",
     "fix:all": "npm run fix:ox && npm run fix:prettier",
     "test:all": "npm run test:unit",
     "qa": "npm run lint:all && npm run test:all",

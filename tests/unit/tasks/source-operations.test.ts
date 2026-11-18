@@ -92,7 +92,7 @@ describe('SourceOperationsTask', () => {
       const mockResponse = { id: 'act-1' };
       mockSourceOperationsApi.runSourceOperation.mockResolvedValue(mockResponse as any);
 
-      const variables = { MY_VAR: 'value' };
+      const variables = { MY_VAR: { value: 'value' } };
       const result = await sourceOperationTask.run('proj-1', 'main', 'rebuild', variables);
       expect(result).toBeDefined();
       expect(mockSourceOperationsApi.runSourceOperation).toHaveBeenCalledWith({

@@ -70,7 +70,7 @@ describe('TeamsTask', () => {
     });
 
     it('should create a team', async () => {
-      mockTeamsApi.createTeam.mockResolvedValue(undefined);
+      mockTeamsApi.createTeam.mockResolvedValue(undefined as any);
 
       await teamsTask.create('org-1', 'My Team');
       expect(mockTeamsApi.createTeam).toHaveBeenCalledWith({
@@ -83,7 +83,7 @@ describe('TeamsTask', () => {
     });
 
     it('should create a team with project permissions', async () => {
-      mockTeamsApi.createTeam.mockResolvedValue(undefined);
+      mockTeamsApi.createTeam.mockResolvedValue(undefined as any);
 
       await teamsTask.create('org-1', 'Dev Team', ['proj-1', 'proj-2']);
       expect(mockTeamsApi.createTeam).toHaveBeenCalledWith({
@@ -162,7 +162,7 @@ describe('TeamsTask', () => {
     });
 
     it('should update a team label', async () => {
-      mockTeamsApi.updateTeam.mockResolvedValue(undefined);
+      mockTeamsApi.updateTeam.mockResolvedValue(undefined as any);
 
       await teamsTask.update('team-1', { label: 'New Label' });
       expect(mockTeamsApi.updateTeam).toHaveBeenCalledWith({
