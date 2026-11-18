@@ -68,6 +68,9 @@ jobs:
       - name: Generate OpenAPI client
         run: npm run spec:generate
 
+      - name: Type-check sources and tests
+        run: npm run test:types
+
       - name: Run unit tests
         run: npm run test:unit
 

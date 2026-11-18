@@ -70,12 +70,12 @@
     "spec:generate": "openapi-generator-cli generate -c templates/config.yaml --additional-properties=sdkVersion=$npm_package_version",
     "release-version": "bash ./scripts/release-version.sh $npm_config_tag",
     "spec:full": "npm run spec:clean && npm run spec:dl && npm run spec:generate && npm run fix:all",
-    "lint:types": "tsc -p tsconfig.test.json",
-    "lint:all": "npm run lint:ox && npm run lint:types && npm run lint:prettier",
+    "test:types": "tsc -p tsconfig.test.json",
+    "lint:all": "npm run lint:ox && npm run lint:prettier",
     "fix:all": "npm run fix:ox && npm run fix:prettier",
     "test:all": "npm run test:unit",
-    "qa": "npm run lint:all && npm run test:all",
-    "qa:all": "npm run build && npm run lint:all && npm run test:all"
+    "qa": "npm run lint:all && npm run test:types && npm run test:all",
+    "qa:all": "npm run build && npm run lint:all && npm run test:types && npm run test:all"
   },
   "repository": {
     "type": "git",
