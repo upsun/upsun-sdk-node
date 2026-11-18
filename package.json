@@ -43,7 +43,7 @@
     "nock": "^14.0",
     "nodemon": "^3.1",
     "prettier": "^3.8",
-    "quicktype": "^23.2",
+    "quicktype": "^26.0",
     "ts-jest": "^29.4",
     "ts-node": "^10.9",
     "typescript": "^5.9",
