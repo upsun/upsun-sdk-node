@@ -2,9 +2,7 @@ import nock from 'nock';
 
 import dotenv from 'dotenv';
 
-const dotenvLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
-dotenv.config();
-dotenvLogSpy.mockRestore();
+dotenv.config({ quiet: true });
 
 // Configuration globale pour les tests
 beforeEach(() => {
