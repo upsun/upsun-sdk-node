@@ -48,7 +48,6 @@ describe('UpsunClient', () => {
       expect(client.certificates).toBeDefined();
       expect(client.domains).toBeDefined();
       expect(client.environments).toBeDefined();
-      expect(client.metrics).toBeDefined();
       expect(client.mounts).toBeDefined();
       expect(client.observability).toBeDefined();
       expect(client.operations).toBeDefined();

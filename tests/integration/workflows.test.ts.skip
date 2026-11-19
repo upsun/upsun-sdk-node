@@ -34,7 +34,7 @@ describe('Integration Tests - Complete Workflows', () => {
         .post('/organizations', { name: 'Test Organization' })
         .reply(201, mockOrg);
 
-      const organization = await client.organization.create('Test Organization');
+      const organization = await client.organizations.create('Test Organization');
       expect(organization.id).toBe('org-123');
 
       // Step 2: Create project
@@ -54,7 +54,10 @@ describe('Integration Tests - Complete Workflows', () => {
         })
         .reply(201, mockProject);
 
-      const project = await client.project.create('org-123', 'eu-west-1', 'Test Project', 'main');
+      const project = await client.projects.create('org-123', 'eu-west-1', {
+        projectTitle: 'Test Project',
+        defaultBranch: 'main'
+      });
       expect(project.id).toBe('project-123');
 
       // Step 3: List environments
@@ -65,7 +68,7 @@ describe('Integration Tests - Complete Workflows', () => {
         .get('/projects/project-123/environments')
         .reply(200, mockEnvironments);
 
-      const environments = await client.environment.list('project-123');
+      const environments = await client.environments.list('project-123');
       expect(environments).toHaveLength(1);
       expect(environments[0].name).toBe('main');
     });
@@ -85,7 +88,7 @@ describe('Integration Tests - Complete Workflows', () => {
         .post(`/projects/${projectId}/environments/${environmentName}/redeploy`)
         .reply(200, mockRedeployActivity);
 
-      const deployActivity = await client.environment.redeploy(projectId, environmentName);
+      const deployActivity = await client.environments.redeploy(projectId, environmentName);
       expect(deployActivity).toBeDefined();
 
       // Step 2: Monitor activity
@@ -99,21 +102,9 @@ describe('Integration Tests - Complete Workflows', () => {
         .get(`/projects/${projectId}/activities/activity-deploy-123`)
         .reply(200, mockCompletedActivity);
 
-      const activityStatus = await client.activity.get(projectId, 'activity-deploy-123');
+      const activityStatus = await client.activities.get(projectId, 'activity-deploy-123');
       expect(activityStatus.state).toBe('complete');
       expect(activityStatus.result).toBe('success');
-
-      // Step 3: Get environment URLs
-      const mockUrls = {
-        public: 'https://main-abcd123.upsun.app',
-        edge: 'https://edge-main-abcd123.upsun.app'
-      };
-      nock('https://api.upsun.com')
-        .get(`/projects/${projectId}/environments/${environmentName}/urls`)
-        .reply(200, mockUrls);
-
-      const urls = await client.environment.urls(projectId, environmentName);
-      expect(urls).toBeDefined();
     });
   });
 
@@ -135,7 +126,7 @@ describe('Integration Tests - Complete Workflows', () => {
         .post(`/projects/${projectId}/environments/${environmentName}/pause`)
         .reply(200, mockPauseActivity);
 
-      const pauseResult = await client.environment.pause(projectId, environmentName);
+      const pauseResult = await client.environments.pause(projectId, environmentName);
       expect(pauseResult).toBeDefined();
 
       // Step 2: Resume environment
@@ -148,7 +139,7 @@ describe('Integration Tests - Complete Workflows', () => {
         .post(`/projects/${projectId}/environments/${environmentName}/resume`)
         .reply(200, mockResumeActivity);
 
-      const resumeResult = await client.environment.resume(projectId, environmentName);
+      const resumeResult = await client.environments.resume(projectId, environmentName);
       expect(resumeResult).toBeDefined();
 
       // Step 3: Delete environment
@@ -161,7 +152,7 @@ describe('Integration Tests - Complete Workflows', () => {
         .delete(`/projects/${projectId}/environments/${environmentName}`)
         .reply(200, mockDeleteActivity);
 
-      const deleteResult = await client.environment.delete(projectId, environmentName);
+      const deleteResult = await client.environments.delete(projectId, environmentName);
       expect(deleteResult).toBeDefined();
     });
   });
@@ -172,7 +163,7 @@ describe('Integration Tests - Complete Workflows', () => {
         .get('/users/me')
         .reply(429, { error: 'Rate limit exceeded' });
 
-      await expect(client.user.me()).rejects.toThrow();
+      await expect(client.users.me()).rejects.toThrow();
     });
 
     it('should handle network timeouts', async () => {
@@ -180,7 +171,7 @@ describe('Integration Tests - Complete Workflows', () => {
         .get('/users/me')
         .replyWithError('ETIMEDOUT');
 
-      await expect(client.user.me()).rejects.toThrow();
+      await expect(client.users.me()).rejects.toThrow();
     });
 
     it('should handle invalid API responses', async () => {
@@ -188,7 +179,7 @@ describe('Integration Tests - Complete Workflows', () => {
         .get('/users/me')
         .reply(200, 'invalid json response');
 
-      await expect(client.user.me()).rejects.toThrow();
+      await expect(client.users.me()).rejects.toThrow();
     });
   });
 });

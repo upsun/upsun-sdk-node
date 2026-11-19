@@ -12,7 +12,6 @@ import {
   CertificatesTask,
   DomainsTask,
   EnvironmentsTask,
-  MetricsTask,
   MountsTask,
   ObservabilityTask,
   OperationsTask,
@@ -139,7 +138,6 @@ export class UpsunClient {
   public environments: EnvironmentsTask;
   public integrations: IntegrationsTask;
   public invitations: UsersInvitationsTask;
-  public metrics: MetricsTask;
   public mounts: MountsTask;
   public observability: ObservabilityTask;
   public operations: OperationsTask;
@@ -256,7 +254,6 @@ export class UpsunClient {
       organizationInvitationsApi,
       projectInvitationsApi,
     );
-    this.metrics = new MetricsTask(this);
     this.mounts = new MountsTask(this);
     this.observability = new ObservabilityTask(this);
     this.operations = new OperationsTask(this, runtimeOperationsApi);

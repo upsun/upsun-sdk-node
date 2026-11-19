@@ -251,11 +251,6 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
       const result = await upsun.environments.resume(projectId, '');
       expect(result).toBeDefined();
     });
-
-    it('urls', async () => {
-      const result = await upsun.environments.urls(projectId, '');
-      expect(result).toBeDefined();
-    });
   });
 
   //COMMENT: Done issue on delete (bad timming)
@@ -302,7 +297,9 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
   describe('Project', () => {
     it('create', async () => {
       try {
-        const result = await upsun.projects.create(organizationId, 'eu-3', 'Test Project');
+        const result = await upsun.projects.create(organizationId, 'eu-3', {
+          projectTitle: 'Test Project',
+        });
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);

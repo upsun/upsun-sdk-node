@@ -34,7 +34,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
       //COMMENT: Error on test.
       try {
         expect(async () => {
-          const result = await upsun.activity.cancel(projectId, activityId);
+          const result = await upsun.activities.cancel(projectId, activityId);
           expect(result).toBeDefined();
         }).toThrow('Response returned an error code');
       } catch (error: any) {
@@ -46,7 +46,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
       //COMMENT: with activityId="" (empty) return 200 with empty response !!
       //COMMENT: Is the ID valid for a limited period of time?
       try {
-        const result = await upsun.activity.get(projectId, activityId);
+        const result = await upsun.activities.get(projectId, activityId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -56,7 +56,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
     it('list', async () => {
       //COMMENT: Not id in result... https://platformsh.slack.com/archives/C5FQB4T41/p1749030535077689
       try {
-        const result = await upsun.activity.list(projectId);
+        const result = await upsun.activities.list(projectId);
         expect(result).toBeDefined();
         expect(result.length).toBeGreaterThan(0);
       } catch (error: any) {
@@ -66,7 +66,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('log', async () => {
       try {
-        const result = await upsun.activity.log(projectId, activityId);
+        const result = await upsun.activities.log(projectId, activityId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -79,7 +79,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('create', async () => {
       try {
-        const result = await upsun.backup.create(projectId, environmentId, false);
+        const result = await upsun.backups.create(projectId, environmentId, false);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -88,7 +88,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it.skip('detete', async () => {
       try {
-        const result = await upsun.backup.delete(projectId, environmentId, backupId);
+        const result = await upsun.backups.delete(projectId, environmentId, backupId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -97,7 +97,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('get', async () => {
       try {
-        const result = await upsun.backup.get(projectId, environmentId, backupId);
+        const result = await upsun.backups.get(projectId, environmentId, backupId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -106,7 +106,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('list', async () => {
       try {
-        const result = await upsun.backup.list(projectId, environmentId);
+        const result = await upsun.backups.list(projectId, environmentId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -116,7 +116,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
     it.skip('restore', async () => {
       //TODO: Fix but need more info
       try {
-        const result = await upsun.backup.restore(projectId, environmentId, backupId);
+        const result = await upsun.backups.restore(projectId, environmentId, backupId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -129,7 +129,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('add', async () => {
       try {
-        const result = await upsun.certificate.add(projectId, "", "");
+        const result = await upsun.certificates.add(projectId, "", "");
         certificateId_delete = ""; //result.id as string; // Bad but quick
         expect(result).toBeDefined();
       } catch (error: any) {
@@ -139,7 +139,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it.skip('delete', async () => {
       try {
-        const result = await upsun.certificate.delete(projectId, certificateId_delete);
+        const result = await upsun.certificates.delete(projectId, certificateId_delete);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -148,7 +148,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('get', async () => {
       try {
-        const result = await upsun.certificate.get(projectId, certificateId);
+        const result = await upsun.certificates.get(projectId, certificateId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -157,7 +157,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('list', async () => {
       try {
-        const result = await upsun.certificate.list(projectId);
+        const result = await upsun.certificates.list(projectId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -169,7 +169,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('add', async () => {
       try {
-        const result = await upsun.domain.add(projectId, "tld.com");
+        const result = await upsun.domains.add(projectId, "tld.com");
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -178,7 +178,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('delete', async () => {
       try {
-      const result = await upsun.domain.delete(projectId, "tld.com");
+      const result = await upsun.domains.delete(projectId, "tld.com");
       expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -187,7 +187,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('get', async () => {
       try {
-      const result = await upsun.domain.get(projectId, "tld.com");
+      const result = await upsun.domains.get(projectId, "tld.com");
       expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -196,7 +196,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('list', async () => {
       try {
-      const result = await upsun.domain.list(projectId);
+      const result = await upsun.domains.list(projectId);
       expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -205,7 +205,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('update', async () => {
       try {
-      const result = await upsun.domain.update(projectId, "tld-updated.com");
+      const result = await upsun.domains.update(projectId, "tld-updated.com", { isDefault: false });
       expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -216,47 +216,42 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
   describe('Environment', () => {
 
     it('activate', async () => {
-      const result = await upsun.environment.activate(projectId, "");
+      const result = await upsun.environments.activate(projectId, "");
       expect(result).toBeDefined();
     });
 
     it('delete', async () => {
-      const result = await upsun.environment.delete(projectId, "");
+      const result = await upsun.environments.delete(projectId, "");
       expect(result).toBeDefined();
     });
 
     it('info', async () => {
-      const result = await upsun.environment.info(projectId, "");
+      const result = await upsun.environments.info(projectId, "");
       expect(result).toBeDefined();
     });
 
     it('logs', async () => {
-      const result = await upsun.environment.logs(projectId, "", "");
+      const result = await upsun.environments.logs(projectId, "", "");
       expect(result).toBeDefined();
     });
 
     it('merge', async () => {
-      const result = await upsun.environment.merge(projectId, "");
+      const result = await upsun.environments.merge(projectId, "");
       expect(result).toBeDefined();
     });
 
     it('pause', async () => {
-      const result = await upsun.environment.pause(projectId, "");
+      const result = await upsun.environments.pause(projectId, "");
       expect(result).toBeDefined();
     });
 
     it('redeploy', async () => {
-      const result = await upsun.environment.redeploy(projectId, "");
+      const result = await upsun.environments.redeploy(projectId, "");
       expect(result).toBeDefined();
     });
 
     it('resume', async () => {
-      const result = await upsun.environment.resume(projectId, "");
-      expect(result).toBeDefined();
-    });
-
-    it('urls', async () => {
-      const result = await upsun.environment.urls(projectId, "");
+      const result = await upsun.environments.resume(projectId, "");
       expect(result).toBeDefined();
     });
   });
@@ -266,7 +261,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('create', async () => {
       try {
-        const result = await upsun.organization.create("Test-Organization-" + ts);
+        const result = await upsun.organizations.create("Test-Organization-" + ts);
         organizationId_delete = result.id as string; // Bad but quick
         expect(result).toBeDefined();
       } catch (error: any) {
@@ -277,7 +272,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
     it.skip('delete', async () => {
       //COMMENT: if request to early, return 401 Unauthorized
       try {
-        const result = await upsun.organization.delete(organizationId_delete);
+        const result = await upsun.organizations.delete(organizationId_delete);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -286,7 +281,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('info', async () => {
       try {
-        const result = await upsun.organization.info(organizationId);
+        const result = await upsun.organizations.info(organizationId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -295,7 +290,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
     
     it('list', async () => {
       try {
-        const result = await upsun.organization.list();
+        const result = await upsun.organizations.list();
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -307,7 +302,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('create', async () => {
       try {
-        const result = await upsun.project.create(organizationId, "eu-3", "Test Project");
+        const result = await upsun.projects.create(organizationId, "eu-3", { projectTitle: "Test Project" });
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -316,7 +311,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('delete', async () => {
       try {
-        const result = await upsun.project.delete("");
+        const result = await upsun.projects.delete("");
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -325,7 +320,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
 
     it('info', async () => {
       try {
-        const result = await upsun.project.info(projectId);
+        const result = await upsun.projects.info(projectId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -334,7 +329,7 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
     
     it('list', async () => {
       try {
-        const result = await upsun.project.list(organizationId);
+        const result = await upsun.projects.list(organizationId);
         expect(result).toBeDefined();
       } catch (error: any) {
         console.error('Error:', error.response.status, error.response.statusText);
@@ -345,12 +340,12 @@ describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
   describe('Route', () => {
 
     it('get', async () => {
-      const result = await upsun.route.get(projectId, environmentId, "");
+      const result = await upsun.routes.get(projectId, environmentId, "");
       expect(result).toBeDefined();
     });
 
     it('list', async () => {
-      const result = await upsun.route.list(projectId, environmentId);
+      const result = await upsun.routes.list(projectId, environmentId);
       expect(result).toBeDefined();
     });
     

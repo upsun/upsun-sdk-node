@@ -22,7 +22,7 @@ describe('SDK Performance Tests', () => {
       // Perform multiple API calls
       const promises = [];
       for (let i = 0; i < 100; i++) {
-        promises.push(client.user.me());
+        promises.push(client.users.me());
       }
       
       await Promise.all(promises);
@@ -47,7 +47,7 @@ describe('SDK Performance Tests', () => {
         .reply(200, { id: 'user-123', name: 'Test User' });
 
       const startTime = Date.now();
-      await client.user.me();
+      await client.users.me();
       const endTime = Date.now();
 
       const responseTime = endTime - startTime;
@@ -73,8 +73,8 @@ describe('SDK Performance Tests', () => {
       // Perform 10 concurrent calls
       const promises = [];
       for (let i = 0; i < 10; i++) {
-        promises.push(client.user.me());
-        promises.push(client.organization.list());
+        promises.push(client.users.me());
+        promises.push(client.organizations.list());
       }
       
       await Promise.all(promises);
@@ -102,7 +102,7 @@ describe('SDK Performance Tests', () => {
         .reply(200, { projects: largeProjectList });
 
       const startTime = Date.now();
-      const result = await client.project.list('org-123');
+      const result = await client.projects.list('org-123');
       const endTime = Date.now();
 
       expect(result.items).toHaveLength(1000);
@@ -122,7 +122,7 @@ describe('SDK Performance Tests', () => {
         .reply(200, largeEnvironmentList);
 
       const startTime = Date.now();
-      const result = await client.environment.list('project-123');
+      const result = await client.environments.list('project-123');
       const endTime = Date.now();
 
       expect(result).toHaveLength(500);
@@ -150,7 +150,7 @@ describe('SDK Performance Tests', () => {
       for (let i = 0; i < 20; i++) {
         const startTime = Date.now();
         try {
-          await client.user.me();
+          await client.users.me();
         } catch (error) {
           // Expected for error cases
         }
