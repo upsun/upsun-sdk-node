@@ -75,6 +75,12 @@ export abstract class TaskBase {
     }
   }
 
+  static checkInvoiceToken(token: string): void {
+    if (!token) {
+      throw new Error('Invoice token is required');
+    }
+  }
+
   static checkOrderId(orderId: string): void {
     if (!orderId) {
       throw new Error('Order ID is required');

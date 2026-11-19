@@ -1,5 +1,6 @@
 import { UpsunClient } from '../../upsun.js';
 import {
+  DeploymentTargetApi,
   ListProjectTeamAccessRequest,
   ListTeamProjectAccessRequest,
   OrganizationProjectsApi,
@@ -11,6 +12,10 @@ import {
   AcceptedResponse,
   Activity,
   CanCreateNewOrgSubscription200Response,
+  DeploymentTarget,
+  DeploymentTargetCollection,
+  DeploymentTargetCreateInput,
+  DeploymentTargetPatch,
   EnvironmentVariableCreateInput,
   Project,
   ProjectCapabilities,
@@ -51,6 +56,7 @@ export class ProjectsTask extends TaskBase {
     private orgPrjApi: OrganizationProjectsApi,
     private subApi: SubscriptionsApi,
     private settingsApi: ProjectSettingsApi,
+    private deploymentTargetApi: DeploymentTargetApi,
   ) {
     super(client);
   }
@@ -175,7 +181,7 @@ export class ProjectsTask extends TaskBase {
    * @throws An error if the project ID is invalid, if the parameters are invalid, or if there is an issue with the API
    * request.
    */
-  async update(projectId: string, params?: UpdateOrgProjectRequest): Promise<Project> {
+  async update(projectId: string, params: UpdateOrgProjectRequest): Promise<Project> {
     TaskBase.checkProjectId(projectId);
 
     const project = await this.prjApi.getProjects({ projectId });
@@ -262,7 +268,7 @@ export class ProjectsTask extends TaskBase {
    * Create an invitation to a project for a specified email address, with the specified role and permissions.
    * @param projectId - The ID of the project to create the invitation for.
    * @param email - The email address to send the invitation to.
-   * @param params - The parameters for the project invitation, including the role to assign to the invitee and any
+   * @param params - (Optional) The parameters for the project invitation, including the role to assign to the invitee and any
    * specific permissions to grant within the project.
    * @return The details of the created project invitation.
    * @throws An error if the project ID is invalid, if the email address is invalid, if the parameters are invalid, or
@@ -398,7 +404,7 @@ export class ProjectsTask extends TaskBase {
   async updateVariable(
     projectId: string,
     variableId: string,
-    params?: EnvironmentVariableCreateInput,
+    params: EnvironmentVariableCreateInput,
   ): Promise<AcceptedResponse> {
     return await this.client.variables.updateProjectVariable(projectId, variableId, params);
   }
@@ -441,63 +447,93 @@ export class ProjectsTask extends TaskBase {
     return await this.client.activities.cancel(projectId, activityId);
   }
 
-  // //TODO(@micka) do we expose it? seems that it's not public endpoint
-  // async createDeployment(
-  //   projectId: string,
-  //   type: DedicatedDeploymentTargetCreateInputTypeEnum,
-  //   name: string,
-  //   enforcedMounts?: object
-  // ): Promise<AcceptedResponse> {
-  //   TaskBase.checkProjectId(projectId);
+  /**
+   * Create a deployment target in a project.
+   * @param projectId - The ID of the project.
+   * @param deploymentTargetCreateInput - The deployment target to create (discriminated by its `type`).
+   * @returns An AcceptedResponse indicating that the creation request has been accepted.
+   * @throws An error if the project ID is invalid, or if there is an issue with the API request.
+   */
+  async createDeployment(
+    projectId: string,
+    deploymentTargetCreateInput: DeploymentTargetCreateInput,
+  ): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
 
-  //   return await this.deploymentTargetApi.createProjectsDeployments({
-  //     projectId,
-  //     deploymentTargetCreateInput: {type, name, enforcedMounts}
-  //   });
-  // }
+    return await this.deploymentTargetApi.createProjectsDeployments({
+      projectId,
+      deploymentTargetCreateInput,
+    });
+  }
 
-  // async deleteDeployment(projectId: string, deploymentId: string): Promise<AcceptedResponse> {
-  //   TaskBase.checkProjectId(projectId);
-  //   TaskBase.checkDeploymentId(deploymentId);
+  /**
+   * Delete a deployment target of a project.
+   * @param projectId - The ID of the project.
+   * @param deploymentId - The ID of the deployment target to delete.
+   * @returns An AcceptedResponse indicating that the deletion request has been accepted.
+   * @throws An error if an ID is invalid, or if there is an issue with the API request.
+   */
+  async deleteDeployment(projectId: string, deploymentId: string): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkDeploymentId(deploymentId);
 
-  //   return await this.deploymentTargetApi.deleteProjectsDeployments({
-  //     projectId,
-  //     deploymentTargetConfigurationId: deploymentId
-  //   });
-  // }
+    return await this.deploymentTargetApi.deleteProjectsDeployments({
+      projectId,
+      deploymentTargetConfigurationId: deploymentId,
+    });
+  }
 
-  // async getDeployment(projectId: string, deploymentId: string): Promise<DeploymentTarget> {
-  //   TaskBase.checkProjectId(projectId);
-  //   TaskBase.checkDeploymentId(deploymentId);
+  /**
+   * Get a deployment target of a project.
+   * @param projectId - The ID of the project.
+   * @param deploymentId - The ID of the deployment target to retrieve.
+   * @returns The details of the deployment target.
+   * @throws An error if an ID is invalid, or if there is an issue with the API request.
+   */
+  async getDeployment(projectId: string, deploymentId: string): Promise<DeploymentTarget> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkDeploymentId(deploymentId);
 
-  //   return await this.deploymentTargetApi.getProjectsDeployments({
-  //     projectId,
-  //     deploymentTargetConfigurationId: deploymentId
-  //    });
-  // }
+    return await this.deploymentTargetApi.getProjectsDeployments({
+      projectId,
+      deploymentTargetConfigurationId: deploymentId,
+    });
+  }
 
-  // async listDeployments(projectId: string): Promise<DeploymentTargetCollection> {
-  //   TaskBase.checkProjectId(projectId);
+  /**
+   * List the deployment targets of a project.
+   * @param projectId - The ID of the project.
+   * @returns The deployment targets of the project.
+   * @throws An error if the project ID is invalid, or if there is an issue with the API request.
+   */
+  async listDeployments(projectId: string): Promise<DeploymentTargetCollection> {
+    TaskBase.checkProjectId(projectId);
 
-  //   return await this.deploymentTargetApi.listProjectsDeployments({ projectId });
-  // }
+    return await this.deploymentTargetApi.listProjectsDeployments({ projectId });
+  }
 
-  // async updateDeployment(
-  //   projectId: string,
-  //   deploymentId: string,
-  //   type: DedicatedDeploymentTargetCreateInputTypeEnum,
-  //   name: string,
-  //   enforcedMounts?: object
-  // ): Promise<AcceptedResponse> {
-  //   TaskBase.checkProjectId(projectId);
-  //   TaskBase.checkDeploymentId(deploymentId);
+  /**
+   * Update a deployment target of a project.
+   * @param projectId - The ID of the project.
+   * @param deploymentId - The ID of the deployment target to update.
+   * @param deploymentTargetPatch - The changes to apply (discriminated by its `type`).
+   * @returns An AcceptedResponse indicating that the update request has been accepted.
+   * @throws An error if an ID is invalid, or if there is an issue with the API request.
+   */
+  async updateDeployment(
+    projectId: string,
+    deploymentId: string,
+    deploymentTargetPatch: DeploymentTargetPatch,
+  ): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkDeploymentId(deploymentId);
 
-  //   return await this.deploymentTargetApi.updateProjectsDeployments({
-  //     projectId,
-  //     deploymentTargetConfigurationId: deploymentId,
-  //     deploymentTargetPatch: { type, name, enforcedMounts }
-  //   });
-  // }
+    return await this.deploymentTargetApi.updateProjectsDeployments({
+      projectId,
+      deploymentTargetConfigurationId: deploymentId,
+      deploymentTargetPatch,
+    });
+  }
 
   /**
    * Add a custom domain to a project. This allows you to associate a custom domain name with the project, which can be
@@ -575,7 +611,7 @@ export class ProjectsTask extends TaskBase {
    * @param projectId - The ID of the project to update the domain in.
    * @param domainId - The ID of the domain to update. This should be a valid identifier for a domain that is associated
    * with the project.
-   * @param params - The new parameters to apply to the domain, such as updated attributes, SSL configuration, or other
+   * @param domainPatch - The new parameters to apply to the domain, such as updated attributes or other
    * settings that you want to modify for the domain.
    * @return An AcceptedResponse indicating that the request to update the domain has been accepted. The client should
    * check the status of the operation to confirm when the domain has been updated and the changes have been applied.
@@ -596,6 +632,8 @@ export class ProjectsTask extends TaskBase {
    * @param projectId - The ID of the project to add the certificate to.
    * @param certificate - The SSL certificate to add to the project. This should be a valid SSL certificate in PEM
    * format.
+   * @param key - The private key of the certificate, in PEM format.
+   * @param params - (Optional) Additional parameters for the certificate creation.
    * @returns An AcceptedResponse indicating that the request to add the certificate has been accepted. The client
    * should check the status of the operation to confirm when the certificate has been added and the changes have been
    * applied.
@@ -666,7 +704,7 @@ export class ProjectsTask extends TaskBase {
   async updateCertificate(
     projectId: string,
     certificateId: string,
-    params?: CertificatePatch,
+    params: CertificatePatch,
   ): Promise<AcceptedResponse> {
     return await this.client.certificates.update(projectId, certificateId, params);
   }
@@ -709,13 +747,11 @@ export class ProjectsTask extends TaskBase {
    * team, along with any relevant permissions. The access details will be defined in the request body, and once the
    * request is accepted, the team will have the specified access to the project.
    * @param projectId - The ID of the project to grant access to.
-   * @param teamId - The ID of the team to grant access for. This should be a valid identifier for a team that is
-   * associated with the project.
-   * @param access - The access details to grant to the team for the project, including the level of access,
-   * permissions, and any relevant metadata.
-   * @return An AcceptedResponse indicating that the request to grant access has been accepted. The client should check
+   * @param access - The access details to grant to teams for the project, including the level of access, permissions,
+   * and any relevant metadata.
+   * @return A promise that resolves when the request to grant access has been accepted. The client should check
    * the status of the request to confirm that the access has been granted.
-   * @throws An error if the project ID or team ID is invalid, if the access details are invalid, or if there is an
+   * @throws An error if the project ID is invalid, if the access details are invalid, or if there is an
    * issue with the API request.
    */
   async grantTeamProjectAccessToProject(
@@ -732,7 +768,7 @@ export class ProjectsTask extends TaskBase {
    * @param teamId - The ID of the team to grant access to.
    * @param access - The access details to grant to the project for the team, including the level of access,
    * permissions, and any relevant metadata.
-   * @return An AcceptedResponse indicating that the request to grant access has been accepted. The client should check
+   * @return A promise that resolves when the request to grant access has been accepted. The client should check
    * the status of the request to confirm that the access has been granted.
    * @throws An error if the team ID is invalid, if the access details are invalid, or if there is an issue with the API
    * request.
@@ -749,7 +785,7 @@ export class ProjectsTask extends TaskBase {
    * project, along with the access details for each team, including the level of access, permissions, and any relevant
    * metadata about their access to the project.
    * @param projectId - The ID of the project to list team access for.
-   * @param params - Optional parameters to filter or paginate the list of team access details.
+   * @param filters - (Optional) Parameters to filter or paginate the list of team access details.
    * @return A list of team access details for all teams that have access to the specified project, including the level
    * of access, permissions, and any relevant metadata.
    * @throws An error if the project ID is invalid, or if there is an issue with the API request.
@@ -766,7 +802,7 @@ export class ProjectsTask extends TaskBase {
    * access to, along with the access details for each project, including the level of access, permissions, and any
    * relevant metadata about their access to the project.
    * @param teamId - The ID of the team to list project access for.
-   * @param params - Optional parameters to filter or paginate the list of project access details.
+   * @param filters - (Optional) Parameters to filter or paginate the list of project access details.
    * @return A list of project access details for all projects that the specified team has access to, including the
    * level of access, permissions, and any relevant metadata.
    * @throws An error if the team ID is invalid, or if there is an issue with the API request.
@@ -785,7 +821,7 @@ export class ProjectsTask extends TaskBase {
    * @param projectId - The ID of the project to revoke access from.
    * @param teamId - The ID of the team to revoke access for. This should be a valid identifier for a team that is
    * associated with the project.
-   * @return An AcceptedResponse indicating that the request to revoke access has been accepted. The client should check
+   * @return A promise that resolves when the request to revoke access has been accepted. The client should check
    * the status of the request to confirm that the access has been revoked.
    * @throws An error if the project ID or team ID is invalid, or if there is an issue with the API request.
    */
@@ -800,7 +836,7 @@ export class ProjectsTask extends TaskBase {
    * @param teamId - The ID of the team to revoke access from.
    * @param projectId - The ID of the project to revoke access for. This should be a valid identifier for a project that
    * is associated with the team.
-   * @return An AcceptedResponse indicating that the request to revoke access has been accepted. The client should check
+   * @return A promise that resolves when the request to revoke access has been accepted. The client should check
    * the status of the request to confirm that the access has been revoked.
    * @throws An error if the team ID or project ID is invalid, or if there is an issue with the API request.
    */
@@ -833,7 +869,7 @@ export class ProjectsTask extends TaskBase {
    * @param projectId - The ID of the project to grant access to.
    * @param access - The access details to grant to users for the project, including the level of access, permissions,
    * and any relevant metadata.
-   * @return An AcceptedResponse indicating that the request to grant access has been accepted. The client should check
+   * @return A promise that resolves when the request to grant access has been accepted. The client should check
    * the status of the request to confirm that the access has been granted.
    * @throws An error if the project ID is invalid, if the access details are invalid, or if there is an issue with the
    * API request.

@@ -22,6 +22,7 @@ describe('RepositoriesTask', () => {
 
     mockSystemInfoApi = {
       getProjectsSystem: jest.fn(),
+      actionProjectsSystemRestart: jest.fn(),
     } as any;
 
     (RepositoryApi as jest.MockedClass<typeof RepositoryApi>).mockImplementation(
@@ -240,6 +241,23 @@ describe('RepositoriesTask', () => {
     it('should handle API error', async () => {
       mockSystemInfoApi.getProjectsSystem.mockRejectedValue(new Error('System unavailable'));
       await expect(repositoriesTask.getGitInfo('proj-1')).rejects.toThrow('System unavailable');
+    });
+  });
+
+  describe('restartGitServer', () => {
+    it('should restart the git server', async () => {
+      const response = { status: 'ok' } as any;
+      mockSystemInfoApi.actionProjectsSystemRestart.mockResolvedValue(response);
+
+      const result = await repositoriesTask.restartGitServer('proj-1');
+      expect(result).toBe(response);
+      expect(mockSystemInfoApi.actionProjectsSystemRestart).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+      });
+    });
+
+    it('should throw when project ID is empty', async () => {
+      await expect(repositoriesTask.restartGitServer('')).rejects.toThrow('Project ID is required');
     });
   });
 });

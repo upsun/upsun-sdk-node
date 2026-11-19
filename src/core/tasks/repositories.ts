@@ -1,5 +1,5 @@
 import { UpsunClient } from '../../upsun.js';
-import { Blob, Commit, Ref, SystemInformation, Tree } from '../../model/index.js';
+import { AcceptedResponse, Blob, Commit, Ref, SystemInformation, Tree } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
 import { RepositoryApi, SystemInformationApi } from '../../index.js';
 
@@ -96,12 +96,17 @@ export class RepositoriesTask extends TaskBase {
     return await this.repositoryApi.getProjectsGitTrees({ projectId, repositoryTreeId });
   }
 
-  //TODO internal? seems that it's not public endpoint
-  // async restartGitServer(projectId: string): Promise<AcceptedResponse> {
-  //   TaskBase.checkProjectId(projectId);
+  /**
+   * Force the Git server of a project to restart.
+   * @param projectId - The ID of the project.
+   * @return An AcceptedResponse indicating that the restart request has been accepted.
+   * @throws An error if the project ID is invalid, or if there is an issue with the API request.
+   */
+  async restartGitServer(projectId: string): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
 
-  //   return await this.systemInfoApi.actionProjectsSystemRestart({ projectId });
-  // }
+    return await this.systemInfoApi.actionProjectsSystemRestart({ projectId });
+  }
 
   /**
    * Get GIT related system information for a project. This method retrieves details about the Git system associated

@@ -5,7 +5,6 @@ export * from './certificates.js';
 export * from './domains.js';
 export * from './environments.js';
 export * from './integrations.js';
-export * from './metrics.js';
 export * from './mounts.js';
 export * from './observability.js';
 export * from './operations.js';

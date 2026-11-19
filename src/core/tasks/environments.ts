@@ -1,5 +1,10 @@
 import { UpsunClient } from '../../upsun.js';
-import { DeploymentApi, EnvironmentApi, EnvironmentTypeApi } from '../../api/index.js';
+import {
+  DeploymentApi,
+  EnvironmentApi,
+  EnvironmentTypeApi,
+  LogsQueryLogKindsEnum,
+} from '../../api/index.js';
 import {
   AcceptedResponse,
   Activity,
@@ -15,6 +20,7 @@ import {
   EnvironmentVariable,
   FilesInner,
   HttpAccessPermissions2,
+  LogsQuery200Response,
   Resources4InitEnum,
   Resources5InitEnum,
   Resources6InitEnum,
@@ -24,7 +30,7 @@ import {
   ServiceRelationshipsValue,
 } from '../../model/index.js';
 import { TaskBase } from './task_base.js';
-import { EnvironmentVariableCreateParams } from '../model.js';
+import { EnvironmentVariableCreateParams, LogsQueryParams } from '../model.js';
 
 export class EnvironmentsTask extends TaskBase {
   constructor(
@@ -75,7 +81,9 @@ export class EnvironmentsTask extends TaskBase {
    * @param title - The title for the new environment. This is a required parameter and must be a non-empty string.
    * @param name - The name for the new environment. This is a required parameter and must be a non-empty string.
    * The name must be unique within the project and can only contain lowercase letters, numbers, and hyphens.
-   * @param cloneParent - Whether to clone the code and data from the parent environment.
+   * @param cloneParent - (Optional) Whether to clone the code and data from the parent environment. Defaults to true.
+   * @param type - (Optional) The type of the new environment. Defaults to `development`.
+   * @param init - (Optional) The resource initialization strategy for the new environment. Defaults to `parent`.
    * @returns An AcceptedResponse indicating that the branch request has been accepted.
    * @throws An error if the project ID or environment ID is invalid, if the title or name is missing or invalid,
    * or if there is an issue with the API request.
@@ -151,7 +159,7 @@ export class EnvironmentsTask extends TaskBase {
   async httpAccess(
     projectId: string,
     environmentId: string,
-    httpAccess?: HttpAccessPermissions2,
+    httpAccess: HttpAccessPermissions2,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -267,12 +275,41 @@ export class EnvironmentsTask extends TaskBase {
     return await this.envApi.listProjectsEnvironments({ projectId: projectId });
   }
 
-  //TODO implement logs streaming?
-  async logs(projectId: string, environmentId: string, appName: string): Promise<never> {
+  /**
+   * Get the log entries of an application: the `access`, `application` and `cron` logs. The deployment logs are part
+   * of the activity log, see `activities.log()`. Only the entries of the given application are returned.
+   * @param projectId - The ID of the project.
+   * @param environmentId - The ID of the environment.
+   * @param appName - The name of the application to get the logs for.
+   * @param params - (Optional) The time range, filters, order and cursor. `from` and `to` default to the last hour,
+   * and `logKinds` to `access`, `application` and `cron`.
+   * @returns One page of log entries.
+   * @throws An error if an ID is empty, or if the API request fails.
+   */
+  async logs(
+    projectId: string,
+    environmentId: string,
+    appName: string,
+    params: Partial<LogsQueryParams> = {},
+  ): Promise<LogsQuery200Response> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
 
-    throw new Error('Not implemented yet');
+    const now = Math.floor(Date.now() / 1000);
+
+    return await this.client.observability.logsQuery(projectId, environmentId, {
+      services: [appName],
+      servicesMode: '1',
+      logKinds: [
+        LogsQueryLogKindsEnum.ACCESS,
+        LogsQueryLogKindsEnum.APPLICATION,
+        LogsQueryLogKindsEnum.CRON,
+      ],
+      logKindsMode: '1',
+      from: now - 3600,
+      to: now,
+      ...params,
+    });
   }
 
   /**
@@ -341,7 +378,7 @@ export class EnvironmentsTask extends TaskBase {
    * Get the relationships of an environment, which include the linked applications or services.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to get relationships for.
-   * @param appId - The ID of the application to get relationships for. This is used to filter the relationships to only
+   * @param applicationId - The ID of the application to get relationships for. This is used to filter the relationships to only
    * include those that are relevant to the specified application.
    * @return The relationships of the environment for the specified application.
    * @throws An error if the project ID or environment ID is invalid, or if there is an issue with the API request.
@@ -387,14 +424,14 @@ export class EnvironmentsTask extends TaskBase {
    * successful or not.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to synchronize.
-   * @param synchronizeCode Whether to synchronize the code from the parent environment. If false, the environment's
-   * code will not be changed during synchronization.
-   * @param rebase Whether to rebase the environment's code on top of the parent environment's code. If false, the
-   * environment's code will not be rebased.
-   * @param synchronizeData Whether to synchronize the data from the parent environment. If false, the environment's
-   * data will not be changed during synchronization.
-   * @param synchronizeResources Whether to synchronize the resources from the parent environment. If false, the
-   * environment's resources will not be changed during synchronization.
+   * @param synchronizeCode - (Optional) Whether to synchronize the code from the parent environment. Defaults to true.
+   * If false, the environment's code will not be changed during synchronization.
+   * @param rebase - (Optional) Whether to rebase the environment's code on top of the parent environment's code.
+   * Defaults to true. If false, the environment's code will not be rebased.
+   * @param synchronizeData - (Optional) Whether to synchronize the data from the parent environment. Defaults to true.
+   * If false, the environment's data will not be changed during synchronization.
+   * @param synchronizeResources - (Optional) Whether to synchronize the resources from the parent environment.
+   * Defaults to true. If false, the environment's resources will not be changed during synchronization.
    * @return An AcceptedResponse indicating that the synchronization request has been accepted.
    * @throws An error if the project ID or environment ID is invalid, or if there is an issue with the API request.
    */
@@ -433,7 +470,7 @@ export class EnvironmentsTask extends TaskBase {
   async update(
     projectId: string,
     environmentId: string,
-    params?: EnvironmentPatch,
+    params: EnvironmentPatch,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);
@@ -441,7 +478,7 @@ export class EnvironmentsTask extends TaskBase {
     return await this.envApi.updateEnvironment({
       projectId,
       environmentId,
-      environmentPatch: params || {},
+      environmentPatch: params,
     });
   }
 
@@ -501,7 +538,7 @@ export class EnvironmentsTask extends TaskBase {
    * The isSafe parameter is a best-effort attempt to create a backup without causing disruption to the environment.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to back up.
-   * @param isSafe - Whether to attempt a safe backup that minimizes disruption to the environment. This is a
+   * @param isSafe - (Optional) Whether to attempt a safe backup that minimizes disruption to the environment. This is a
    * best-effort attempt.
    * @return An AcceptedResponse indicating that the backup request has been accepted.
    * @throws An error if the project ID or environment ID is invalid, or if there is an issue with the API request.
@@ -561,10 +598,10 @@ export class EnvironmentsTask extends TaskBase {
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to restore.
    * @param backupId - The ID of the backup to restore from.
-   * @param restoreCode - Whether to restore the code from the backup. If false, only the data and resources will be
-   * restored, and the environment's code will not be changed.
-   * @param restoreResources - Whether to restore the resources from the backup. If false, only the code and data will
-   * be restored, and the environment's resources will not be changed.
+   * @param restoreCode - (Optional) Whether to restore the code from the backup. Defaults to true. If false, only the
+   * data and resources will be restored, and the environment's code will not be changed.
+   * @param restoreResources - (Optional) Whether to restore the resources from the backup. Defaults to true. If false,
+   * only the code and data will be restored, and the environment's resources will not be changed.
    * @param environmentName - (Optional) The name for the new environment created from the backup. If not provided, the
    * restored environment will keep the same name as before.
    * @param branchFrom - (Optional) The ID of the environment to branch from when restoring. If provided, the restored

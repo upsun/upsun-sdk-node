@@ -21,7 +21,7 @@ export class MountsTask extends TaskBase {
    * with each application.
    * @param projectId - The ID of the project to list mounts for.
    * @param environmentId - The ID of the environment to list mounts for. This defaults to 'main' if not provided.
-   * @param filterType - The type of resource to list mounts for. This can be 'webapps', 'services', or 'workers'. If not
+   * @param filterType - (Optional) The type of resource to list mounts for. This can be 'webapps', 'services', or 'workers'. If not
    * provided, mounts for all resource types will be listed.
    * @return A record where the keys are application names and the values are mount definitions associated with each
    * application. If there are no mounts for the specified project and resource type, an empty record is returned.
@@ -56,10 +56,25 @@ export class MountsTask extends TaskBase {
     return result;
   }
 
+  /**
+   * Download the content of a mount. Not supported.
+   * @param projectId - The ID of the project.
+   * @param mountId - The ID of the mount.
+   * @returns Never; always throws.
+   * @throws An error, as this operation cannot be implemented.
+   */
   async download(projectId: string, mountId: string): Promise<never> {
     throw new Error('Cannot be implemented');
   }
 
+  /**
+   * Upload content to a mount. Not supported.
+   * @param projectId - The ID of the project.
+   * @param mountId - The ID of the mount.
+   * @param params - (Optional) Upload parameters.
+   * @returns Never; always throws.
+   * @throws An error, as this operation cannot be implemented.
+   */
   async upload(projectId: string, mountId: string, params?: []): Promise<never> {
     throw new Error('Cannot be implemented');
   }

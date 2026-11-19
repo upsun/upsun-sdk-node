@@ -172,7 +172,7 @@ describe('TeamsTask', () => {
     });
 
     it('should throw when team ID is empty', async () => {
-      await expect(teamsTask.update('')).rejects.toThrow('Team ID is required');
+      await expect(teamsTask.update('', {})).rejects.toThrow('Team ID is required');
     });
 
     it('should throw when neither label nor projectPermissions is provided', async () => {

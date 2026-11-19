@@ -94,14 +94,14 @@ export class CertificatesTask extends TaskBase {
    * accepted and is being processed.
    * @param projectId - The ID of the project.
    * @param certificateId - The ID of the certificate to update.
-   * @param params - The parameters to update for the certificate.
+   * @param params - The fields to update for the certificate.
    * @returns An AcceptedResponse indicating that the certificate update request has been accepted.
    * @throws An error if the project ID or certificate ID is invalid.
    */
   async update(
     projectId: string,
     certificateId: string,
-    params?: CertificatePatch,
+    params: CertificatePatch,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkCertificateId(certificateId);
@@ -109,7 +109,7 @@ export class CertificatesTask extends TaskBase {
     return await this.certApi.updateProjectsCertificates({
       projectId,
       certificateId,
-      certificatePatch: params || {},
+      certificatePatch: params,
     });
   }
 }
