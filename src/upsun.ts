@@ -40,6 +40,7 @@ import {
   ConnectionsApi,
   DefaultApi,
   DeploymentApi,
+  DeploymentTargetApi,
   DomainManagementApi,
   EnvironmentActivityApi,
   EnvironmentApi,
@@ -162,7 +163,7 @@ export class UpsunClient {
   /**
    * Constructor for the UpsunClient class.
    *
-   * @param config - Configuration object for the Upsun API client.
+   * @param config - (Optional) Configuration object for the Upsun API client. Defaults to `DEFAULT_UPSUN_CONFIG`.
    */
   constructor(config: UpsunConfig = DEFAULT_UPSUN_CONFIG) {
     this.upsunConfig = {
@@ -278,6 +279,7 @@ export class UpsunClient {
       organizationProjectsApi,
       subscriptionsApi,
       projectSettingsApi,
+      new DeploymentTargetApi(this.apiConfig),
     );
     this.regions = new RegionsTask(this, regionsApi);
     this.resources = new ResourcesTask(this, deploymentApi, autoscalingApi);
@@ -370,6 +372,10 @@ export class UpsunClient {
     return await this.auth.exchangeCodeForToken();
   }
 
+  /**
+   * Get the ID of the current user. The ID is fetched once and then cached.
+   * @returns The ID of the current user, or undefined if it cannot be determined.
+   */
   async getUserId(): Promise<string | undefined> {
     if (this.userId == null) {
       this.userId = (await this.users.me()).id;
@@ -378,12 +384,20 @@ export class UpsunClient {
     return this.userId;
   }
 
+  /**
+   * Set a bearer token to use for authenticating API requests.
+   * @param token - The bearer token.
+   */
   setBearerToken(token: string): void {
     this.accessToken = token;
   }
 
   /**
    * Get the access token for authentication.
+   * @param name - (Optional) Currently unused.
+   * @param scopes - (Optional) Currently unused.
+   * @returns The authorization value to send in the `Authorization` header.
+   * @throws An error if neither an API key nor a bearer token is configured.
    */
   public async getToken(name?: string, scopes?: string[]): Promise<string> {
     if (this.auth) {

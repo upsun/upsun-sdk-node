@@ -69,6 +69,7 @@ describe('OrganizationsTask', () => {
 
     mockOrdApi = {
       createAuthorizationCredentials: jest.fn(),
+      downloadInvoiceRaw: jest.fn(),
       getOrgOrder: jest.fn(),
       listOrgOrders: jest.fn(),
     } as any;
@@ -343,10 +344,19 @@ describe('OrganizationsTask', () => {
   });
 
   describe('billing and addons', () => {
-    it('should throw for downloadInvoice not implemented', async () => {
-      await expect(organizationsTask.downloadInvoice('tok')).rejects.toThrow(
-        'Method not implemented.',
+    it('should download an invoice as a blob', async () => {
+      const blob = new Blob(['%PDF']);
+      mockOrdApi.downloadInvoiceRaw.mockResolvedValue({ raw: { blob: async () => blob } } as any);
+
+      await expect(organizationsTask.downloadInvoice('tok')).resolves.toBe(blob);
+      expect(mockOrdApi.downloadInvoiceRaw).toHaveBeenCalledWith({ token: 'tok' });
+    });
+
+    it('should throw when the invoice token is empty', async () => {
+      await expect(organizationsTask.downloadInvoice('')).rejects.toThrow(
+        'Invoice token is required',
       );
+      expect(mockOrdApi.downloadInvoiceRaw).not.toHaveBeenCalled();
     });
 
     it('should apply voucher', async () => {
@@ -364,7 +374,7 @@ describe('OrganizationsTask', () => {
       mockAddOnsApi.updateOrgAddons.mockResolvedValue({ enabled: ['x'] } as any);
 
       await organizationsTask.getAddons('org-1');
-      await organizationsTask.updateAddons('org-1');
+      await organizationsTask.updateAddons('org-1', {});
 
       expect(mockAddOnsApi.getOrgAddons).toHaveBeenCalledWith({ organizationId: 'org-1' });
       expect(mockAddOnsApi.updateOrgAddons).toHaveBeenCalledWith({

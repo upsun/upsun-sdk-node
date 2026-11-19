@@ -1,0 +1,187 @@
+import { UpsunClient } from '../../src/upsun.js';
+import nock from 'nock';
+
+describe('SDK Performance Tests', () => {
+  let client: UpsunClient;
+
+  beforeEach(() => {
+    client = new UpsunClient({ apiKey: 'test-key' } as any);
+  });
+
+  describe('Memory Usage', () => {
+    it('should not leak memory during multiple API calls', async () => {
+      const initialMemory = process.memoryUsage().heapUsed;
+      
+      // Mock multiple API responses
+      for (let i = 0; i < 100; i++) {
+        nock('https://api.upsun.com')
+          .get('/users/me')
+          .reply(200, { id: `user-${i}`, name: `User ${i}` });
+      }
+
+      // Perform multiple API calls
+      const promises = [];
+      for (let i = 0; i < 100; i++) {
+        promises.push(client.user.me());
+      }
+      
+      await Promise.all(promises);
+
+      // Force garbage collection if available
+      if (global.gc) {
+        global.gc();
+      }
+
+      const finalMemory = process.memoryUsage().heapUsed;
+      const memoryIncrease = finalMemory - initialMemory;
+      
+      // Memory increase should be reasonable (less than 50MB for 100 calls)
+      expect(memoryIncrease).toBeLessThan(50 * 1024 * 1024);
+    });
+  });
+
+  describe('Response Time', () => {
+    it('should handle API calls within reasonable time', async () => {
+      nock('https://api.upsun.com')
+        .get('/users/me')
+        .reply(200, { id: 'user-123', name: 'Test User' });
+
+      const startTime = Date.now();
+      await client.user.me();
+      const endTime = Date.now();
+
+      const responseTime = endTime - startTime;
+      
+      // Should complete within 100ms (excluding actual network time)
+      expect(responseTime).toBeLessThan(100);
+    });
+
+    it('should handle concurrent API calls efficiently', async () => {
+      // Mock multiple endpoints
+      nock('https://api.upsun.com')
+        .get('/users/me')
+        .times(10)
+        .reply(200, { id: 'user-123' });
+
+      nock('https://api.upsun.com')
+        .get('/users/user-123/organizations')
+        .times(10)
+        .reply(200, { organizations: [] });
+
+      const startTime = Date.now();
+      
+      // Perform 10 concurrent calls
+      const promises = [];
+      for (let i = 0; i < 10; i++) {
+        promises.push(client.user.me());
+        promises.push(client.organization.list());
+      }
+      
+      await Promise.all(promises);
+      const endTime = Date.now();
+
+      const totalTime = endTime - startTime;
+      
+      // 20 concurrent calls should complete faster than 20 sequential calls
+      expect(totalTime).toBeLessThan(200);
+    });
+  });
+
+  describe('Large Data Handling', () => {
+    it('should handle large API responses efficiently', async () => {
+      // Create a large mock response
+      const largeProjectList = Array.from({ length: 1000 }, (_, i) => ({
+        id: `project-${i}`,
+        name: `Project ${i}`,
+        organization_id: 'org-123',
+        created_at: '2023-01-01T00:00:00Z'
+      }));
+
+      nock('https://api.upsun.com')
+        .get('/organizations/org-123/projects')
+        .reply(200, { projects: largeProjectList });
+
+      const startTime = Date.now();
+      const result = await client.project.list('org-123');
+      const endTime = Date.now();
+
+      expect(result.items).toHaveLength(1000);
+      expect(endTime - startTime).toBeLessThan(50);
+    });
+
+    it('should handle large environment lists efficiently', async () => {
+      const largeEnvironmentList = Array.from({ length: 500 }, (_, i) => ({
+        id: `env-${i}`,
+        name: `environment-${i}`,
+        type: i % 2 === 0 ? 'production' : 'development',
+        status: 'active'
+      }));
+
+      nock('https://api.upsun.com')
+        .get('/projects/project-123/environments')
+        .reply(200, largeEnvironmentList);
+
+      const startTime = Date.now();
+      const result = await client.environment.list('project-123');
+      const endTime = Date.now();
+
+      expect(result).toHaveLength(500);
+      expect(endTime - startTime).toBeLessThan(50);
+    });
+  });
+
+  describe('Error Recovery Performance', () => {
+    it('should handle rapid error recovery without degradation', async () => {
+      // Mock alternating success/failure responses
+      for (let i = 0; i < 20; i++) {
+        if (i % 2 === 0) {
+          nock('https://api.upsun.com')
+            .get('/users/me')
+            .reply(500, { error: 'Internal server error' });
+        } else {
+          nock('https://api.upsun.com')
+            .get('/users/me')
+            .reply(200, { id: 'user-123' });
+        }
+      }
+
+      const times = [];
+      
+      for (let i = 0; i < 20; i++) {
+        const startTime = Date.now();
+        try {
+          await client.user.me();
+        } catch (error) {
+          // Expected for error cases
+        }
+        const endTime = Date.now();
+        times.push(endTime - startTime);
+      }
+
+      // Response times should remain consistent (no degradation)
+      const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
+      const maxTime = Math.max(...times);
+      
+      expect(avgTime).toBeLessThan(10);
+      expect(maxTime).toBeLessThan(20);
+    });
+  });
+
+  describe('Client Instantiation Performance', () => {
+    it('should create client instances quickly', () => {
+      const times = [];
+      
+      for (let i = 0; i < 100; i++) {
+        const startTime = performance.now();
+        new UpsunClient({ apiKey: 'test-key' } as any);
+        const endTime = performance.now();
+        times.push(endTime - startTime);
+      }
+
+      const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
+      
+      // Average instantiation should be under 1ms
+      expect(avgTime).toBeLessThan(1);
+    });
+  });
+});

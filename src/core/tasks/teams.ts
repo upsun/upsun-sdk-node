@@ -39,8 +39,6 @@ export class TeamsTask extends TaskBase {
    * within the specified organization.
    * @param projectPermissions - (Optional) An array of project IDs that the team should have access to. This can be
    * used to specify the projects that the team will have permissions for.
-   * @return Nothing if the team is created successfully. If there is an issue with the provided parameters or if the
-   * API request to create the team fails, an error will be thrown.
    * @throws An error if the organization ID is invalid, if the team name is not provided, or if there is an issue with
    * the API request to create the team.
    */
@@ -96,10 +94,10 @@ export class TeamsTask extends TaskBase {
    * @throws An error if the team ID is invalid, if neither label nor projectPermissions is provided, or if there is an
    * issue with the API request to update the team.
    */
-  async update(teamId: string, params?: UpdateTeamRequest): Promise<void> {
+  async update(teamId: string, params: UpdateTeamRequest): Promise<void> {
     TaskBase.checkTeamId(teamId);
 
-    if (!params?.label && !params?.projectPermissions) {
+    if (!params.label && !params.projectPermissions) {
       throw new Error('At least one of label or projectPermissions is required to update the team');
     }
 
@@ -112,7 +110,7 @@ export class TeamsTask extends TaskBase {
   /**
    * List teams with optional filtering. This method allows you to retrieve a list of teams based on various filter
    * criteria.
-   * @param filters - The filter criteria to apply when listing teams.
+   * @param filters - (Optional) The filter criteria to apply when listing teams.
    * @return A list of teams that match the specified filter criteria. If no teams are found, an empty array is
    * returned.
    * @throws An error if there is an issue with the API request to list the teams.
@@ -125,7 +123,7 @@ export class TeamsTask extends TaskBase {
    * List all teams that a user is a member of, with optional filtering. This will return a list of teams that the
    * specified user is a member of, based on the provided filter criteria.
    * @param userId - The ID of the user to list teams for. This should be a valid user ID that exists within the system.
-   * @param filters - The filter criteria to apply when listing the user's teams.
+   * @param filters - (Optional) The filter criteria to apply when listing the user's teams.
    * @return A list of teams that the specified user is a member of and that match the provided filter criteria.
    * If the user is not a member of any teams or if no teams match the filter criteria, an empty array is returned.
    * @throws An error if the user ID is invalid or if there is an issue with the API request to list the user's teams.
@@ -207,7 +205,7 @@ export class TeamsTask extends TaskBase {
    * team by providing the team ID and optional filter criteria.
    * @param teamId - The ID of the team to list members for. This should be a valid team ID that exists within the
    * system.
-   * @param filters - The filter criteria to apply when listing team members.
+   * @param filters - (Optional) The filter criteria to apply when listing team members.
    * @return A list of team members that match the specified filter criteria for the given team ID. If no members are
    * found, an empty list will be returned.
    * @throws An error if the team ID is invalid or if there is an issue with the API request to list the team members.
@@ -325,7 +323,7 @@ export class TeamsTask extends TaskBase {
    * details for a specific project or team by providing the respective IDs and optional filter criteria.
    * @param projectId - The ID of the project to list team access details for. This should be a valid project ID that
    * exists within the system.
-   * @param filters - The filter criteria to apply when listing team access details for the project.
+   * @param filters - (Optional) The filter criteria to apply when listing team access details for the project.
    * @return A list of team access details for the specified project that match the provided filter criteria. If no team
    * access details are found, an empty list will be returned.
    * @throws An error if the project ID is invalid or if there is an issue with the API request to list team access
@@ -345,7 +343,7 @@ export class TeamsTask extends TaskBase {
    * details for a specific project or team by providing the respective IDs and optional filter criteria.
    * @param teamId - The ID of the team to list project access details for. This should be a valid team ID that exists
    * within the system.
-   * @param filters - The filter criteria to apply when listing project access details for the team.
+   * @param filters - (Optional) The filter criteria to apply when listing project access details for the team.
    * @return A list of team access details for the specified team that match the provided filter criteria. If no team
    * access details are found, an empty list will be returned.
    * @throws An error if the team ID is invalid or if there is an issue with the API request to list project access

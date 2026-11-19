@@ -1,0 +1,194 @@
+import { UpsunClient, UpsunConfig } from '../../src/upsun.js';
+import nock from 'nock';
+
+describe('Integration Tests - Complete Workflows', () => {
+  let client: UpsunClient;
+
+  beforeEach(() => {
+    const config: UpsunConfig = {
+      base_url: 'https://api.upsun.com',
+      auth_url: 'https://auth.upsun.com',
+      apiKey: 'test-api-key',
+      token_endpoint: 'oauth2/token',
+      refresh_endpoint: 'oauth2/token',
+      clientId: 'test-client-id'
+    };
+    client = new UpsunClient(config);
+  });
+
+  describe('Organization and Project Management Workflow', () => {
+    it('should create organization, create project, and manage environments', async () => {
+      // Mock user info
+      const mockUser = { id: 'user-123', name: 'Test User' };
+      nock('https://api.upsun.com')
+        .get('/users/me')
+        .reply(200, mockUser);
+
+      // Step 1: Create organization
+      const mockOrg = {
+        id: 'org-123',
+        name: 'Test Organization',
+        created_at: '2023-01-01T00:00:00Z'
+      };
+      nock('https://api.upsun.com')
+        .post('/organizations', { name: 'Test Organization' })
+        .reply(201, mockOrg);
+
+      const organization = await client.organization.create('Test Organization');
+      expect(organization.id).toBe('org-123');
+
+      // Step 2: Create project
+      const mockProject = {
+        id: 'project-123',
+        name: 'Test Project',
+        organization_id: 'org-123',
+        region: 'eu-west-1',
+        default_branch: 'main'
+      };
+      nock('https://api.upsun.com')
+        .post('/projects', {
+          name: 'Test Project',
+          organization_id: 'org-123',
+          region: 'eu-west-1',
+          default_branch: 'main'
+        })
+        .reply(201, mockProject);
+
+      const project = await client.project.create('org-123', 'eu-west-1', 'Test Project', 'main');
+      expect(project.id).toBe('project-123');
+
+      // Step 3: List environments
+      const mockEnvironments = [
+        { id: 'env-main', name: 'main', type: 'production', status: 'active' }
+      ];
+      nock('https://api.upsun.com')
+        .get('/projects/project-123/environments')
+        .reply(200, mockEnvironments);
+
+      const environments = await client.environment.list('project-123');
+      expect(environments).toHaveLength(1);
+      expect(environments[0].name).toBe('main');
+    });
+
+    it('should handle complete deployment workflow', async () => {
+      const projectId = 'project-123';
+      const environmentName = 'main';
+      const applicationName = 'app';
+
+      // Step 1: Trigger redeploy
+      const mockRedeployActivity = {
+        id: 'activity-deploy-123',
+        type: 'environment.redeploy',
+        state: 'in_progress'
+      };
+      nock('https://api.upsun.com')
+        .post(`/projects/${projectId}/environments/${environmentName}/redeploy`)
+        .reply(200, mockRedeployActivity);
+
+      const deployActivity = await client.environment.redeploy(projectId, environmentName);
+      expect(deployActivity).toBeDefined();
+
+      // Step 2: Monitor activity
+      const mockCompletedActivity = {
+        id: 'activity-deploy-123',
+        type: 'environment.redeploy',
+        state: 'complete',
+        result: 'success'
+      };
+      nock('https://api.upsun.com')
+        .get(`/projects/${projectId}/activities/activity-deploy-123`)
+        .reply(200, mockCompletedActivity);
+
+      const activityStatus = await client.activity.get(projectId, 'activity-deploy-123');
+      expect(activityStatus.state).toBe('complete');
+      expect(activityStatus.result).toBe('success');
+
+      // Step 3: Get environment URLs
+      const mockUrls = {
+        public: 'https://main-abcd123.upsun.app',
+        edge: 'https://edge-main-abcd123.upsun.app'
+      };
+      nock('https://api.upsun.com')
+        .get(`/projects/${projectId}/environments/${environmentName}/urls`)
+        .reply(200, mockUrls);
+
+      const urls = await client.environment.urls(projectId, environmentName);
+      expect(urls).toBeDefined();
+    });
+  });
+
+  describe('Environment Lifecycle Management', () => {
+    it('should create, pause, resume, and delete environment', async () => {
+      const projectId = 'project-123';
+      const environmentName = 'feature-branch';
+
+      // Note: Environment creation would typically happen through git push
+      // Here we simulate the environment already exists
+
+      // Step 1: Pause environment
+      const mockPauseActivity = {
+        id: 'activity-pause-123',
+        type: 'environment.pause',
+        state: 'complete'
+      };
+      nock('https://api.upsun.com')
+        .post(`/projects/${projectId}/environments/${environmentName}/pause`)
+        .reply(200, mockPauseActivity);
+
+      const pauseResult = await client.environment.pause(projectId, environmentName);
+      expect(pauseResult).toBeDefined();
+
+      // Step 2: Resume environment
+      const mockResumeActivity = {
+        id: 'activity-resume-123',
+        type: 'environment.resume',
+        state: 'complete'
+      };
+      nock('https://api.upsun.com')
+        .post(`/projects/${projectId}/environments/${environmentName}/resume`)
+        .reply(200, mockResumeActivity);
+
+      const resumeResult = await client.environment.resume(projectId, environmentName);
+      expect(resumeResult).toBeDefined();
+
+      // Step 3: Delete environment
+      const mockDeleteActivity = {
+        id: 'activity-delete-123',
+        type: 'environment.delete',
+        state: 'complete'
+      };
+      nock('https://api.upsun.com')
+        .delete(`/projects/${projectId}/environments/${environmentName}`)
+        .reply(200, mockDeleteActivity);
+
+      const deleteResult = await client.environment.delete(projectId, environmentName);
+      expect(deleteResult).toBeDefined();
+    });
+  });
+
+  describe('Error Handling Workflows', () => {
+    it('should handle API rate limiting gracefully', async () => {
+      nock('https://api.upsun.com')
+        .get('/users/me')
+        .reply(429, { error: 'Rate limit exceeded' });
+
+      await expect(client.user.me()).rejects.toThrow();
+    });
+
+    it('should handle network timeouts', async () => {
+      nock('https://api.upsun.com')
+        .get('/users/me')
+        .replyWithError('ETIMEDOUT');
+
+      await expect(client.user.me()).rejects.toThrow();
+    });
+
+    it('should handle invalid API responses', async () => {
+      nock('https://api.upsun.com')
+        .get('/users/me')
+        .reply(200, 'invalid json response');
+
+      await expect(client.user.me()).rejects.toThrow();
+    });
+  });
+});

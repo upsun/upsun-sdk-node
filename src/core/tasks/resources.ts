@@ -26,10 +26,11 @@ export class ResourcesTask extends TaskBase {
    * current deployment of an environment.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to get the resource configuration for.
-   * @param type - The type of application to get the resource configuration for. This should be one of 'webapps',
-   * 'services', or 'workers' depending on the type of application you want to retrieve the resources for.
-   * @param app - The name of the application to get the resource configuration for. This should be the name of a
-   * specific application within the specified type.
+   * @param type - (Optional) The type of application to get the resource configuration for. This should be one of 'webapps',
+   * 'services', or 'workers' depending on the type of application you want to retrieve the resources for. Defaults to
+   * 'webapps'.
+   * @param app - (Optional) The name of the application to get the resource configuration for. This should be the name of a
+   * specific application within the specified type. Defaults to 'app'.
    * @return The resource configuration for the specified application in the current deployment of the environment. This
    * includes details such as the profile size, disk space, and instance count for the application. If the application
    * is not found, an empty object is returned.
@@ -61,9 +62,10 @@ export class ResourcesTask extends TaskBase {
    *
    * @param projectId Upsun project ID.
    * @param environmentId Environment slug (e.g., `main`).
-   * @param webapps map of `<appName> => { resources?: { profileSize?: string }, disk?: number, instanceCount?: number }`
-   * @param services map of `<appName> => { resources?: { profileSize?: string }, disk?: number }`
-   * @param workers map of `<appName> => { resources?: { profileSize?: string }, instanceCount?: number }`
+   * @param webapps (Optional) map of `<appName> => { resources?: { profileSize?: string }, disk?: number, instanceCount?: number }`
+   * @param services (Optional) map of `<appName> => { resources?: { profileSize?: string }, disk?: number }`
+   * @param workers (Optional) map of `<appName> => { resources?: { profileSize?: string }, instanceCount?: number }`
+   * @returns An AcceptedResponse indicating that the update request has been accepted.
    *
    * Only include the entries you actually want to change; the API merges the provided settings into the next deployment
    * draft.
@@ -126,7 +128,7 @@ export class ResourcesTask extends TaskBase {
    * addresses that are being autoscaled, and update the authentication settings for the autoscaler services.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to update the autoscaler settings for.
-   * @param params - The new autoscaler settings for the environment.
+   * @param autoscalerSettings - The new autoscaler settings for the environment.
    * @return The updated autoscaler settings for the environment.
    * @throws An error if the project ID or environment ID is invalid, if the parameters are invalid, or if there is an
    * issue with the API request.
@@ -134,7 +136,7 @@ export class ResourcesTask extends TaskBase {
   async updateAutoscalerSettings(
     projectId: string,
     environmentId: string,
-    autoscalerSettings?: AutoscalerSettings,
+    autoscalerSettings: AutoscalerSettings,
   ): Promise<AutoscalerSettings> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkEnvironmentId(environmentId);

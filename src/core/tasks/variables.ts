@@ -104,7 +104,7 @@ export class VariablesTask extends TaskBase {
    * @param projectId The ID of the project that the variable belongs to.
    * @param variableId The ID of the variable to update. This should be a valid variable ID that exists within the
    * project.
-   * @param params Optional parameters for updating the variable, such as a new name, value, or sensitivity status.
+   * @param params Parameters for updating the variable, such as a new name, value, or sensitivity status.
    * If the variable is marked as sensitive, its value will not be returned in API responses for security reasons, but
    * it will be stored securely and can be used in tasks and deployments.
    * @return A promise that resolves to an AcceptedResponse indicating that the variable update request has been
@@ -115,7 +115,7 @@ export class VariablesTask extends TaskBase {
   async updateProjectVariable(
     projectId: string,
     variableId: string,
-    params?: ProjectVariablePatch,
+    params: ProjectVariablePatch,
   ): Promise<AcceptedResponse> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkVariableId(variableId);
@@ -123,7 +123,7 @@ export class VariablesTask extends TaskBase {
     return await this.projVarApi.updateProjectsVariables({
       projectId: projectId,
       projectVariableId: variableId,
-      projectVariablePatch: params || {},
+      projectVariablePatch: params,
     });
   }
 

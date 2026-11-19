@@ -1,0 +1,378 @@
+import { UpsunClient, UpsunConfig, DEFAULT_UPSUN_CONFIG } from '../../src/upsun.js';
+
+describe.skip('UpsunClient - Integration Tests (requires real API key)', () => {
+  let upsun: UpsunClient;
+  const projectId = "3lgb35gy6kcho";
+  const organizationId = "01JJEW911JCD5ACKY5A001GWDD";
+  const environmentId = "master";
+  const userId = "";
+  const activityId = "uqurex6onrshi";
+  const backupId= "goagdd7lwx2twtehurndp6dj54";
+  const certificateId = "a196b9fd818924b95c82a51223609a546a9353ddcb0e469e960c2711c8a69bfa";
+  const domainId = "tld.com";
+
+  const ts: string = Date.now().toString();
+  let organizationId_delete: string;
+  let certificateId_delete: string;
+
+  beforeEach(() => { });
+
+  afterEach(() => {});
+
+  beforeAll(() => {
+    const config: UpsunConfig = {
+      ...DEFAULT_UPSUN_CONFIG,
+      apiKey: process.env.UPSUN_CLI_TOKEN || "UPSUN_CLI_TOKEN is not define !"
+    };
+    upsun = new UpsunClient(config);
+  });
+
+  //COMMENT: Done issue on logs
+  describe.skip('Activity', () => {
+
+    it('cancel (uncancelable)', async () => {
+      //COMMENT: Error on test.
+      try {
+        expect(async () => {
+          const result = await upsun.activity.cancel(projectId, activityId);
+          expect(result).toBeDefined();
+        }).toThrow('Response returned an error code');
+      } catch (error: any) {
+        console.error('Error:', error.message);
+      }
+    });
+
+    it('get', async () => {
+      //COMMENT: with activityId="" (empty) return 200 with empty response !!
+      //COMMENT: Is the ID valid for a limited period of time?
+      try {
+        const result = await upsun.activity.get(projectId, activityId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('list', async () => {
+      //COMMENT: Not id in result... https://platformsh.slack.com/archives/C5FQB4T41/p1749030535077689
+      try {
+        const result = await upsun.activity.list(projectId);
+        expect(result).toBeDefined();
+        expect(result.length).toBeGreaterThan(0);
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('log', async () => {
+      try {
+        const result = await upsun.activity.log(projectId, activityId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+  });
+
+  //COMMENT: Done issue on delete/restore
+  describe('Backup', () => {
+
+    it('create', async () => {
+      try {
+        const result = await upsun.backup.create(projectId, environmentId, false);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it.skip('detete', async () => {
+      try {
+        const result = await upsun.backup.delete(projectId, environmentId, backupId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('get', async () => {
+      try {
+        const result = await upsun.backup.get(projectId, environmentId, backupId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('list', async () => {
+      try {
+        const result = await upsun.backup.list(projectId, environmentId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it.skip('restore', async () => {
+      //TODO: Fix but need more info
+      try {
+        const result = await upsun.backup.restore(projectId, environmentId, backupId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+  });
+
+  //COMMENT: Done issue on 
+  describe('Certificate', () => {
+
+    it('add', async () => {
+      try {
+        const result = await upsun.certificate.add(projectId, "", "");
+        certificateId_delete = ""; //result.id as string; // Bad but quick
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it.skip('delete', async () => {
+      try {
+        const result = await upsun.certificate.delete(projectId, certificateId_delete);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('get', async () => {
+      try {
+        const result = await upsun.certificate.get(projectId, certificateId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('list', async () => {
+      try {
+        const result = await upsun.certificate.list(projectId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+  });
+
+  describe('Domain', () => {
+
+    it('add', async () => {
+      try {
+        const result = await upsun.domain.add(projectId, "tld.com");
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('delete', async () => {
+      try {
+      const result = await upsun.domain.delete(projectId, "tld.com");
+      expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('get', async () => {
+      try {
+      const result = await upsun.domain.get(projectId, "tld.com");
+      expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('list', async () => {
+      try {
+      const result = await upsun.domain.list(projectId);
+      expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('update', async () => {
+      try {
+      const result = await upsun.domain.update(projectId, "tld-updated.com");
+      expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+  });
+
+  describe('Environment', () => {
+
+    it('activate', async () => {
+      const result = await upsun.environment.activate(projectId, "");
+      expect(result).toBeDefined();
+    });
+
+    it('delete', async () => {
+      const result = await upsun.environment.delete(projectId, "");
+      expect(result).toBeDefined();
+    });
+
+    it('info', async () => {
+      const result = await upsun.environment.info(projectId, "");
+      expect(result).toBeDefined();
+    });
+
+    it('logs', async () => {
+      const result = await upsun.environment.logs(projectId, "", "");
+      expect(result).toBeDefined();
+    });
+
+    it('merge', async () => {
+      const result = await upsun.environment.merge(projectId, "");
+      expect(result).toBeDefined();
+    });
+
+    it('pause', async () => {
+      const result = await upsun.environment.pause(projectId, "");
+      expect(result).toBeDefined();
+    });
+
+    it('redeploy', async () => {
+      const result = await upsun.environment.redeploy(projectId, "");
+      expect(result).toBeDefined();
+    });
+
+    it('resume', async () => {
+      const result = await upsun.environment.resume(projectId, "");
+      expect(result).toBeDefined();
+    });
+
+    it('urls', async () => {
+      const result = await upsun.environment.urls(projectId, "");
+      expect(result).toBeDefined();
+    });
+  });
+
+  //COMMENT: Done issue on delete (bad timming)
+  describe('Organization', () => {
+
+    it('create', async () => {
+      try {
+        const result = await upsun.organization.create("Test-Organization-" + ts);
+        organizationId_delete = result.id as string; // Bad but quick
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it.skip('delete', async () => {
+      //COMMENT: if request to early, return 401 Unauthorized
+      try {
+        const result = await upsun.organization.delete(organizationId_delete);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('info', async () => {
+      try {
+        const result = await upsun.organization.info(organizationId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+    
+    it('list', async () => {
+      try {
+        const result = await upsun.organization.list();
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+  });
+
+  describe('Project', () => {
+
+    it('create', async () => {
+      try {
+        const result = await upsun.project.create(organizationId, "eu-3", "Test Project");
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('delete', async () => {
+      try {
+        const result = await upsun.project.delete("");
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+
+    it('info', async () => {
+      try {
+        const result = await upsun.project.info(projectId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+    
+    it('list', async () => {
+      try {
+        const result = await upsun.project.list(organizationId);
+        expect(result).toBeDefined();
+      } catch (error: any) {
+        console.error('Error:', error.response.status, error.response.statusText);
+      }
+    });
+  });
+
+  describe('Route', () => {
+
+    it('get', async () => {
+      const result = await upsun.route.get(projectId, environmentId, "");
+      expect(result).toBeDefined();
+    });
+
+    it('list', async () => {
+      const result = await upsun.route.list(projectId, environmentId);
+      expect(result).toBeDefined();
+    });
+    
+  });
+
+  describe('SSH', () => {
+
+    it('add', async () => {
+      const result = await upsun.ssh.add(userId, "", "test_key");
+      expect(result).toBeDefined();
+    });
+
+    it('delete', async () => {
+      const result = await upsun.ssh.delete(userId, "test_key");
+      expect(result).toBeDefined();
+    });
+
+    it('list', async () => {
+      const result = await upsun.ssh.list(userId);
+      expect(result).toBeDefined();
+    });
+    
+  });
+
+});

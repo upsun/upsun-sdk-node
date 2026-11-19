@@ -173,7 +173,7 @@ export class OrganizationsTask extends TaskBase {
    * updated.
    * @returns The details of the updated organization.
    */
-  async update(organizationId: string, updateOrgRequest?: UpdateOrgRequest): Promise<Organization> {
+  async update(organizationId: string, updateOrgRequest: UpdateOrgRequest): Promise<Organization> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.orgApi.updateOrg({
@@ -290,7 +290,7 @@ export class OrganizationsTask extends TaskBase {
   async updateMember(
     organizationId: string,
     userId: string,
-    permissions?: string[],
+    permissions: string[],
   ): Promise<OrganizationMember> {
     TaskBase.checkOrganizationId(organizationId);
     TaskBase.checkUserId(userId);
@@ -577,7 +577,7 @@ export class OrganizationsTask extends TaskBase {
    * Send MFA reminders to specified users within an organization. This can be used to prompt users to set up or use MFA
    * if MFA enforcement is enabled for the organization and some users have not yet set up MFA or are not using it.
    * @param organizationId - The ID of the organization to send MFA reminders for.
-   * @param userIds - A list of user IDs to send MFA reminders to. These should be users who are members of the
+   * @param userIds - (Optional) A list of user IDs to send MFA reminders to. These should be users who are members of the
    * organization and are expected to use MFA based on the organization's MFA enforcement settings.
    * @throws An error if the organization ID is invalid, if the user IDs are invalid, or if there is an issue with the
    * API request.
@@ -640,25 +640,18 @@ export class OrganizationsTask extends TaskBase {
     });
   }
 
-  //TODO manage binaryResponse (blob?)
   /**
-   * {{#responses}}
-      {{#isBinary}}
-        async {{operationId}}({{params}}): Promise<ArrayBuffer> {
-          const response = await this.request({ ... });
-          return await response.arrayBuffer();
-        }
-      {{/isBinary}}
-      {{^isBinary}}
-        async {{operationId}}({{params}}): Promise<{{returnType}}> {
-          // ...code normal...
-        }
-      {{/isBinary}}
-    {{/responses}}
+   * Download an invoice as a PDF.
+   * @param token - The token of the invoice to download.
+   * @returns The PDF content of the invoice.
+   * @throws An error if the token is invalid, or if there is an issue with the API request.
    */
-  async downloadInvoice(token: string): Promise<string> {
-    throw new Error('Method not implemented.');
-    //return await this.ordApi.downloadInvoice({ token });
+  async downloadInvoice(token: string): Promise<Blob> {
+    TaskBase.checkInvoiceToken(token);
+    // The generated client types this endpoint as void, so read the raw response.
+    const response = await this.ordApi.downloadInvoiceRaw({ token });
+
+    return await response.raw.blob();
   }
 
   /**
@@ -707,12 +700,8 @@ export class OrganizationsTask extends TaskBase {
    * List the orders for a specific organization, with optional filtering by order status, date range, or associated
    * subscription ID. This will return a paginated list of orders matching the specified criteria.
    * @param organizationId - The ID of the organization to list orders for.
-   * @param filterStatus - (Optional) Filter orders by their status, such as "pending", "completed", "canceled", etc.
-   * @param filterStartDate - (Optional) Filter orders by a start date, to get orders created on or after this date.
-   * @param filterEndDate - (Optional) Filter orders by an end date, to get orders created on or before this date.
-   * @param filterSubscriptionId - (Optional) Filter orders by the associated subscription ID, to get orders related to a
-   * specific subscription.
-   * @param page - (Optional) The page number to retrieve for paginated results (default is 1).
+   * @param filters - (Optional) Filters to apply to the list of orders, such as the order status, a start or end date,
+   * the associated subscription ID, or pagination parameters.
    * @return A paginated list of orders for the specified organization that match the provided filters. If no filters
    * are provided, all orders for the organization will be returned.
    * @throws An error if the organization ID is invalid, if the filters are invalid, or if there is an issue with the
@@ -763,7 +752,7 @@ export class OrganizationsTask extends TaskBase {
    * @throws An error if the organization ID is invalid, if the address details are invalid, or if there is an issue
    * with the API request.
    */
-  async updateAddress(organizationId: string, address?: Address): Promise<Address> {
+  async updateAddress(organizationId: string, address: Address): Promise<Address> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.profApi.updateOrgAddress({ organizationId, address });
@@ -779,7 +768,7 @@ export class OrganizationsTask extends TaskBase {
    * @throws An error if the organization ID is invalid, if the profile details are invalid, or if there is an issue
    * with the API request.
    */
-  async updateProfile(organizationId: string, profile?: UpdateOrgProfileRequest): Promise<Profile> {
+  async updateProfile(organizationId: string, profile: UpdateOrgProfileRequest): Promise<Profile> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.profApi.updateOrgProfile({
@@ -890,13 +879,13 @@ export class OrganizationsTask extends TaskBase {
    */
   async updateAddons(
     organizationId: string,
-    addons?: UpdateOrgAddonsRequest,
+    addons: UpdateOrgAddonsRequest,
   ): Promise<OrganizationAddonsObject> {
     TaskBase.checkOrganizationId(organizationId);
 
     return await this.addOnsApi.updateOrgAddons({
       organizationId,
-      updateOrgAddonsRequest: addons || {},
+      updateOrgAddonsRequest: addons,
     });
   }
 }

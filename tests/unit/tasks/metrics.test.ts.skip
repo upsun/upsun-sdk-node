@@ -1,0 +1,39 @@
+import { MetricsTask } from '../../../src/core/tasks/metrics.js';
+import { UpsunClient } from '../../../src/upsun.js';
+
+// Mock the UpsunClient
+jest.mock('../../../src/upsun');
+
+describe('MetricsTask', () => {
+  let metricsTask: MetricsTask;
+  let mockClient: jest.Mocked<UpsunClient>;
+
+  beforeEach(() => {
+    mockClient = {
+      apiConfig: {
+        basePath: 'https://api.upsun.com'
+      }
+    } as any;
+    
+    metricsTask = new MetricsTask(mockClient);
+  });
+
+  describe('get', () => {
+    it('should have get method defined', () => {
+      expect(metricsTask.get).toBeDefined();
+      expect(typeof metricsTask.get).toBe('function');
+    });
+
+    it('should throw method not implemented error', async () => {
+      await expect(metricsTask.get('project-123', 'main', '1h')).rejects.toThrow('Method not implemented');
+    });
+
+    it('should throw method not implemented error for different time periods', async () => {
+      await expect(metricsTask.get('project-123', 'main', '24h')).rejects.toThrow('Method not implemented');
+    });
+
+    it('should throw method not implemented error for non-existent environment', async () => {
+      await expect(metricsTask.get('project-123', 'non-existent', '24h')).rejects.toThrow('Method not implemented');
+    });
+  });
+});

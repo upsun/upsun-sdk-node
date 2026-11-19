@@ -5,6 +5,14 @@ import { TaskBase } from './task_base.js';
 // Si fetch n'est pas disponible nativement, utiliser node-fetch ou globalThis.fetch
 
 export class MetricsTask extends TaskBase {
+  /**
+   * Fetch the metrics of an environment from the project's metrics endpoint.
+   * @param projectId - The ID of the project.
+   * @param env_name - The name of the environment to fetch metrics for.
+   * @param region - The region of the project, used to build the metrics endpoint URL.
+   * @returns The metrics returned by the endpoint, one entry per line of the response.
+   * @throws An error if the request fails.
+   */
   async fetchMetrics(projectId: string, env_name: string, region: string): Promise<Metrics[]> {
     const results: Metrics[] = [];
     const url = `https://metrics-${projectId}.${region}.platformsh.site/v1/metrics/query`;
