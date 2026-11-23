@@ -4,6 +4,12 @@ import dotenv from 'dotenv';
 
 dotenv.config({ quiet: true });
 
+// nock patches shared Node core modules on import; hooks don't run in fully skipped files, so only patch inside beforeAll.
+nock.restore();
+beforeAll(() => {
+  nock.activate();
+});
+
 // Configuration globale pour les tests
 beforeEach(() => {
   // Nettoyer tous les mocks HTTP avant chaque test
@@ -27,7 +33,7 @@ global.beforeEach(() => {
   jest.clearAllMocks();
 });
 
-// nock patches shared Node core modules; unpatch so the next test file in this worker starts clean
+// Unpatch so the next test file in this worker starts clean
 afterAll(() => {
   nock.restore();
 });
