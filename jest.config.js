@@ -2,6 +2,8 @@ export default {
   testEnvironment: 'node',
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  // Fully skipped suite: its unrestored nock patch leaks into other files sharing a worker.
+  testPathIgnorePatterns: ['/node_modules/', '/tests/unit/upsun-dev\\.test\\.ts$'],
   transform: {
     '^.+\\.ts$': [
       '@swc/jest',
