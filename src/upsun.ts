@@ -10,6 +10,7 @@ import {
   ApplicationsTask,
   BackupsTask,
   CertificatesTask,
+  ContinuousProfilingTask,
   DomainsTask,
   EnvironmentsTask,
   MetricsTask,
@@ -134,6 +135,7 @@ export class UpsunClient {
   public applications: ApplicationsTask;
   public backups: BackupsTask;
   public certificates: CertificatesTask;
+  public continuousProfiling: ContinuousProfilingTask;
   public domains: DomainsTask;
   public environments: EnvironmentsTask;
   public integrations: IntegrationsTask;
@@ -242,6 +244,7 @@ export class UpsunClient {
     this.applications = new ApplicationsTask(this);
     this.backups = new BackupsTask(this, environmentBackupsApi);
     this.certificates = new CertificatesTask(this, certManagementApi);
+    this.continuousProfiling = new ContinuousProfilingTask(this);
     this.domains = new DomainsTask(this, domainManagementApi);
     this.environments = new EnvironmentsTask(
       this,

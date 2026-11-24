@@ -100,7 +100,8 @@ export class ObservabilityTask extends TaskBase {
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
    * @param params - The time range (`from` and `to`, required), the filters, the order and the cursor.
-   * @return One page of log entries.
+   * @return One page of log entries. When `hasMoreResults` is true, pass `cursor` as the `cursor` param to get the
+   * next page.
    * @throws An error if an ID is empty, or if the API request fails.
    */
   async logsQuery(
@@ -256,6 +257,7 @@ export class ObservabilityTask extends TaskBase {
    * @param environmentId - The ID of the environment.
    * @param params - The time range (`from` and `to`, required), the metrics to get (`keys`, required) and the
    * filters.
+   * A list filter without its `<dim>Mode: '1'` excludes the listed values.
    * @return The server monitoring overview.
    * @throws An error if an ID is empty, or if the API request fails.
    */
@@ -279,6 +281,7 @@ export class ObservabilityTask extends TaskBase {
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
    * @param params - The time range (`from` and `to`, required) and the filters.
+   * A list filter without its `<dim>Mode: '1'` excludes the listed values.
    * @return The server cache metrics.
    * @throws An error if an ID is empty, or if the API request fails.
    */
@@ -302,6 +305,7 @@ export class ObservabilityTask extends TaskBase {
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
    * @param params - The time range (`from` and `to`, required) and the filters.
+   * A list filter without its `<dim>Mode: '1'` excludes the listed values.
    * @return The top spans.
    * @throws An error if an ID is empty, or if the API request fails.
    */
@@ -325,7 +329,10 @@ export class ObservabilityTask extends TaskBase {
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
    * @param params - The time range (`from` and `to`, required) and the filters.
-   * @return The server transaction breakdown.
+   * A list filter without its `<dim>Mode: '1'` excludes the listed values.
+   * @return The server transaction breakdown. Pass a `transactions.data[].transaction` as the `transaction` param of
+   * `listProfiles` and `profileRecommendations`, or in the `transactions` param of `serverTopSpans` with
+   * `transactionsMode: '1'`.
    * @throws An error if an ID is empty, or if the API request fails.
    */
   async serverTransactionsBreakdown(
@@ -348,7 +355,9 @@ export class ObservabilityTask extends TaskBase {
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment.
    * @param params - (Optional) The filters, the sort and the pagination.
-   * @return One page of profiling results.
+   * @return One page of profiling results. Pass a `profiles[].uuid` to `getProfile`, `profileGraph`,
+   * `profileTimeline` and `profileSubprofiles`. `profiles[].agent.envUuid` is the Blackfire environment UUID;
+   * the top-level `agent` is the Blackfire agent UUID, not the environment UUID.
    * @throws An error if an ID is empty, or if the API request fails.
    */
   async listProfiles(

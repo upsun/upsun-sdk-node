@@ -662,4 +662,83 @@ describe('ObservabilityTask', () => {
       expect(fetchApi).not.toHaveBeenCalled();
     });
   });
+
+  describe('navigation data', () => {
+    // The next call needs these fields: the generated models must keep them after FromJSON.
+    it('should keep the transaction name and its links in the transaction breakdown', async () => {
+      responseBody = {
+        transactions: {
+          data: [
+            {
+              transaction: 'App\\Controller\\Cart::show',
+              impact: 12.5,
+              top_hit: true,
+              _links: {
+                profiles: { href: 'https://api.example.com/profiles?transaction=x' },
+                top_spans: { href: 'https://api.example.com/top-spans' },
+                recommendations: { href: 'https://api.example.com/recommendations' },
+              },
+            },
+          ],
+        },
+      };
+
+      const result = await task.serverTransactionsBreakdown('proj-1', 'main', { from: 1, to: 2 });
+
+      const row = result.transactions.data[0];
+      expect(row.transaction).toBe('App\\Controller\\Cart::show');
+      expect(row.links.profiles.href).toBe('https://api.example.com/profiles?transaction=x');
+    });
+
+    it('should keep the profile UUID and the Blackfire environment UUID in the profile list', async () => {
+      responseBody = {
+        _agent: 'agent-uuid',
+        profiles: [
+          {
+            uuid: 'profile-uuid',
+            name: 'GET /cart',
+            agent: { uuid: 'agent-uuid', env_uuid: 'env-uuid', is_env: true },
+            _links: {
+              graph_url: { href: 'https://blackfire.io/envs/env-uuid/profiles/profile-uuid/graph' },
+              api_graph: { href: 'https://api.example.com/profiles/profile-uuid/graph' },
+              api_profile: { href: 'https://api.example.com/profiles/profile-uuid/profile' },
+              api_subprofiles: {
+                href: 'https://api.example.com/profiles/profile-uuid/subprofiles',
+              },
+            },
+          },
+        ],
+        page: 1,
+        pages: 3,
+        total: 25,
+      };
+
+      const result = await task.listProfiles('proj-1', 'main');
+
+      expect(result.agent).toBe('agent-uuid');
+      expect(result.pages).toBe(3);
+      expect(result.profiles[0].uuid).toBe('profile-uuid');
+      expect(result.profiles[0].agent?.envUuid).toBe('env-uuid');
+      expect(result.profiles[0].links.graphUrl?.href).toBe(
+        'https://blackfire.io/envs/env-uuid/profiles/profile-uuid/graph',
+      );
+    });
+
+    it('should keep the cursor of the next log page', async () => {
+      responseBody = {
+        _cursor: 'next-page',
+        _has_more_results: true,
+        _links: {
+          self: { href: 'https://api.example.com/self' },
+          overview: { href: 'https://api.example.com/o' },
+        },
+        data: [],
+      };
+
+      const result = await task.logsQuery('proj-1', 'main', { from: 1, to: 2 });
+
+      expect(result.hasMoreResults).toBe(true);
+      expect(result.cursor).toBe('next-page');
+    });
+  });
 });

@@ -53,6 +53,25 @@ const projects = await upsunClient.projects.list('<organizationId>');
 const result = await upsunClient.environments.redeploy('<projectId>', '<environmentId>');
 ```
 
+### Example: Get a continuous profiling flame graph
+
+```ts
+const { applications } = await upsunClient.continuousProfiling.listApplications(
+  '<projectId>',
+  '<environmentId>',
+);
+const app = Object.keys(applications)[0];
+const merged = await upsunClient.continuousProfiling.merge('<projectId>', '<environmentId>', app, {
+  profileType: 'cpu',
+  out: 'flamebearerv2',
+});
+if (merged.format === 'flamebearerv2') {
+  console.log(merged.data.flamebearer.names);
+}
+```
+
+`merge` returns a result tagged by `format`: `pprof` (bytes), `dot` (text) or `flamebearerv2` (parsed model).
+
 ---
 
 ## Development

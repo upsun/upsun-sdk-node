@@ -2,6 +2,7 @@ export * from './activities.js';
 export * from './applications.js';
 export * from './backups.js';
 export * from './certificates.js';
+export * from './continuous-profiling.js';
 export * from './domains.js';
 export * from './environments.js';
 export * from './integrations.js';

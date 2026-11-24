@@ -5,9 +5,13 @@ import {
   BlackfireServerGlobalRequest,
   BlackfireServerTopSpansRequest,
   BlackfireServerTransactionsBreakdownRequest,
+  GetApplicationFilterRequest,
+  GetApplicationMergeRequest,
+  GetApplicationTimelineRequest,
   HttpMetricsTimelineIpsRequest,
   HttpMetricsTimelineUrlsRequest,
   HttpMetricsTimelineUserAgentsRequest,
+  ListApplicationsRequest,
   ListOrgInvitesRequest,
   ListOrgMembersRequest,
   ListOrgOrdersRequest,
@@ -36,6 +40,7 @@ import {
   CreateOrgSubscriptionRequest,
   CreateProjectInviteRequest,
   EnvironmentVariableCreateInput,
+  GetApplicationMerge200Response,
   IntegrationCreateCreateInput,
   IntegrationPatch,
   ProjectVariableCreateInput,
@@ -143,3 +148,20 @@ export type BlackfireProfilesRecommendationsParams = Omit<
   BlackfireProfilesRecommendationsRequest,
   'projectId' | 'environmentId'
 >;
+export type ContinuousProfilingListParams = Omit<ListApplicationsRequest, 'projectId' | 'envId'>;
+export type ContinuousProfilingTimelineParams = Omit<
+  GetApplicationTimelineRequest,
+  'projectId' | 'envId' | 'app'
+>;
+export type ContinuousProfilingFilterParams = Omit<
+  GetApplicationFilterRequest,
+  'projectId' | 'envId' | 'app'
+>;
+export type ContinuousProfilingMergeParams = Omit<
+  GetApplicationMergeRequest,
+  'projectId' | 'envId' | 'app'
+>;
+export type ContinuousProfilingMergeResult =
+  | { format: 'pprof'; data: Uint8Array; filename?: string }
+  | { format: 'dot'; text: string }
+  | { format: 'flamebearerv2'; data: GetApplicationMerge200Response };
