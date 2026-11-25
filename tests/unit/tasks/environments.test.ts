@@ -72,6 +72,7 @@ describe('EnvironmentsTask', () => {
       pauseEnvironment: jest.fn(),
       resumeEnvironment: jest.fn(),
       redeployEnvironment: jest.fn(),
+      maintenanceRedeployEnvironment: jest.fn(),
       synchronizeEnvironment: jest.fn(),
       updateEnvironment: jest.fn(),
     } as any;
@@ -469,6 +470,46 @@ describe('EnvironmentsTask', () => {
         projectId: 'project-123',
         environmentId: 'main',
       });
+    });
+  });
+
+  describe('maintenanceRedeploy', () => {
+    it('should send safe false by default', async () => {
+      const mockResponse = { status: 'ok' } as any;
+      mockEnvironmentApi.maintenanceRedeployEnvironment.mockResolvedValue(mockResponse);
+
+      const result = await environmentTask.maintenanceRedeploy('project-123', 'main');
+      expect(result).toBe(mockResponse);
+      expect(mockEnvironmentApi.maintenanceRedeployEnvironment).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+        environmentMaintenanceRedeployInput: { safe: false },
+      });
+    });
+
+    it('should send the given safe flag', async () => {
+      mockEnvironmentApi.maintenanceRedeployEnvironment.mockResolvedValue({} as any);
+
+      await environmentTask.maintenanceRedeploy('project-123', 'main', true);
+      expect(mockEnvironmentApi.maintenanceRedeployEnvironment).toHaveBeenCalledWith({
+        projectId: 'project-123',
+        environmentId: 'main',
+        environmentMaintenanceRedeployInput: { safe: true },
+      });
+    });
+
+    it('should throw when project ID is empty', async () => {
+      await expect(environmentTask.maintenanceRedeploy('', 'main')).rejects.toThrow(
+        'Project ID is required',
+      );
+      expect(mockEnvironmentApi.maintenanceRedeployEnvironment).not.toHaveBeenCalled();
+    });
+
+    it('should throw when environment ID is empty', async () => {
+      await expect(environmentTask.maintenanceRedeploy('project-123', '')).rejects.toThrow(
+        'Environment ID is required',
+      );
+      expect(mockEnvironmentApi.maintenanceRedeployEnvironment).not.toHaveBeenCalled();
     });
   });
 

@@ -22,6 +22,7 @@ describe('ProjectsTask', () => {
   beforeEach(() => {
     mockProjectApi = {
       actionProjectsClearBuildCache: jest.fn(),
+      maintenanceRedeployProject: jest.fn(),
       getProjects: jest.fn(),
       getProjectsCapabilities: jest.fn(),
     } as any;
@@ -309,6 +310,35 @@ describe('ProjectsTask', () => {
 
     it('should throw when project ID is empty', async () => {
       await expect(projectsTask.clearBuildCache('')).rejects.toThrow('Project ID is required');
+    });
+  });
+
+  describe('maintenanceRedeploy', () => {
+    it('should send safe false by default', async () => {
+      const mockResponse = { status: 'ok' } as any;
+      mockProjectApi.maintenanceRedeployProject.mockResolvedValue(mockResponse);
+
+      const result = await projectsTask.maintenanceRedeploy('proj-1');
+      expect(result).toBe(mockResponse);
+      expect(mockProjectApi.maintenanceRedeployProject).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+        environmentMaintenanceRedeployInput: { safe: false },
+      });
+    });
+
+    it('should send the given safe flag', async () => {
+      mockProjectApi.maintenanceRedeployProject.mockResolvedValue({} as any);
+
+      await projectsTask.maintenanceRedeploy('proj-1', true);
+      expect(mockProjectApi.maintenanceRedeployProject).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+        environmentMaintenanceRedeployInput: { safe: true },
+      });
+    });
+
+    it('should throw when project ID is empty', async () => {
+      await expect(projectsTask.maintenanceRedeploy('')).rejects.toThrow('Project ID is required');
+      expect(mockProjectApi.maintenanceRedeployProject).not.toHaveBeenCalled();
     });
   });
 

@@ -70,6 +70,23 @@ export class ProjectsTask extends TaskBase {
   }
 
   /**
+   * Schedule a maintenance redeploy of all the eligible environments of a project.
+   * @param projectId - The ID of the project.
+   * @param safe - (Optional) Redeploy even if the last state update was not successful, and always upgrade the
+   * service images. Defaults to false.
+   * @return An AcceptedResponse indicating that the maintenance redeploy request has been accepted.
+   * @throws An error if the project ID is invalid, or if there is an issue with the API request.
+   */
+  async maintenanceRedeploy(projectId: string, safe: boolean = false): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+
+    return await this.prjApi.maintenanceRedeployProject({
+      projectId,
+      environmentMaintenanceRedeployInput: { safe },
+    });
+  }
+
+  /**
    * Create a new project subscription under the specified organization with the given parameters.
    * @param organizationId - The ID of the organization to create the project subscription under.
    * @param projectRegion - The region where the project will be created. This should be a valid region identifier
