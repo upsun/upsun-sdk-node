@@ -573,17 +573,6 @@ describe('EnvironmentsTask', () => {
         environmentPatch: params,
       });
     });
-
-    it('should send empty patch when params are omitted', async () => {
-      mockEnvironmentApi.updateEnvironment.mockResolvedValue({} as any);
-
-      await environmentTask.update('project-123', 'main');
-      expect(mockEnvironmentApi.updateEnvironment).toHaveBeenCalledWith({
-        projectId: 'project-123',
-        environmentId: 'main',
-        environmentPatch: {},
-      });
-    });
   });
 
   describe('getType', () => {
@@ -878,10 +867,35 @@ describe('EnvironmentsTask', () => {
   });
 
   describe('logs/relationships', () => {
-    it('should throw not implemented for logs', async () => {
-      await expect(environmentTask.logs('project-123', 'main', 'app')).rejects.toThrow(
-        'Not implemented yet',
-      );
+    it('should query the logs of an application', async () => {
+      const response = { data: [] } as any;
+      const logsQuery = jest.fn<Promise<any>, any[]>().mockResolvedValue(response);
+      mockClient.observability = { logsQuery } as any;
+
+      const result = await environmentTask.logs('project-123', 'main', 'app', {
+        from: 10,
+        to: 20,
+      });
+
+      expect(result).toBe(response);
+      expect(logsQuery).toHaveBeenCalledWith('project-123', 'main', {
+        services: ['app'],
+        servicesMode: '1',
+        logKinds: ['access', 'application', 'cron'],
+        logKindsMode: '1',
+        from: 10,
+        to: 20,
+      });
+    });
+
+    it('should default the logs time range to the last hour', async () => {
+      const logsQuery = jest.fn<Promise<any>, any[]>().mockResolvedValue({});
+      mockClient.observability = { logsQuery } as any;
+
+      await environmentTask.logs('project-123', 'main', 'app');
+
+      const params = logsQuery.mock.calls[0][2];
+      expect(params.to - params.from).toBe(3600);
     });
 
     it('should return relationships for an app', async () => {

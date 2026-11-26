@@ -164,7 +164,7 @@ describe('VariablesTask', () => {
 
   describe('updateProjectVariable', () => {
     it('should require variableId', async () => {
-      await expect(variablesTask.updateProjectVariable('prj-1', '')).rejects.toThrow(
+      await expect(variablesTask.updateProjectVariable('prj-1', '', {})).rejects.toThrow(
         'Variable ID is required',
       );
     });
@@ -198,18 +198,6 @@ describe('VariablesTask', () => {
           visibleRuntime: true,
           applicationScope: ['app'],
         },
-      });
-    });
-
-    it('should send empty patch when params are omitted', async () => {
-      const response = { ok: true } as any;
-      mockProjVarApi.updateProjectsVariables.mockResolvedValue(response);
-
-      await variablesTask.updateProjectVariable('prj-1', 'var-1');
-      expect(mockProjVarApi.updateProjectsVariables).toHaveBeenCalledWith({
-        projectId: 'prj-1',
-        projectVariableId: 'var-1',
-        projectVariablePatch: {},
       });
     });
   });

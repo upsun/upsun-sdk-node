@@ -19,6 +19,9 @@ export class UsersInvitationsTask extends TaskBase {
 
   /**
    * Cancel an organization invitation.
+   * @param organizationId - The ID of the organization to cancel the invitation for.
+   * @param invitationId - The ID of the invitation to cancel.
+   * @throws An error if the organization ID or invitation ID is invalid, or if there is an issue with the API request.
    */
   async cancelOrgInvite(organizationId: string, invitationId: string): Promise<void> {
     TaskBase.checkOrganizationId(organizationId);
@@ -33,7 +36,7 @@ export class UsersInvitationsTask extends TaskBase {
    * @param email - The email address to send the invitation to.
    * @param permissions - The permissions to grant to the invitee. This should be an array of permissions that specify
    * what actions the invitee will be allowed to perform within the organization (e.g., "read", "write", "admin").
-   * @param force - Whether to force the creation of the invitation even if an invitation already exists for the
+   * @param force - (Optional) Whether to force the creation of the invitation even if an invitation already exists for the
    * specified email address. If true, a new invitation will be created and sent to the email address, replacing any
    * existing invitation. If false or not provided, an error will be thrown if an invitation already exists for the
    * email address.
@@ -96,7 +99,7 @@ export class UsersInvitationsTask extends TaskBase {
    * Create a project invitation for a specified email address, with the specified role and permissions.
    * @param projectId - The ID of the project to create the invitation for.
    * @param email - The email address to send the invitation to.
-   * @param params - The parameters for the project invitation, including the role to assign to the invitee and any
+   * @param params - (Optional) The parameters for the project invitation, including the role to assign to the invitee and any
    * specific permissions to grant within the project.
    * @return The details of the created project invitation.
    * @throws An error if the project ID is invalid, if the email address is invalid, if the parameters are invalid, or

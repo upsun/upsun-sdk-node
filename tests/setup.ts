@@ -2,9 +2,13 @@ import nock from 'nock';
 
 import dotenv from 'dotenv';
 
-const dotenvLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
-dotenv.config();
-dotenvLogSpy.mockRestore();
+dotenv.config({ quiet: true });
+
+// nock patches shared Node core modules on import; hooks don't run in fully skipped files, so only patch inside beforeAll.
+nock.restore();
+beforeAll(() => {
+  nock.activate();
+});
 
 // Configuration globale pour les tests
 beforeEach(() => {
@@ -29,7 +33,7 @@ global.beforeEach(() => {
   jest.clearAllMocks();
 });
 
-// nock patches shared Node core modules; unpatch so the next test file in this worker starts clean
+// Unpatch so the next test file in this worker starts clean
 afterAll(() => {
   nock.restore();
 });

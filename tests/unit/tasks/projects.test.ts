@@ -1,6 +1,7 @@
 import { ProjectsTask } from '../../../src/core/tasks/projects.js';
 import { UpsunClient } from '../../../src/upsun.js';
 import {
+  DeploymentTargetApi,
   ProjectApi,
   OrganizationProjectsApi,
   SubscriptionsApi,
@@ -18,6 +19,7 @@ describe('ProjectsTask', () => {
   let mockOrgProjectsApi: jest.Mocked<OrganizationProjectsApi>;
   let mockSubscriptionsApi: jest.Mocked<SubscriptionsApi>;
   let mockSettingsApi: jest.Mocked<ProjectSettingsApi>;
+  let mockDeploymentTargetApi: jest.Mocked<DeploymentTargetApi>;
 
   beforeEach(() => {
     mockProjectApi = {
@@ -42,6 +44,14 @@ describe('ProjectsTask', () => {
     mockSettingsApi = {
       getProjectsSettings: jest.fn(),
       updateProjectsSettings: jest.fn(),
+    } as any;
+
+    mockDeploymentTargetApi = {
+      createProjectsDeployments: jest.fn(),
+      deleteProjectsDeployments: jest.fn(),
+      getProjectsDeployments: jest.fn(),
+      listProjectsDeployments: jest.fn(),
+      updateProjectsDeployments: jest.fn(),
     } as any;
 
     (ProjectApi as jest.MockedClass<typeof ProjectApi>).mockImplementation(() => mockProjectApi);
@@ -117,6 +127,7 @@ describe('ProjectsTask', () => {
       mockOrgProjectsApi,
       mockSubscriptionsApi,
       mockSettingsApi,
+      mockDeploymentTargetApi,
     );
   });
 
@@ -649,6 +660,69 @@ describe('ProjectsTask', () => {
         page: 2,
       });
       expect(mockClient.environments.list).toHaveBeenCalledWith('proj-1');
+    });
+  });
+
+  describe('deployment targets', () => {
+    it('should create a deployment target', async () => {
+      const input = { type: 'dedicated', name: 'target' } as any;
+      mockDeploymentTargetApi.createProjectsDeployments.mockResolvedValue({ ok: true } as any);
+
+      await projectsTask.createDeployment('proj-1', input);
+      expect(mockDeploymentTargetApi.createProjectsDeployments).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+        deploymentTargetCreateInput: input,
+      });
+    });
+
+    it('should delete a deployment target', async () => {
+      mockDeploymentTargetApi.deleteProjectsDeployments.mockResolvedValue({ ok: true } as any);
+
+      await projectsTask.deleteDeployment('proj-1', 'dep-1');
+      expect(mockDeploymentTargetApi.deleteProjectsDeployments).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+        deploymentTargetConfigurationId: 'dep-1',
+      });
+    });
+
+    it('should get a deployment target', async () => {
+      const target = { id: 'dep-1' } as any;
+      mockDeploymentTargetApi.getProjectsDeployments.mockResolvedValue(target);
+
+      await expect(projectsTask.getDeployment('proj-1', 'dep-1')).resolves.toBe(target);
+      expect(mockDeploymentTargetApi.getProjectsDeployments).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+        deploymentTargetConfigurationId: 'dep-1',
+      });
+    });
+
+    it('should list deployment targets', async () => {
+      const targets = [{ id: 'dep-1' }] as any;
+      mockDeploymentTargetApi.listProjectsDeployments.mockResolvedValue(targets);
+
+      await expect(projectsTask.listDeployments('proj-1')).resolves.toBe(targets);
+      expect(mockDeploymentTargetApi.listProjectsDeployments).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+      });
+    });
+
+    it('should update a deployment target', async () => {
+      const patch = { type: 'dedicated', name: 'renamed' } as any;
+      mockDeploymentTargetApi.updateProjectsDeployments.mockResolvedValue({ ok: true } as any);
+
+      await projectsTask.updateDeployment('proj-1', 'dep-1', patch);
+      expect(mockDeploymentTargetApi.updateProjectsDeployments).toHaveBeenCalledWith({
+        projectId: 'proj-1',
+        deploymentTargetConfigurationId: 'dep-1',
+        deploymentTargetPatch: patch,
+      });
+    });
+
+    it('should validate IDs', async () => {
+      await expect(projectsTask.listDeployments('')).rejects.toThrow('Project ID is required');
+      await expect(projectsTask.getDeployment('proj-1', '')).rejects.toThrow(
+        'Deployment ID is required',
+      );
     });
   });
 });

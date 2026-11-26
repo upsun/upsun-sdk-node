@@ -252,12 +252,12 @@ describe('SupportTicketsTask', () => {
     });
 
     it('should throw when ticket ID is empty', async () => {
-      await expect(supportTicketsTask.update('')).rejects.toThrow('Ticket ID is required');
+      await expect(supportTicketsTask.update('', {})).rejects.toThrow('Ticket ID is required');
     });
 
     it('should handle API error', async () => {
       mockSupportApi.updateTicket.mockRejectedValue(new Error('Not found'));
-      await expect(supportTicketsTask.update('tkt-1')).rejects.toThrow('Not found');
+      await expect(supportTicketsTask.update('tkt-1', {})).rejects.toThrow('Not found');
     });
   });
 });

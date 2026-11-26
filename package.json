@@ -46,7 +46,7 @@
     "typescript": "^7.0.2"
   },
   "dependencies": {
-    "dotenv": "^17.3"
+    "dotenv": "^18.0.10"
   },
   "scripts": {
     "help": "bash ./scripts/help.sh",
@@ -64,7 +64,7 @@
     "test:coverage:ci": "jest --coverage --ci",
     "test:unit": "jest --testPathPatterns=unit",
     "test:integration": "jest --testPathPatterns=integration",
-    "spec:clean": "rm -Rf src/api/* ; rm -Rf src/model/* ; rm -Rf src/core/runtime.ts",
+    "spec:clean": "rm -Rf src/api ; rm -Rf src/model ; rm -Rf src/core/runtime.ts",
     "spec:dl": "wget -O ./schema/openapispec-upsun.json 'https://meta.upsun.com/openapi-spec?sdks=true'",
     "spec:patch": "sed -i 's/HTTP access permissions/Http access permissions/g' ./schema/openapispec-upsun.json",
     "spec:generate": "openapi-generator-cli generate -c templates/config.yaml --additional-properties=sdkVersion=$npm_package_version",

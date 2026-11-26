@@ -1,4 +1,8 @@
-import { EnvironmentActivityApi, ProjectActivityApi } from '../../api/index.js';
+import {
+  EnvironmentActivityApi,
+  LogsQueryLogKindsEnum,
+  ProjectActivityApi,
+} from '../../api/index.js';
 import { AcceptedResponse, Activity } from '../../model/index.js';
 import { UpsunClient } from '../../upsun.js';
 import { TaskBase } from './task_base.js';
@@ -82,18 +86,51 @@ export class ActivitiesTask extends TaskBase {
   }
 
   /**
-   * Get the log output for an activity.
-   * @todo clarify this message as the activity.logs contains "Log for this activity is available in the streaming
-   * logs endpoint"
-   * @see https://linear.app/platformsh/issue/GIT-826/document-git-activity-log-endpoint-in-api-specs
+   * Get the log of an activity (the deployment process), read from the observability logs of the `deployment` and
+   * `platform` kinds between the start and the end of the activity (the `Activity.log` field is deprecated).
+   * For the application logs, use `environments.logs()`.
    * @param projectId - The ID of the project.
-   * @param activityId - The ID of the activity to retrieve logs for.
-   * @returns The log output for the specified activity.
+   * @param activityId - The ID of the activity to retrieve the log for.
+   * @param environmentId - (Optional) The ID of the environment. Defaults to the first environment of the activity.
+   * @returns The log lines of the activity, oldest first, one per line.
+   * @throws An error if an ID is invalid, if the activity is not linked to an environment or has not started, or if
+   * the API request fails.
    */
-  async log(projectId: string, activityId: string): Promise<void> {
+  async log(projectId: string, activityId: string, environmentId?: string): Promise<string> {
     TaskBase.checkProjectId(projectId);
     TaskBase.checkActivityId(activityId);
+    if (environmentId) {
+      TaskBase.checkEnvironmentId(environmentId);
+    }
 
-    throw new Error('Not implemented, prefere use get() (contains log)');
+    const activity = await this.get(projectId, activityId, environmentId);
+
+    const targetEnvironmentId = environmentId ?? activity.environments?.[0];
+    if (!targetEnvironmentId) {
+      throw new Error('The activity is not linked to an environment, its log is not available');
+    }
+
+    const start = activity.startedAt ?? activity.createdAt;
+    if (!start) {
+      throw new Error('The activity has not started, its log is not available');
+    }
+    const end = activity.completedAt ?? activity.cancelledAt ?? new Date();
+
+    const lines: string[] = [];
+    let cursor: string | undefined;
+    do {
+      const page = await this.client.observability.logsQuery(projectId, targetEnvironmentId, {
+        from: Math.floor(start.getTime() / 1000),
+        to: Math.ceil(end.getTime() / 1000),
+        order: 'ASC',
+        logKinds: [LogsQueryLogKindsEnum.DEPLOYMENT, LogsQueryLogKindsEnum.PLATFORM],
+        logKindsMode: '1',
+        cursor,
+      });
+      lines.push(...page.data.map(entry => entry.content));
+      cursor = page.hasMoreResults && page.cursor ? page.cursor : undefined;
+    } while (cursor);
+
+    return lines.join('\n');
   }
 }

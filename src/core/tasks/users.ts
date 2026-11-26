@@ -72,6 +72,8 @@ export class UsersTask extends TaskBase {
    * or `upsun.invitations.createProjectInvite()` to invite users to specific projects.
    * Inviting users to your organization or projects will send them an email invitation,
    * which will allow them to create their own accounts and join your organization with the appropriate permissions.
+   * @returns Never; always throws.
+   * @throws An error, as user creation is not supported through the API.
    */
   async create(): Promise<never> {
     throw new Error(
@@ -143,6 +145,7 @@ export class UsersTask extends TaskBase {
    * This method is useful for project administrators to manage and review user access to their projects.
    * @param projectId - The ID of the project to list user access for. This should be a valid project ID that exists
    * within the system.
+   * @param filters - (Optional) Filters to apply to the list of user access, such as pagination parameters.
    * @return A list of users who have access to the specified project, along with their access levels and permissions.
    * Each entry in the list provides details about a user's access to the project.
    * @throws An error if the project ID is invalid or if there is an issue with the API request to list user access for
@@ -162,12 +165,10 @@ export class UsersTask extends TaskBase {
    * @param userId - The ID of the user to update. This should be a valid user ID that exists within the system.
    * @param params - The parameters to update for the user, which may include their username, first name, last name,
    * picture, company, website, or country.
-   * @return Nothing if the update is successful. If the user with the specified ID is not found, or if there is an
-   * issue with the API request to update the user's information.
-   * @throws An error if the user ID is invalid, if the parameters are invalid, or if there is an issue with the API
-   * request to update the user's information.
+   * @throws An error if the user ID is invalid, if the parameters are invalid, if the user with the specified ID is not
+   * found, or if there is an issue with the API request to update the user's information.
    */
-  async update(userId: string, params?: UpdateUserRequest): Promise<void> {
+  async update(userId: string, params: UpdateUserRequest): Promise<void> {
     TaskBase.checkUserId(userId);
 
     await this.usersApi.updateUser({
@@ -200,6 +201,9 @@ export class UsersTask extends TaskBase {
 
   /**
    * Retrieves a user's information by their email address.
+   * @param email - The email address of the user to retrieve information for.
+   * @returns The details of the user with the specified email address.
+   * @throws An error if the email address is invalid or if there is an issue with the API request.
    */
   async getByEmailAddress(email: string): Promise<UserModel> {
     TaskBase.checkEmail(email);
@@ -232,10 +236,8 @@ export class UsersTask extends TaskBase {
    * within the system.
    * @param email - (Optional) The new email address to associate with the user's account. If not provided, the user's
    * email will be reset to an empty string, effectively removing the email address from their account.
-   * @return Nothing if the email reset is successful. If the user with the specified ID is not found, or if there is an
-   * issue with the API request to reset the user's email address.
-   * @throws An error if the user ID is invalid, if the email address is invalid, or if there is an issue with the API
-   * request to reset the user's email address.
+   * @throws An error if the user ID is invalid, if the email address is invalid, if the user with the specified ID is
+   * not found, or if there is an issue with the API request to reset the user's email address.
    */
   async resetEmailAddress(userId: string, email?: string): Promise<void> {
     TaskBase.checkUserId(userId);
@@ -256,10 +258,8 @@ export class UsersTask extends TaskBase {
    * a new password.
    * @param userId - The ID of the user to reset the password for. This should be a valid user ID that exists within the
    * system.
-   * @return Nothing if the password reset process is successfully initiated. If the user with the specified ID is not
-   * found, or if there is an issue with the API request to initiate the password reset process.
-   * @throws An error if the user ID is invalid or if there is an issue with the API request to initiate the password
-   * reset process.
+   * @throws An error if the user ID is invalid, if the user with the specified ID is not found, or if there is an issue
+   * with the API request to initiate the password reset process.
    */
   async resetPassword(userId: string): Promise<void> {
     TaskBase.checkUserId(userId);
@@ -539,10 +539,10 @@ export class UsersTask extends TaskBase {
    * within the system.
    * @param address - The updated address information to set for the user's profile, which may include fields such as
    * street address, city, state, postal code, and country.
-   * @return Nothing if the address update is successful. If the user with the specified ID is not found, or if there is
-   * an error with the API request, an error will be thrown.
+   * @throws An error if the user ID is invalid, if the user with the specified ID is not found, or if there is an error
+   * with the API request.
    */
-  async updateAddress(userId: string, address?: Address): Promise<void> {
+  async updateAddress(userId: string, address: Address): Promise<void> {
     TaskBase.checkUserId(userId);
 
     await this.userProfilesApi.updateAddress({
@@ -557,10 +557,11 @@ export class UsersTask extends TaskBase {
    * within the system.
    * @param profile - The updated profile information to set for the user, which may include details such as their
    * username, full name, email address, profile picture URL, company, website, country, and other relevant information.
+   * @returns The updated profile of the user.
    * @throws An error if the user ID is invalid, if the profile information is invalid, or if there is an issue with the
    * API request.
    */
-  async updateProfile(userId: string, profile?: UpdateProfileRequest): Promise<Profile> {
+  async updateProfile(userId: string, profile: UpdateProfileRequest): Promise<Profile> {
     TaskBase.checkUserId(userId);
 
     return await this.userProfilesApi.updateProfile({

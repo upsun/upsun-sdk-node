@@ -364,42 +364,11 @@ describe('DomainsTask', () => {
       });
     });
 
-    it('should update an environment domain with default patch when params are omitted', async () => {
-      const mockActivity = { id: 'activity-update-457', type: 'domain.update' };
-      mockDomainApi.updateProjectsEnvironmentsDomains.mockResolvedValue(mockActivity as any);
-
-      await domainsTask.update('project-123', 'domain-456', undefined as any, 'env-789');
-      expect(mockDomainApi.updateProjectsEnvironmentsDomains).toHaveBeenCalledWith({
-        projectId: 'project-123',
-        environmentId: 'env-789',
-        domainId: 'domain-456',
-        domainPatch: {},
-      });
-    });
-
-    it('should update domain with default parameters', async () => {
-      const mockActivity = {
-        id: 'activity-update-789',
-        type: 'domain.update',
-      };
-
-      mockDomainApi.updateProjectsDomains.mockResolvedValue(mockActivity as any);
-
-      const result = await domainsTask.update('project-123', 'domain-456', undefined as any);
-
-      expect(result).toBeDefined();
-      expect(mockDomainApi.updateProjectsDomains).toHaveBeenCalledWith({
-        projectId: 'project-123',
-        domainId: 'domain-456',
-        domainPatch: {},
-      });
-    });
-
     it('should handle domain update errors', async () => {
       mockDomainApi.updateProjectsDomains.mockRejectedValue(new Error('Update failed'));
 
       await expect(
-        domainsTask.update('project-123', 'domain-456', undefined as any),
+        domainsTask.update('project-123', 'domain-456', { isDefault: true }),
       ).rejects.toThrow('Update failed');
     });
   });

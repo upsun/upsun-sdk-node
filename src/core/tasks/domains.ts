@@ -140,7 +140,7 @@ export class DomainsTask extends TaskBase {
    * update was successful or not.
    * @param projectId - The ID of the project.
    * @param domainId - The ID of the domain to update.
-   * @param params - The parameters to update for the domain.
+   * @param domainPatch - The fields to update for the domain.
    * @param environmentId - (Optional) The ID of the environment to update the domain for. If not provided, the domain
    * will be updated at the project level.
    * @returns An AcceptedResponse indicating that the domain update request has been accepted.
@@ -159,7 +159,7 @@ export class DomainsTask extends TaskBase {
       return await this.domApi.updateProjectsDomains({
         projectId,
         domainId,
-        domainPatch: domainPatch || {},
+        domainPatch,
       });
     } else {
       TaskBase.checkEnvironmentId(environmentId);
@@ -167,7 +167,7 @@ export class DomainsTask extends TaskBase {
         projectId,
         environmentId,
         domainId,
-        domainPatch: domainPatch || {},
+        domainPatch,
       });
     }
   }

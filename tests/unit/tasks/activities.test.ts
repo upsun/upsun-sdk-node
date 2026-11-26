@@ -170,9 +170,78 @@ describe('ActivitiesTask', () => {
   });
 
   describe('log', () => {
-    it('should throw not implemented error', async () => {
+    const startedAt = new Date('2023-01-01T00:00:00Z');
+    const completedAt = new Date('2023-01-01T00:01:00Z');
+    let logsQuery: jest.Mock<Promise<any>, any[]>;
+
+    beforeEach(() => {
+      logsQuery = jest.fn();
+      (mockClient as any).observability = { logsQuery };
+    });
+
+    it('should read the deployment and platform logs of the activity time range', async () => {
+      mockEnvironmentActivityApi.getProjectsEnvironmentsActivities.mockResolvedValue({
+        startedAt,
+        completedAt,
+      } as any);
+      logsQuery.mockResolvedValue({ data: [{ content: 'line 1' }, { content: 'line 2' }] });
+
+      await expect(activitiesTask.log('project-123', 'activity-123', 'main')).resolves.toBe(
+        'line 1\nline 2',
+      );
+      expect(logsQuery).toHaveBeenCalledWith('project-123', 'main', {
+        from: startedAt.getTime() / 1000,
+        to: completedAt.getTime() / 1000,
+        order: 'ASC',
+        logKinds: ['deployment', 'platform'],
+        logKindsMode: '1',
+        cursor: undefined,
+      });
+    });
+
+    it('should use the first environment of the activity and follow the cursor', async () => {
+      mockProjectActivityApi.getProjectsActivities.mockResolvedValue({
+        environments: ['staging'],
+        startedAt,
+        completedAt,
+      } as any);
+      logsQuery
+        .mockResolvedValueOnce({ data: [{ content: 'a' }], hasMoreResults: true, cursor: 'c1' })
+        .mockResolvedValueOnce({ data: [{ content: 'b' }], hasMoreResults: false });
+
+      await expect(activitiesTask.log('project-123', 'activity-123')).resolves.toBe('a\nb');
+      expect(logsQuery).toHaveBeenCalledTimes(2);
+      expect(logsQuery.mock.calls[0][1]).toBe('staging');
+      expect(logsQuery.mock.calls[1][2].cursor).toBe('c1');
+    });
+
+    it('should validate the IDs', async () => {
+      await expect(activitiesTask.log('', 'activity-123')).rejects.toThrow(
+        'Project ID is required',
+      );
+      await expect(activitiesTask.log('project-123', '')).rejects.toThrow(
+        'Activity ID is required',
+      );
+    });
+
+    it('should throw when the activity is not linked to an environment', async () => {
+      mockProjectActivityApi.getProjectsActivities.mockResolvedValue({ startedAt } as any);
+
       await expect(activitiesTask.log('project-123', 'activity-123')).rejects.toThrow(
-        'Not implemented',
+        'not linked to an environment',
+      );
+      expect(logsQuery).not.toHaveBeenCalled();
+    });
+
+    it('should throw when the activity has not started', async () => {
+      mockProjectActivityApi.getProjectsActivities.mockResolvedValue({
+        environments: ['main'],
+        startedAt: null,
+        createdAt: null,
+      } as any);
+
+      await expect(activitiesTask.log('project-123', 'activity-123')).rejects.toThrow(
+        'has not started',
       );
     });
   });
