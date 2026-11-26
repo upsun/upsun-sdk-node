@@ -338,6 +338,30 @@ export class EnvironmentsTask extends TaskBase {
   }
 
   /**
+   * Schedule a maintenance redeploy of an environment.
+   * @param projectId the ID of the project.
+   * @param environmentId the ID of the environment to redeploy.
+   * @param safe - (Optional) Redeploy even if the last state update was not successful, and always upgrade the
+   * service images. Defaults to false.
+   * @return An AcceptedResponse indicating that the maintenance redeploy request has been accepted.
+   * @throws An error if the project ID or environment ID is invalid, or if there is an issue with the API request.
+   */
+  async maintenanceRedeploy(
+    projectId: string,
+    environmentId: string,
+    safe: boolean = false,
+  ): Promise<AcceptedResponse> {
+    TaskBase.checkProjectId(projectId);
+    TaskBase.checkEnvironmentId(environmentId);
+
+    return await this.envApi.maintenanceRedeployEnvironment({
+      projectId,
+      environmentId,
+      environmentMaintenanceRedeployInput: { safe },
+    });
+  }
+
+  /**
    * Get the relationships of an environment, which include the linked applications or services.
    * @param projectId - The ID of the project.
    * @param environmentId - The ID of the environment to get relationships for.
