@@ -1,6 +1,6 @@
 import { SupportTicketsTask } from '../../../src/core/tasks/support-tickets.js';
 import { UpsunClient } from '../../../src/upsun.js';
-import { DefaultApi, SupportApi } from '../../../src/api/index.js';
+import { SupportApi } from '../../../src/api/index.js';
 
 jest.mock('../../../src/upsun.js');
 jest.mock('../../../src/api/index.js');
@@ -8,22 +8,17 @@ jest.mock('../../../src/api/index.js');
 describe('SupportTicketsTask', () => {
   let supportTicketsTask: SupportTicketsTask;
   let mockClient: jest.Mocked<UpsunClient>;
-  let mockDefaultApi: jest.Mocked<DefaultApi>;
   let mockSupportApi: jest.Mocked<SupportApi>;
 
   beforeEach(() => {
-    mockDefaultApi = {
-      listTickets: jest.fn(),
-    } as any;
-
     mockSupportApi = {
+      listTickets: jest.fn(),
       createTicket: jest.fn(),
       listTicketCategories: jest.fn(),
       listTicketPriorities: jest.fn(),
       updateTicket: jest.fn(),
     } as any;
 
-    (DefaultApi as jest.MockedClass<typeof DefaultApi>).mockImplementation(() => mockDefaultApi);
     (SupportApi as jest.MockedClass<typeof SupportApi>).mockImplementation(() => mockSupportApi);
 
     mockClient = {
@@ -33,7 +28,7 @@ describe('SupportTicketsTask', () => {
       },
     } as any;
 
-    supportTicketsTask = new SupportTicketsTask(mockClient, mockDefaultApi, mockSupportApi);
+    supportTicketsTask = new SupportTicketsTask(mockClient, mockSupportApi);
   });
 
   afterEach(() => {
@@ -48,24 +43,24 @@ describe('SupportTicketsTask', () => {
 
     it('should list support tickets without filters', async () => {
       const mockResponse = { tickets: [{ id: 'tkt-1', subject: 'Help' }], count: 1 };
-      mockDefaultApi.listTickets.mockResolvedValue(mockResponse as any);
+      mockSupportApi.listTickets.mockResolvedValue(mockResponse as any);
 
       const result = await supportTicketsTask.list();
       expect(result).toBeDefined();
-      expect(mockDefaultApi.listTickets).toHaveBeenCalledWith(undefined);
+      expect(mockSupportApi.listTickets).toHaveBeenCalledWith(undefined);
     });
 
     it('should pass filters to the API', async () => {
       const mockResponse = { tickets: [], count: 0 };
-      mockDefaultApi.listTickets.mockResolvedValue(mockResponse as any);
+      mockSupportApi.listTickets.mockResolvedValue(mockResponse as any);
 
       const filters = { status: 'open' } as any;
       await supportTicketsTask.list(filters);
-      expect(mockDefaultApi.listTickets).toHaveBeenCalledWith(filters);
+      expect(mockSupportApi.listTickets).toHaveBeenCalledWith(filters);
     });
 
     it('should handle API error', async () => {
-      mockDefaultApi.listTickets.mockRejectedValue(new Error('Unauthorized'));
+      mockSupportApi.listTickets.mockRejectedValue(new Error('Unauthorized'));
       await expect(supportTicketsTask.list()).rejects.toThrow('Unauthorized');
     });
   });

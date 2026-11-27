@@ -1,4 +1,4 @@
-import { DefaultApi, ListTicketsRequest, SupportApi } from '../../api/index.js';
+import { ListTicketsRequest, SupportApi } from '../../api/index.js';
 import {
   CreateTicketRequest,
   ListTicketCategories200ResponseInner,
@@ -13,7 +13,6 @@ import { TaskBase } from './task_base.js';
 export class SupportTicketsTask extends TaskBase {
   constructor(
     protected readonly client: UpsunClient,
-    private defaultApi: DefaultApi,
     private supportApi: SupportApi,
   ) {
     super(client);
@@ -25,7 +24,7 @@ export class SupportTicketsTask extends TaskBase {
    * @returns A paginated list of support tickets.
    */
   async list(filters?: ListTicketsRequest): Promise<ListTickets200Response> {
-    return await this.defaultApi.listTickets(filters);
+    return await this.supportApi.listTickets(filters);
   }
 
   /**
