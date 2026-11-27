@@ -37,7 +37,6 @@ import {
   AutoscalingApi,
   CertManagementApi,
   ConnectionsApi,
-  DefaultApi,
   DeploymentApi,
   DeploymentTargetApi,
   DomainManagementApi,
@@ -194,7 +193,6 @@ export class UpsunClient {
     const certManagementApi = new CertManagementApi(this.apiConfig);
     const connectionsApi = new ConnectionsApi(this.apiConfig);
     const deploymentApi = new DeploymentApi(this.apiConfig);
-    const defaultApi = new DefaultApi(this.apiConfig);
     const domainManagementApi = new DomainManagementApi(this.apiConfig);
     const environmentApi = new EnvironmentApi(this.apiConfig);
     const environmentBackupsApi = new EnvironmentBackupsApi(this.apiConfig);
@@ -285,7 +283,7 @@ export class UpsunClient {
     this.services = new ServicesTask(this);
     this.sourceOperations = new SourceOperationsTask(this, sourceOperationsApi);
     this.ssh = new SshTask(this, sshApi);
-    this.supportTickets = new SupportTicketsTask(this, defaultApi, supportApi);
+    this.supportTickets = new SupportTicketsTask(this, supportApi);
     this.teams = new TeamsTask(this, teamsApi, teamAccessApi);
     this.users = new UsersTask(
       this,
