@@ -22,6 +22,7 @@ export class SupportTicketsTask extends TaskBase {
    * List support tickets.
    * @param filters - Optional filters and pagination options.
    * @returns A paginated list of support tickets.
+   * @deprecated The API removes the support ticket endpoints on 2027-03-01.
    */
   async list(filters?: ListTicketsRequest): Promise<ListTickets200Response> {
     return await this.supportApi.listTickets(filters);
@@ -33,6 +34,7 @@ export class SupportTicketsTask extends TaskBase {
    * @param description - Ticket description.
    * @param params - Optional ticket fields.
    * @returns The created ticket.
+   * @deprecated The API removes the support ticket endpoints on 2027-03-01.
    */
   async create(
     subject: string,
@@ -61,6 +63,7 @@ export class SupportTicketsTask extends TaskBase {
    * @param organizationId - Optional organization ID.
    * @param projectId - Optional project ID used to infer subscription ID.
    * @returns Available ticket categories.
+   * @deprecated The API removes the support ticket endpoints on 2027-03-01.
    */
   async listCategories(
     organizationId?: string,
@@ -89,6 +92,7 @@ export class SupportTicketsTask extends TaskBase {
    * @param projectId - Optional project ID used to infer subscription ID.
    * @param category - Optional category.
    * @returns Available ticket priorities.
+   * @deprecated The API removes the support ticket endpoints on 2027-03-01.
    */
   async listPriorities(
     projectId?: string,
@@ -117,6 +121,7 @@ export class SupportTicketsTask extends TaskBase {
    * @param ticketId - The ID of the ticket to update.
    * @param params - Fields to update.
    * @returns The updated ticket.
+   * @deprecated The API removes the support ticket endpoints on 2027-03-01.
    */
   async update(ticketId: string, params: UpdateTicketRequest): Promise<Ticket | null | undefined> {
     TaskBase.checkTicketId(ticketId);
